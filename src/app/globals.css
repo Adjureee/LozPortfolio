@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: 18 22 24;
+  --paper: 244 241 234;
+  --muted: 95 101 104;
+  --line: 200 195 184;
+  --accent: 16 125 136;
+  --accent-2: 178 59 83;
+  color-scheme: light;
+}
+
+.dark {
+  --ink: 239 238 231;
+  --paper: 15 18 20;
+  --muted: 155 160 157;
+  --line: 57 62 64;
+  --accent: 92 201 190;
+  --accent-2: 231 111 121;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 400ms;
+}
+
+button {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+button:active {
+  transform: scale(0.94);
+}
+
+html {
+  background: rgb(var(--paper));
+  color: rgb(var(--ink));
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    linear-gradient(135deg, rgb(var(--accent) / 0.08), transparent 34%),
+    radial-gradient(circle at 85% 8%, rgb(var(--accent-2) / 0.14), transparent 24%),
+    rgb(var(--paper));
+  color: rgb(var(--ink));
+  font-feature-settings: "ss01", "cv01";
+}
+
+::selection {
+  background: rgb(var(--accent));
+  color: rgb(var(--paper));
+}
+
+.theme-reveal {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  clip-path: circle(0 at var(--x) var(--y));
+  background: rgb(var(--paper));
+}
+
+.line-mask {
+  background: linear-gradient(90deg, rgb(var(--ink)) 0 0) no-repeat;
+  background-size: 0% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: rgb(var(--muted));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

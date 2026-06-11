@@ -2,10 +2,85 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Download, Facebook, Github, Linkedin, ArrowUpRight, ArrowUp, MapPin, Mail } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import type { ContactSettings } from "@/lib/types";
 import { useLenis } from "lenis/react";
 import { ContactForm } from "@/components/public/contact-form";
+
+// ── Animated heading ──────────────────────────────────────────
+const lines = [
+  ["Let\u2019s", "build"],
+  ["something"],
+];
+
+function AnimatedHeading() {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
+
+  const wordVariants = {
+    hidden: { y: "110%", opacity: 0 },
+    visible: (i: number) => ({
+      y: "0%",
+      opacity: 1,
+      transition: {
+        delay: i * 0.12,
+        duration: 0.7,
+        ease: [0.16, 1, 0.3, 1],
+      },
+    }),
+  };
+
+  let wordIndex = 0;
+
+  return (
+    <h2
+      ref={ref}
+      className="font-display text-5xl md:text-[6.5rem] leading-[1.0] tracking-tighter"
+    >
+      {lines.map((words, li) => (
+        <span key={li} className="block overflow-hidden">
+          <span className="inline-flex flex-wrap gap-x-[0.25em]">
+            {words.map((word) => {
+              const idx = wordIndex++;
+              return (
+                <motion.span
+                  key={word}
+                  custom={idx}
+                  variants={wordVariants}
+                  initial="hidden"
+                  animate={isInView ? "visible" : "hidden"}
+                  className="inline-block"
+                >
+                  {word}
+                </motion.span>
+              );
+            })}
+          </span>
+        </span>
+      ))}
+      {/* Last word: italic accent with underline draw */}
+      <span className="block overflow-hidden">
+        <motion.span
+          custom={wordIndex}
+          variants={wordVariants}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          className="inline-block text-accent italic font-light relative pr-4"
+        >
+          together.
+          {/* Underline sweep */}
+          <motion.span
+            className="absolute bottom-2 left-0 h-px bg-accent"
+            initial={{ scaleX: 0, originX: 0 }}
+            animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
+            transition={{ delay: (wordIndex + 1) * 0.12 + 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            style={{ width: "100%" }}
+          />
+        </motion.span>
+      </span>
+    </h2>
+  );
+}
 
 const socialLinks = [
   { key: "linkedin_url", label: "LinkedIn", icon: Linkedin, color: "hover:border-[#0A66C2]" },
@@ -99,14 +174,16 @@ export function ContactSection({ contacts }: { contacts: ContactSettings | null 
 
         {/* Section header */}
         <div className="mb-16">
-          <p className="text-sm font-bold uppercase tracking-[0.3em] text-accent mb-6 flex items-center gap-3">
+          <motion.p
+            initial={{ opacity: 0, x: -16 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="text-sm font-bold uppercase tracking-[0.3em] text-accent mb-6 flex items-center gap-3"
+          >
             <span className="w-12 h-px bg-accent" /> Get in Touch
-          </p>
-          <h2 className="font-display text-5xl md:text-[6.5rem] leading-[0.9] tracking-tighter">
-            Let&apos;s build <br />
-            something{" "}
-            <span className="text-accent italic font-light pr-4">together.</span>
-          </h2>
+          </motion.p>
+          <AnimatedHeading />
         </div>
 
         {/* Two-column layout: Info (left) + Form (right) */}

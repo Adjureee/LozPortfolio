@@ -7,8 +7,45 @@ import { QrCode } from "lucide-react";
 
 export function BsodOverlay() {
   // 30 seconds idle trigger (30000 ms)
-  const isIdle = useIdle(30000);
+  const isIdleHook = useIdle(30000);
+  const [forceIdle, setForceIdle] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  const isIdle = isIdleHook || forceIdle;
+
+  // Secret keyboard trigger: typing "crash"
+  useEffect(() => {
+    let keys = "";
+    const handleKeyDown = (e: KeyboardEvent) => {
+      keys += e.key.toLowerCase();
+      if (keys.includes("crash")) {
+        setForceIdle(true);
+        keys = "";
+      }
+      // Keep only last 5 chars to prevent memory leak
+      if (keys.length > 5) keys = keys.slice(-5);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Allow dismissing the forced BSOD with mouse movement or keypress
+  useEffect(() => {
+    if (!forceIdle) return;
+    const handleReset = () => setForceIdle(false);
+    // Small delay so the final keypress of "crash" doesn't immediately dismiss it
+    const timer = setTimeout(() => {
+      window.addEventListener("mousemove", handleReset, { once: true });
+      window.addEventListener("keydown", handleReset, { once: true });
+      window.addEventListener("click", handleReset, { once: true });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("mousemove", handleReset);
+      window.removeEventListener("keydown", handleReset);
+      window.removeEventListener("click", handleReset);
+    };
+  }, [forceIdle]);
 
   // Fake progress counter effect when idle
   useEffect(() => {

@@ -58,8 +58,8 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
         <div className="w-full h-[1px] bg-white/[0.04] absolute top-1/2 -translate-y-1/2" />
         <div className="h-full w-[1px] bg-white/[0.04] absolute left-1/2 -translate-x-1/2" />
         
-        {/* Center Target */}
-        <div className="w-[12vw] h-[12vw] max-w-[150px] max-h-[150px] border border-white/[0.03] rounded-full flex items-center justify-center">
+        {/* Center Target - Scales dynamically */}
+        <div className="w-[20vw] h-[20vw] md:w-[12vw] md:h-[12vw] max-w-[150px] max-h-[150px] border border-white/[0.03] rounded-full flex items-center justify-center">
           <div className="w-[1px] h-[10px] bg-accent/50 absolute top-0" />
           <div className="w-[1px] h-[10px] bg-accent/50 absolute bottom-0" />
           <div className="w-[10px] h-[1px] bg-accent/50 absolute left-0" />
@@ -73,8 +73,8 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
         <span>SYS.BUILD.2026</span>
       </div>
 
-      {/* Top Right Coordinates */}
-      <div className="absolute top-6 right-6 md:top-10 md:right-10 flex flex-col items-end gap-1 text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-muted z-10">
+      {/* Top Right Coordinates (Hidden on mobile to prevent overlap) */}
+      <div className="hidden md:flex absolute top-10 right-10 flex-col items-end gap-1 text-[10px] uppercase tracking-[0.3em] text-muted z-10">
         <span className="text-accent drop-shadow-[0_0_5px_rgba(0,255,0,0.5)]">
           P_ID: {Math.floor(progress * 8.432).toString().padStart(4, "0")}
         </span>
@@ -91,7 +91,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
 
       {/* Massive Typography Counter */}
       <div className="relative z-20 flex items-end mix-blend-difference pointer-events-none">
-        <div className="text-[25vw] leading-[0.8] font-bold tracking-tighter text-paper">
+        <div className="text-[35vw] md:text-[25vw] leading-[0.8] font-bold tracking-tighter text-paper">
           <AnimatePresence mode="popLayout">
             {formattedProgress.split('').map((digit, i) => (
               <motion.span
@@ -107,12 +107,12 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
             ))}
           </AnimatePresence>
         </div>
-        <div className="text-[5vw] text-accent mb-[2vw] ml-2 font-light tracking-widest">%</div>
+        <div className="text-[6vw] md:text-[4vw] text-accent mb-[3vw] md:mb-[2vw] ml-2 font-light tracking-widest">%</div>
       </div>
 
       {/* Bottom HUD Logs */}
-      <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-[8px] md:text-[10px] text-muted uppercase tracking-widest flex flex-col gap-2 z-10 w-full max-w-[300px]">
-        <div className="w-full h-[1px] bg-white/[0.1]" />
+      <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-[8px] md:text-[10px] text-muted uppercase tracking-widest flex flex-col gap-2 z-10 w-[80%] md:w-full max-w-[300px]">
+        <div className="w-16 md:w-full h-[1px] bg-white/[0.1]" />
         <AnimatePresence mode="wait">
           <motion.div
             key={logIdx}
@@ -127,14 +127,14 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
             <motion.span
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.6, repeat: Infinity }}
-              className="w-2 h-3 bg-accent inline-block mt-[1px]"
+              className="w-2 h-3 bg-accent inline-block mt-[1px] shrink-0"
             />
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Bottom Right Data stream indicator */}
-      <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 flex flex-col items-end gap-2 text-[8px] md:text-[10px] text-muted uppercase tracking-widest z-10">
+      {/* Bottom Right Data stream indicator (Hidden on mobile) */}
+      <div className="hidden md:flex absolute bottom-10 right-10 flex-col items-end gap-2 text-[10px] text-muted uppercase tracking-widest z-10">
         <div className="w-16 h-[1px] bg-white/[0.1]" />
         <div className="flex items-center gap-3 text-paper">
           <span>{progress === 100 ? "UNLOCKED" : "DECRYPTING"}</span>
@@ -148,5 +148,6 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
     </motion.div>
   );
 }
+
 
 

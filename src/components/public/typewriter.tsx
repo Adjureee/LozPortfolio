@@ -3,12 +3,14 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
-export function Typewriter({ text, delay = 0, animateOnScroll = false }: { text: string; delay?: number; animateOnScroll?: boolean }) {
+export function Typewriter({ text, delay = 0, animateOnScroll = false, start = true }: { text: string; delay?: number; animateOnScroll?: boolean; start?: boolean }) {
   const [displayText, setDisplayText] = useState("");
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { margin: "-10% 0px -10% 0px" });
 
   useEffect(() => {
+    if (!start) return;
+    
     // If animateOnScroll is true and it's not in view, clear the text and wait
     if (animateOnScroll && !isInView) {
       setDisplayText("");
@@ -25,7 +27,7 @@ export function Typewriter({ text, delay = 0, animateOnScroll = false }: { text:
       return () => clearInterval(interval);
     }, delay);
     return () => clearTimeout(timer);
-  }, [text, delay, animateOnScroll, isInView]);
+  }, [text, delay, animateOnScroll, isInView, start]);
 
   return (
     <span ref={ref}>

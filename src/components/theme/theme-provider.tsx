@@ -13,10 +13,10 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "dark";
   const stored = window.localStorage.getItem("portfolio-theme");
   if (stored === "light" || stored === "dark") return stored;
-  return "light"; // Default to light mode explicitly
+  return "dark"; // Default to dark mode explicitly
 }
 
 function applyTheme(theme: Theme) {
@@ -24,7 +24,7 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     const initial = getInitialTheme();

@@ -83,7 +83,7 @@ function TechFireworks({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-export function HeroSection({ config }: { config: SiteConfig | null }) {
+export function HeroSection({ config, isReady = true }: { config: SiteConfig | null, isReady?: boolean }) {
   const rootRef = useRef<HTMLElement>(null);
   const [showFireworks, setShowFireworks] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
@@ -109,6 +109,8 @@ export function HeroSection({ config }: { config: SiteConfig | null }) {
   };
 
   useEffect(() => {
+    if (!isReady) return;
+    
     const root = rootRef.current;
     if (!root) return;
 
@@ -138,7 +140,7 @@ export function HeroSection({ config }: { config: SiteConfig | null }) {
     }, root);
 
     return () => context.revert();
-  }, []);
+  }, [isReady]);
 
   return (
     <section ref={rootRef} id="home" className="relative min-h-screen pt-24">
@@ -160,7 +162,7 @@ export function HeroSection({ config }: { config: SiteConfig | null }) {
               )}
               
               <h1 className="font-display text-5xl md:text-7xl lg:text-[5.5rem] font-medium tracking-tight leading-[1.05] mb-8 min-h-[3.5em] md:min-h-[2.5em]">
-                {config?.title ? <Typewriter text={config.title} delay={1000} /> : "Creative Designer"}
+                {config?.title ? <Typewriter text={config.title} delay={500} start={isReady} /> : "Creative Designer"}
               </h1>
               
               {config?.about_me && (

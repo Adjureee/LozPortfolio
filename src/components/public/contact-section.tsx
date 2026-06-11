@@ -8,75 +8,77 @@ import { useLenis } from "lenis/react";
 import { ContactForm } from "@/components/public/contact-form";
 
 // ── Animated heading ──────────────────────────────────────────
-const lines = [
-  ["Let\u2019s", "build"],
-  ["something"],
-];
-
-function AnimatedHeading() {
+function TypewriterHeading() {
   const ref = useRef<HTMLHeadingElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
 
-  const wordVariants = {
-    hidden: { y: "110%", opacity: 0 },
-    visible: (i: number) => ({
-      y: "0%",
-      opacity: 1,
-      transition: {
-        delay: i * 0.12,
-        duration: 0.7,
-        ease: [0.16, 1, 0.3, 1],
-      },
-    }),
-  };
+  const line1 = "Let's build ";
+  const line2 = "something ";
+  const line3 = "together.";
 
-  let wordIndex = 0;
+  const getDelay = (idx: number) => idx * 0.08; // Typing speed
+
+  let globalIdx = 0;
 
   return (
     <h2
       ref={ref}
-      className="font-display text-5xl md:text-[6.5rem] leading-[1.0] tracking-tighter"
+      className="font-display text-5xl md:text-[6.5rem] leading-[0.9] tracking-tighter"
     >
-      {lines.map((words, li) => (
-        <span key={li} className="block overflow-hidden">
-          <span className="inline-flex flex-wrap gap-x-[0.25em]">
-            {words.map((word) => {
-              const idx = wordIndex++;
-              return (
-                <motion.span
-                  key={word}
-                  custom={idx}
-                  variants={wordVariants}
-                  initial="hidden"
-                  animate={isInView ? "visible" : "hidden"}
-                  className="inline-block"
-                >
-                  {word}
-                </motion.span>
-              );
-            })}
-          </span>
-        </span>
-      ))}
-      {/* Last word: italic accent with underline draw */}
-      <span className="block overflow-hidden">
-        <motion.span
-          custom={wordIndex}
-          variants={wordVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="inline-block text-accent italic font-light relative pr-4"
-        >
-          together.
-          {/* Underline sweep */}
+      <span className="block">
+        {line1.split("").map((char, index) => {
+          const idx = globalIdx++;
+          return (
+            <motion.span
+              key={`l1-${index}`}
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ duration: 0, delay: getDelay(idx) }}
+              className="whitespace-pre"
+            >
+              {char}
+            </motion.span>
+          );
+        })}
+      </span>
+      <span className="block">
+        {line2.split("").map((char, index) => {
+          const idx = globalIdx++;
+          return (
+            <motion.span
+              key={`l2-${index}`}
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ duration: 0, delay: getDelay(idx) }}
+              className="whitespace-pre"
+            >
+              {char}
+            </motion.span>
+          );
+        })}
+        <span className="text-accent italic font-light relative pr-4">
+          {line3.split("").map((char, index) => {
+            const idx = globalIdx++;
+            return (
+              <motion.span
+                key={`l3-${index}`}
+                initial={{ opacity: 0 }}
+                animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ duration: 0, delay: getDelay(idx) }}
+                className="whitespace-pre"
+              >
+                {char}
+              </motion.span>
+            );
+          })}
+          {/* Blinking cursor */}
           <motion.span
-            className="absolute bottom-2 left-0 h-px bg-accent"
-            initial={{ scaleX: 0, originX: 0 }}
-            animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-            transition={{ delay: (wordIndex + 1) * 0.12 + 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            style={{ width: "100%" }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: [0, 1, 0] } : { opacity: 0 }}
+            transition={{ repeat: Infinity, duration: 0.8, delay: getDelay(globalIdx) }}
+            className="inline-block w-[0.08em] h-[0.8em] bg-accent ml-2 align-baseline translate-y-[-0.1em]"
           />
-        </motion.span>
+        </span>
       </span>
     </h2>
   );
@@ -183,7 +185,7 @@ export function ContactSection({ contacts }: { contacts: ContactSettings | null 
           >
             <span className="w-12 h-px bg-accent" /> Get in Touch
           </motion.p>
-          <AnimatedHeading />
+          <TypewriterHeading />
         </div>
 
         {/* Two-column layout: Info (left) + Form (right) */}

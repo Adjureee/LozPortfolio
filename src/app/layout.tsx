@@ -41,7 +41,7 @@ export default function RootLayout({
         <TerminalProvider>
           <Providers>
             <SoundProvider>
-              <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
+              <ThemeProvider>
                 {children}
                 <Toaster position="bottom-right" theme="dark" />
               </ThemeProvider>

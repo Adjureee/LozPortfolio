@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { format } from "date-fns";
 import type { Visitor } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -45,22 +44,34 @@ export default async function AnalyticsPage() {
                   </td>
                 </tr>
               ) : (
-                visitorList.map((v) => (
-                  <tr key={v.id} className="hover:bg-ink/5 transition-colors">
-                    <td className="px-6 py-4 font-mono text-accent">
-                      {v.ip_address}
-                    </td>
-                    <td className="px-6 py-4">
-                      {v.city && v.country ? `${v.city}, ${v.country}` : "Unknown Location"}
-                    </td>
-                    <td className="px-6 py-4 truncate max-w-xs" title={v.user_agent || ""}>
-                      {v.user_agent || "Unknown"}
-                    </td>
-                    <td className="px-6 py-4 text-muted">
-                      {format(new Date(v.visited_at), "MMM d, yyyy • h:mm a")}
-                    </td>
-                  </tr>
-                ))
+                visitorList.map((v) => {
+                  const date = new Date(v.visited_at);
+                  const formattedDate = date.toLocaleString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  });
+
+                  return (
+                    <tr key={v.id} className="hover:bg-ink/5 transition-colors">
+                      <td className="px-6 py-4 font-mono text-accent">
+                        {v.ip_address}
+                      </td>
+                      <td className="px-6 py-4">
+                        {v.city && v.country ? `${v.city}, ${v.country}` : "Unknown Location"}
+                      </td>
+                      <td className="px-6 py-4 truncate max-w-xs" title={v.user_agent || ""}>
+                        {v.user_agent || "Unknown"}
+                      </td>
+                      <td className="px-6 py-4 text-muted">
+                        {formattedDate}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

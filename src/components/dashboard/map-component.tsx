@@ -26,6 +26,7 @@ export default function MapComponent({ visitors }: { visitors: Visitor[] }) {
           center={[20, 0]} 
           zoom={2} 
           minZoom={2}
+          scrollWheelZoom={false}
           style={{ width: "100%", height: "100%", background: "#0f1214" }} // Matches dark paper
           worldCopyJump={true}
         >

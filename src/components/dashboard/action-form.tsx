@@ -1,6 +1,5 @@
 "use client";
 
-import { useTransition } from "react";
 import { toast } from "sonner";
 
 export function ActionForm({ 
@@ -14,21 +13,17 @@ export function ActionForm({
   successMessage?: string;
   className?: string;
 }) {
-  const [isPending, startTransition] = useTransition();
-
-  const handleSubmit = (formData: FormData) => {
-    startTransition(async () => {
-      try {
-        await action(formData);
-        toast.success(successMessage);
-      } catch (err: unknown) {
-        toast.error(err instanceof Error ? err.message : "Failed to save.");
-      }
-    });
+  const handleAction = async (formData: FormData) => {
+    try {
+      await action(formData);
+      toast.success(successMessage);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to save.");
+    }
   };
 
   return (
-    <form action={handleSubmit} className={className}>
+    <form action={handleAction} className={className}>
       {children}
     </form>
   );

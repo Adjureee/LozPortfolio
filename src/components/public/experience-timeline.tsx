@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Experience } from "@/lib/types";
+import { Typewriter } from "@/components/public/typewriter";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -36,7 +37,9 @@ export function ExperienceTimeline({ experiences }: { experiences: Experience[] 
     <section ref={rootRef} id="experience" className="px-5 py-28 md:px-12">
       <div className="mx-auto max-w-5xl">
         <p className="text-sm uppercase tracking-[0.24em] text-muted">Experience Timeline</p>
-        <h2 className="mt-3 font-display text-5xl md:text-8xl">Work in motion</h2>
+        <h2 className="mt-3 font-display text-5xl md:text-8xl">
+          <Typewriter text="Work in motion" animateOnScroll={true} />
+        </h2>
         <div className="mt-16 border-l border-line">
           {experiences.length === 0 ? (
             <p className="ml-8 border border-dashed border-line p-8 text-muted">No entries found</p>

@@ -24,9 +24,53 @@
 
 * {
   box-sizing: border-box;
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 400ms;
+}
+
+/* View Transitions API for perfectly fluid theme toggling */
+::view-transition-group(root) {
+  animation-duration: 1.2s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  animation: theme-wipe 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  z-index: 9999;
+  clip-path: circle(0px at var(--theme-x, 50%) var(--theme-y, 50%));
+}
+
+.dark::view-transition-old(root) {
+  animation: theme-wipe-out 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  z-index: 9999;
+  clip-path: circle(var(--theme-r, 1500px) at var(--theme-x, 50%) var(--theme-y, 50%));
+}
+
+.dark::view-transition-new(root) {
+  animation: none;
+  z-index: 1;
+  clip-path: none;
+}
+
+@keyframes theme-wipe {
+  from {
+    clip-path: circle(0px at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--theme-r, 1500px) at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+}
+
+@keyframes theme-wipe-out {
+  from {
+    clip-path: circle(var(--theme-r, 1500px) at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+  to {
+    clip-path: circle(0px at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
 }
 
 button {
@@ -58,15 +102,6 @@ body {
 ::selection {
   background: rgb(var(--accent));
   color: rgb(var(--paper));
-}
-
-.theme-reveal {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  clip-path: circle(0 at var(--x) var(--y));
-  background: rgb(var(--paper));
 }
 
 .line-mask {

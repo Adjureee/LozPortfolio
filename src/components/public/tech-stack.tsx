@@ -2,6 +2,7 @@
 
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
+import { Typewriter } from "@/components/public/typewriter";
 
 const technologies = [
   { name: "React", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
@@ -15,7 +16,9 @@ const technologies = [
   { name: "Python", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" },
   { name: "SQL", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg" },
   { name: "Figma", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg" },
-  { name: "Vercel", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vercel/vercel-original.svg" },
+  { name: "Java", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" },
+  { name: "Dart", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/dart/dart-original.svg" },
+  { name: "PHP", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" },
 ];
 
 export function TechStackSection() {
@@ -27,7 +30,7 @@ export function TechStackSection() {
     <section className="relative w-full overflow-hidden border-b border-line/50 bg-paper py-24 md:py-32 cursor-grab active:cursor-grabbing">
       <div className="mx-auto max-w-7xl px-8 md:px-12 lg:px-16 mb-16 pointer-events-none">
         <h2 className="font-display text-4xl md:text-5xl lg:text-6xl uppercase tracking-widest text-ink">
-          Tech Stack
+          <Typewriter text="Techstack" animateOnScroll={true} />
         </h2>
         <div className="mt-4 h-1 w-24 bg-accent"></div>
       </div>

@@ -1,18 +1,24 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import type { Achievement } from "@/lib/types";
 
-export function AchievementsSection({ achievements }: { achievements: Achievement[] }) {
+import { Typewriter } from "@/components/public/typewriter";
+
+export function AchievementsSection({ achievements }: { achievements: Achievement[] | null }) {
+
   if (!achievements || achievements.length === 0) return null;
 
   return (
-    <section id="achievements" className="relative border-t border-line py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-5 md:px-12">
-        <header className="mb-16 md:mb-24 flex flex-col items-center text-center">
-          <p className="mb-6 text-sm font-semibold uppercase tracking-[0.24em] text-muted">Press & Awards</p>
-          <h2 className="font-display text-5xl md:text-7xl">Featured In</h2>
+    <section id="achievements" className="relative min-h-screen border-t border-line px-5 py-28 md:px-12 bg-paper text-ink overflow-hidden">
+      <div className="mx-auto max-w-6xl relative z-10">
+        <header className="mb-16 md:mb-24 flex flex-col">
+          <p className="text-sm uppercase tracking-[0.24em] text-muted mb-3">Honors & Awards</p>
+          <h2 className="font-display text-5xl md:text-7xl text-ink">
+            <Typewriter text="Featured In" animateOnScroll={true} />
+          </h2>
         </header>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

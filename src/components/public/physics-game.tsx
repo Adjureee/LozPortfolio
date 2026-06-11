@@ -4,17 +4,28 @@ import { useEffect, useRef, useState } from "react";
 import Matter from "matter-js";
 import { X } from "lucide-react";
 
-const techStack = [
-  "React", "Next.js", "TypeScript", "Tailwind CSS", "Supabase", 
-  "Node.js", "GSAP", "Framer Motion", "JavaScript", "HTML5", "CSS3", "Vercel", "Git", "Figma"
+const techIcons = [
+  { name: "React", slug: "react", color: "61DAFB" },
+  { name: "Next.js", slug: "nextdotjs", color: "000000" },
+  { name: "TypeScript", slug: "typescript", color: "3178C6" },
+  { name: "Tailwind CSS", slug: "tailwindcss", color: "06B6D4" },
+  { name: "Supabase", slug: "supabase", color: "3ECF8E" },
+  { name: "Node.js", slug: "nodedotjs", color: "5FA04E" },
+  { name: "GSAP", slug: "greensock", color: "88CE02" },
+  { name: "Framer", slug: "framer", color: "0055FF" },
+  { name: "JavaScript", slug: "javascript", color: "F7DF1E" },
+  { name: "HTML5", slug: "html5", color: "E34F26" },
+  { name: "CSS3", slug: "css3", color: "1572B6" },
+  { name: "Vercel", slug: "vercel", color: "000000" },
+  { name: "Git", slug: "git", color: "F05032" },
+  { name: "Figma", slug: "figma", color: "F24E1E" },
 ];
-const colors = ["#E63946", "#F1FAEE", "#A8DADC", "#457B9D", "#1D3557", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"];
 
 export function PhysicsGame({ onClose }: { onClose: () => void }) {
   const sceneRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<Matter.Engine | null>(null);
   
-  const [blocks, setBlocks] = useState<{ id: number; label: string; color: string; textColor: string }[]>([]);
+  const [blocks, setBlocks] = useState<{ id: number; slug: string; color: string }[]>([]);
   const elementsRef = useRef<Record<number, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -41,31 +52,38 @@ export function PhysicsGame({ onClose }: { onClose: () => void }) {
 
     Composite.add(engine.world, [ground, ceiling, leftWall, rightWall]);
 
-    // Create blocks
-    const newBlocks: { id: number; label: string; color: string; textColor: string }[] = [];
+    // Create blocks (Circles for icons)
+    const newBlocks: { id: number; slug: string; color: string }[] = [];
     const newBodies: Matter.Body[] = [];
+    
+    const radius = window.innerWidth < 768 ? 40 : 50;
 
-    techStack.forEach((tech, i) => {
-      const color = colors[i % colors.length];
-      const textColor = (i % colors.length === 1 || i % colors.length === 2 || i % colors.length === 6) ? "#111" : "#fff";
-      
-      const body = Bodies.rectangle(
-        Math.random() * (width - 300) + 150,
-        Math.random() * 300 + 50, // Spawn blocks directly inside the screen so they are instantly visible!
-        220,
-        80,
+    techIcons.forEach((tech, i) => {
+      // Spawn from the bottom center for the firework effect
+      const body = Bodies.circle(
+        width / 2 + (Math.random() - 0.5) * 100,
+        height - 50,
+        radius,
         {
           restitution: 0.8, // Bouncy
           friction: 0.005,
+          density: 0.04,
         }
       );
 
+      // Apply massive upward firework velocity
+      Matter.Body.setVelocity(body, {
+        x: (Math.random() - 0.5) * 50, // Explosive horizontal spread
+        y: -(Math.random() * 25 + 30)  // Explosive vertical launch
+      });
+      Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.8); // Add spin
+
       newBodies.push(body);
-      newBlocks.push({ id: body.id, label: tech, color, textColor });
+      newBlocks.push({ id: body.id, slug: tech.slug, color: tech.color });
     });
 
     Composite.add(engine.world, newBodies);
-    setBlocks(newBlocks); // Trigger React render for the divs
+    setBlocks(newBlocks);
 
     // Mouse interaction mapped to background div
     const mouse = Mouse.create(sceneRef.current);
@@ -96,8 +114,8 @@ export function PhysicsGame({ onClose }: { onClose: () => void }) {
       newBodies.forEach(body => {
         const el = elementsRef.current[body.id];
         if (el) {
-          const x = body.position.x - 110;
-          const y = body.position.y - 40;
+          const x = body.position.x - radius;
+          const y = body.position.y - radius;
           const angle = body.angle * (180 / Math.PI); // Convert radians to degrees safely
           // Use translate3d for GPU acceleration
           el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${angle}deg)`;
@@ -130,13 +148,14 @@ export function PhysicsGame({ onClose }: { onClose: () => void }) {
         <div
           key={block.id}
           ref={(el) => { elementsRef.current[block.id] = el; }}
-          className="absolute left-0 top-0 flex h-[80px] w-[220px] items-center justify-center border-4 border-ink shadow-lg pointer-events-none will-change-transform"
-          style={{
-            backgroundColor: block.color,
-            color: block.textColor,
-          }}
+          className="absolute left-0 top-0 flex items-center justify-center pointer-events-none will-change-transform w-20 h-20 md:w-[100px] md:h-[100px]"
         >
-          <span className="font-display text-2xl font-bold tracking-wider">{block.label}</span>
+          <img 
+            src={`https://cdn.simpleicons.org/${block.slug}/${block.color}`} 
+            alt="Tech Icon" 
+            className="w-full h-full object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]" 
+            draggable={false}
+          />
         </div>
       ))}
 

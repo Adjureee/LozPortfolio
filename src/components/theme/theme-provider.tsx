@@ -34,30 +34,27 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const toggleTheme = (event?: React.MouseEvent<HTMLElement>) => {
     const nextTheme = theme === "dark" ? "light" : "dark";
-    const x = event?.clientX ?? window.innerWidth - 72;
-    const y = event?.clientY ?? 72;
+    
+    if (!document.startViewTransition) {
+      applyTheme(nextTheme);
+      setTheme(nextTheme);
+      window.localStorage.setItem("portfolio-theme", nextTheme);
+      return;
+    }
+
+    // Set custom properties for the origin of the click so CSS can animate from there
+    const x = event?.clientX ?? window.innerWidth / 2;
+    const y = event?.clientY ?? window.innerHeight / 2;
     const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-    const veil = document.createElement("div");
-    veil.className = "theme-reveal";
-    veil.style.setProperty("--x", `${x}px`);
-    veil.style.setProperty("--y", `${y}px`);
-    document.body.appendChild(veil);
 
-    applyTheme(nextTheme);
-    setTheme(nextTheme);
-    window.localStorage.setItem("portfolio-theme", nextTheme);
+    document.documentElement.style.setProperty("--theme-x", `${x}px`);
+    document.documentElement.style.setProperty("--theme-y", `${y}px`);
+    document.documentElement.style.setProperty("--theme-r", `${radius}px`);
 
-    animate(0, radius, {
-      type: "spring",
-      stiffness: 58,
-      damping: 18,
-      mass: 0.9,
-      onUpdate(value) {
-        veil.style.clipPath = `circle(${value}px at ${x}px ${y}px)`;
-      },
-      onComplete() {
-        veil.remove();
-      }
+    document.startViewTransition(() => {
+      applyTheme(nextTheme);
+      setTheme(nextTheme);
+      window.localStorage.setItem("portfolio-theme", nextTheme);
     });
   };
 

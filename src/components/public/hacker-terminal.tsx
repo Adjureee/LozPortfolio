@@ -56,7 +56,7 @@ export function HackerTerminal({ isOpen, onClose, onLaunchZork, onLaunchIso }: H
         print("  cat [file]   - Read a file's contents");
         print("  clear / cls  - Clear the terminal screen");
         print("  play zork    - Launch the hidden text adventure");
-        print("  play iso     - Launch the 2.5D isometric engine");
+        print("  play iso     - Launch the 2.5D isometric engine (Roche Limit)");
         print("  exit         - Close the terminal");
         break;
 
@@ -100,8 +100,8 @@ export function HackerTerminal({ isOpen, onClose, onLaunchZork, onLaunchIso }: H
           setTimeout(() => {
             onLaunchZork();
           }, 500);
-        } else if (tokens[1] === "iso") {
-          print("Initializing 2.5D Rendering Engine...");
+        } else if (tokens[1] === "iso" || tokens[1] === "roche") {
+          print("Initializing Roche Limit (2.5D Engine)...");
           setTimeout(() => {
             onLaunchIso();
           }, 500);

@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 
-export function Typewriter({ text, delay = 0 }: { text: string; delay?: number }) {
+export function Typewriter({ text, delay = 0, animateOnScroll = false }: { text: string; delay?: number; animateOnScroll?: boolean }) {
   const [displayText, setDisplayText] = useState("");
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { margin: "-10% 0px -10% 0px" });
 
   useEffect(() => {
+    // If animateOnScroll is true and it's not in view, clear the text and wait
+    if (animateOnScroll && !isInView) {
+      setDisplayText("");
+      return;
+    }
+
     let i = 0;
     const timer = setTimeout(() => {
       const interval = setInterval(() => {
@@ -17,10 +25,10 @@ export function Typewriter({ text, delay = 0 }: { text: string; delay?: number }
       return () => clearInterval(interval);
     }, delay);
     return () => clearTimeout(timer);
-  }, [text, delay]);
+  }, [text, delay, animateOnScroll, isInView]);
 
   return (
-    <span>
+    <span ref={ref}>
       {displayText}
       <motion.span
         animate={{ opacity: [1, 0] }}

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
+import { ArrowUpRight } from "lucide-react";
+
 export function CustomCursor() {
   const [isHovered, setIsHovered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -10,9 +12,14 @@ export function CustomCursor() {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
 
-  const springConfig = { damping: 25, stiffness: 300, mass: 0.5 };
-  const smoothX = useSpring(cursorX, springConfig);
-  const smoothY = useSpring(cursorY, springConfig);
+  const outerSpringConfig = { damping: 20, stiffness: 100, mass: 0.8 };
+  const innerSpringConfig = { damping: 30, stiffness: 400, mass: 0.1 };
+  
+  const outerX = useSpring(cursorX, outerSpringConfig);
+  const outerY = useSpring(cursorY, outerSpringConfig);
+  
+  const innerX = useSpring(cursorX, innerSpringConfig);
+  const innerY = useSpring(cursorY, innerSpringConfig);
 
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
@@ -23,11 +30,8 @@ export function CustomCursor() {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.closest("a") || target.closest("button") || target.closest("input") || target.closest("textarea")) {
-        setIsHovered(true);
-      } else {
-        setIsHovered(false);
-      }
+      const isInteractive = target.closest("a, button, input, textarea, [role='button'], .project-card");
+      setIsHovered(!!isInteractive);
     };
 
     const handleMouseLeave = () => setIsVisible(false);
@@ -47,20 +51,37 @@ export function CustomCursor() {
   }, [cursorX, cursorY, isVisible]);
 
   return (
-    <motion.div
-      className="pointer-events-none fixed top-0 left-0 z-[999999] rounded-full bg-white mix-blend-difference"
-      style={{
-        x: smoothX,
-        y: smoothY,
-        translateX: "-50%",
-        translateY: "-50%",
-        opacity: isVisible ? 1 : 0
-      }}
-      animate={{
-        width: isHovered ? 64 : 16,
-        height: isHovered ? 64 : 16,
-      }}
-      transition={{ type: "tween", duration: 0.15, ease: "easeOut" }}
-    />
+    <>
+      <motion.div
+        className="pointer-events-none fixed top-0 left-0 z-[999999] rounded-full flex items-center justify-center overflow-hidden mix-blend-difference"
+        style={{
+          x: outerX,
+          y: outerY,
+          translateX: "-50%",
+          translateY: "-50%",
+          opacity: isVisible ? 1 : 0,
+        }}
+        animate={{
+          width: isHovered ? 64 : 12,
+          height: isHovered ? 64 : 12,
+          backgroundColor: isHovered ? "rgba(255,255,255,1)" : "rgba(255,255,255,1)",
+          scale: isHovered ? 1 : 1,
+        }}
+        transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.5 }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0, rotate: -45 }}
+          animate={{ 
+            opacity: isHovered ? 1 : 0, 
+            scale: isHovered ? 1 : 0,
+            rotate: isHovered ? 0 : -45 
+          }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="text-black"
+        >
+          <ArrowUpRight size={24} strokeWidth={2.5} />
+        </motion.div>
+      </motion.div>
+    </>
   );
 }

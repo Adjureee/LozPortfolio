@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import { Mail } from "lucide-react";
 import { signOutAction } from "@/app/actions/auth";
 import { deleteAchievement, deleteExperience, deleteProject, saveAchievement, saveContacts, saveExperience, saveProject, saveSiteConfig } from "@/app/actions/cms";
-import { getPortfolioData, isCurrentUserAdmin } from "@/lib/data";
+import { getPortfolioData, isCurrentUserAdmin, getMessages } from "@/lib/data";
 import type { AcademicYear } from "@/lib/types";
 import { ActionForm } from "@/components/dashboard/action-form";
 import { SubmitButton } from "@/components/dashboard/submit-button";
+import { InboxPanel } from "@/components/dashboard/inbox";
 
 const years: AcademicYear[] = ["First Year", "Second Year", "Third Year", "Fourth Year"];
 
@@ -14,6 +16,8 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   if (!(await isCurrentUserAdmin())) redirect("/admin-login");
   const data = await getPortfolioData();
+  const messages = await getMessages();
+  const unreadCount = messages.filter((m) => !m.is_read).length;
 
   return (
     <main className="min-h-screen bg-paper px-5 py-8 text-ink md:px-10">
@@ -23,9 +27,19 @@ export default async function DashboardPage() {
             <p className="text-sm uppercase tracking-[0.24em] text-muted">Hidden dashboard</p>
             <h1 className="font-display text-4xl">Portfolio CMS</h1>
           </div>
-          <form action={signOutAction}>
-            <button className="border border-line px-4 py-3 text-sm uppercase tracking-[0.18em] hover:bg-ink hover:text-paper">Sign out</button>
-          </form>
+          <div className="flex items-center gap-6">
+            <a href="#inbox" className="relative group cursor-pointer">
+              <Mail className="text-ink group-hover:text-accent transition-colors" size={24} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center border-2 border-paper">
+                  {unreadCount}
+                </span>
+              )}
+            </a>
+            <form action={signOutAction}>
+              <button className="border border-line px-4 py-3 text-sm uppercase tracking-[0.18em] hover:bg-ink hover:text-paper">Sign out</button>
+            </form>
+          </div>
         </header>
 
         <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
@@ -177,6 +191,10 @@ export default async function DashboardPage() {
                 </details>
               ))}
             </div>
+          </Panel>
+        <section id="inbox" className="mt-5">
+          <Panel title="Message Inbox">
+            <InboxPanel messages={messages} />
           </Panel>
         </section>
       </div>

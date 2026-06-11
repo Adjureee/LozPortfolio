@@ -5,6 +5,7 @@ import { Download, Facebook, Github, Linkedin, ArrowUpRight, ArrowUp, MapPin } f
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import type { ContactSettings } from "@/lib/types";
 import { useLenis } from "lenis/react";
+import { ContactForm } from "@/components/public/contact-form";
 
 const links = [
   { key: "linkedin_url", label: "LinkedIn", icon: Linkedin },
@@ -125,6 +126,13 @@ export function ContactSection({ contacts }: { contacts: ContactSettings | null 
             })}
           </div>
         )}
+
+        <div className="mt-24 relative z-20">
+          <p className="text-sm font-bold uppercase tracking-[0.3em] text-accent mb-12 flex items-center gap-3">
+            <span className="w-12 h-px bg-accent"></span> Send a Message
+          </p>
+          <ContactForm />
+        </div>
       </div>
 
       <Footer />

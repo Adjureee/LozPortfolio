@@ -40,3 +40,12 @@ export async function isCurrentUserAdmin() {
 
   return Boolean(data);
 }
+
+export async function getMessages(): Promise<import("@/lib/types").ContactMessage[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("messages")
+    .select("*")
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}

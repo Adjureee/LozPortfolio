@@ -5,6 +5,7 @@ import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { SoundProvider } from "@/components/providers/sound-provider";
 import { Providers } from "@/components/providers";
+import { BsodOverlay } from "@/components/public/bsod-overlay";
 import { TerminalProvider } from "@/components/providers/terminal-provider";
 import { Toaster } from "sonner";
 
@@ -38,6 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="dark">
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`} suppressHydrationWarning>
+        <BsodOverlay />
         <TerminalProvider>
           <Providers>
             <SoundProvider>

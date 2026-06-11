@@ -1,65 +1,21 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
+import dynamic from "next/dynamic";
 import type { Visitor } from "@/lib/types";
 
-const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-
-export function VisitorMap({ visitors }: { visitors: Visitor[] }) {
-  const markers = useMemo(() => {
-    return visitors.filter((v) => v.latitude !== null && v.longitude !== null);
-  }, [visitors]);
-
-  return (
-    <div className="w-full bg-ink/5 border border-line rounded-lg p-4 flex flex-col items-center justify-center mb-10 overflow-hidden relative">
-      <div className="w-full flex justify-between items-center mb-4 px-4">
-        <h3 className="font-display text-xl text-ink uppercase tracking-widest">Global Reach</h3>
-        <div className="flex items-center gap-2">
-           <span className="w-2 h-2 rounded-full bg-accent drop-shadow-[0_0_4px_var(--accent)] animate-pulse"></span>
-           <span className="text-xs text-muted uppercase tracking-wider">{markers.length} Locations Mapped</span>
-        </div>
-      </div>
-      
-      <div className="w-full relative" style={{ height: "450px" }}>
-        <ComposableMap
-          projection="geoMercator"
-          projectionConfig={{ scale: 120 }}
-          width={800}
-          height={400}
-          style={{ width: "100%", height: "100%" }}
-        >
-          <ZoomableGroup zoom={1} minZoom={1} maxZoom={10}>
-            <Geographies geography={geoUrl}>
-              {({ geographies }) =>
-                geographies.map((geo) => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    fill="rgb(var(--line) / 0.3)"
-                    stroke="rgb(var(--paper) / 0.1)"
-                    strokeWidth={0.5}
-                    style={{
-                      default: { outline: "none" },
-                      hover: { outline: "none", fill: "rgb(var(--line) / 0.6)" },
-                      pressed: { outline: "none" },
-                    }}
-                  />
-                ))
-              }
-            </Geographies>
-            
-            {markers.map((marker) => (
-              <Marker key={marker.id} coordinates={[marker.longitude!, marker.latitude!]}>
-                {/* Outer glowing halo */}
-                <circle r={8} fill="rgb(var(--accent))" opacity={0.3} className="animate-pulse" />
-                {/* Inner dot */}
-                <circle r={3} fill="rgb(var(--accent))" style={{ filter: "drop-shadow(0 0 5px rgb(var(--accent)))" }} />
-              </Marker>
-            ))}
-          </ZoomableGroup>
-        </ComposableMap>
+// Dynamically import the actual map component, disabling SSR to avoid window is not defined errors
+const MapComponent = dynamic(() => import("./map-component"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full bg-ink/5 border border-line rounded-lg p-4 flex flex-col items-center justify-center mb-10 overflow-hidden" style={{ height: "450px" }}>
+      <div className="animate-pulse flex flex-col items-center gap-4">
+         <span className="w-6 h-6 rounded-full bg-accent drop-shadow-[0_0_10px_var(--accent)]"></span>
+         <span className="text-muted text-sm uppercase tracking-widest font-bold">Initializing Satellite Uplink...</span>
       </div>
     </div>
-  );
+  ),
+});
+
+export function VisitorMap({ visitors }: { visitors: Visitor[] }) {
+  return <MapComponent visitors={visitors} />;
 }

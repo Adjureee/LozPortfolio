@@ -36,10 +36,18 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
   const [lines, setLines] = useState<{ text: string, color: string }[]>([]);
   const [progress, setProgress] = useState(0);
   const [showProgress, setShowProgress] = useState(false);
+  const [totalBars, setTotalBars] = useState(40);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
+    
+    // Responsive progress bar sizing
+    if (typeof window !== "undefined") {
+      if (window.innerWidth < 400) setTotalBars(15);
+      else if (window.innerWidth < 640) setTotalBars(20);
+      else if (window.innerWidth < 768) setTotalBars(30);
+    }
     
     const timeouts: NodeJS.Timeout[] = [];
 
@@ -51,7 +59,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
       timeouts.push(t);
     });
 
-    // 2. Fast Scrolling Memory Dump Simulation (Starts after core sequence)
+    // 2. Fast Scrolling Memory Dump Simulation
     const fastScrollDelay = 2600;
     const fastScrollDuration = 1000;
     const tFast = setTimeout(() => {
@@ -109,9 +117,8 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
     }
   }, [lines, progress]);
 
-  // Generate ASCII progress bar
+  // Generate ASCII progress bar dynamically based on screen width
   const generateProgressBar = (percent: number) => {
-    const totalBars = 40;
     const filledBars = Math.floor((percent / 100) * totalBars);
     const emptyBars = totalBars - filledBars;
     return `[${"#".repeat(filledBars)}${".".repeat(emptyBars)}] ${Math.floor(percent)}%`;
@@ -122,7 +129,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, filter: "blur(20px)", scale: 1.1 }}
       transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-      className="fixed inset-0 z-[9999] bg-[#020202] text-accent p-4 md:p-8 font-mono text-[10px] md:text-xs overflow-hidden selection:bg-accent selection:text-ink"
+      className="fixed inset-0 z-[9999] bg-[#020202] text-accent p-3 sm:p-6 md:p-8 font-mono text-[9px] sm:text-[10px] md:text-xs overflow-hidden selection:bg-accent selection:text-ink"
     >
       {/* Heavy CRT Scanline overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-20 z-20"
@@ -135,22 +142,22 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
       {/* Terminal Output Area */}
       <div 
         ref={scrollRef}
-        className="w-full h-full max-w-4xl mx-auto flex flex-col items-start justify-start overflow-y-auto pb-20 relative z-10 drop-shadow-[0_0_6px_rgba(0,255,0,0.3)] pr-4"
+        className="w-full h-full max-w-4xl mx-auto flex flex-col items-start justify-start overflow-x-hidden overflow-y-auto pb-20 relative z-10 drop-shadow-[0_0_6px_rgba(0,255,0,0.3)] pr-2 md:pr-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Hide scrollbar for immersion
       >
-        <pre className="text-accent font-bold mb-4 leading-tight opacity-90 drop-shadow-[0_0_10px_var(--accent)]">
+        <pre className="text-accent font-bold mb-4 leading-tight opacity-90 drop-shadow-[0_0_10px_var(--accent)] text-[8px] sm:text-[10px] md:text-sm">
           {ASCII_ART}
         </pre>
 
         {lines.map((line, i) => (
-          <div key={i} className={`whitespace-pre-wrap leading-relaxed min-h-[1.2em] ${line.color}`}>
+          <div key={i} className={`whitespace-pre-wrap break-all sm:break-normal leading-relaxed min-h-[1.2em] w-full ${line.color}`}>
             {line.text}
           </div>
         ))}
         
         {/* Progress Bar Rendering */}
         {showProgress && progress <= 100 && (
-          <div className="whitespace-pre-wrap leading-relaxed mt-2 text-accent font-bold drop-shadow-[0_0_8px_var(--accent)]">
+          <div className="whitespace-pre whitespace-nowrap leading-relaxed mt-2 text-accent font-bold drop-shadow-[0_0_8px_var(--accent)] w-full">
             {generateProgressBar(progress)}
           </div>
         )}
@@ -159,12 +166,13 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
         <motion.div 
           animate={{ opacity: [1, 0] }}
           transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-          className="w-2 h-4 bg-accent mt-1 inline-block"
+          className="w-[1ch] h-[1.2em] bg-accent mt-1 inline-block shrink-0"
         />
       </div>
     </motion.div>
   );
 }
+
 
 
 

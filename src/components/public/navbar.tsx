@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useLenis } from "lenis/react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Volume2, VolumeX } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSound } from "@/components/providers/sound-provider";
 
 const links = [
   { href: "#home", label: "Home" },
@@ -18,6 +19,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lenis = useLenis();
+  const { isMuted, toggleMute, playHover, playClick } = useSound();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +30,7 @@ export function Navbar() {
   }, []);
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    playClick();
     setMobileMenuOpen(false);
     if (lenis) {
       e.preventDefault();
@@ -44,7 +47,8 @@ export function Navbar() {
           <div className="md:hidden absolute left-5 flex items-center">
             <button 
               className="p-2 -ml-2 text-ink"
-              onClick={() => setMobileMenuOpen(true)}
+              onClick={() => { playClick(); setMobileMenuOpen(true); }}
+              onMouseEnter={playHover}
               aria-label="Open Mobile Menu"
             >
               <Menu size={24} />
@@ -58,6 +62,7 @@ export function Navbar() {
                 key={link.href} 
                 href={link.href} 
                 onClick={(e) => handleLinkClick(e, link.href)}
+                onMouseEnter={playHover}
                 className="text-xs md:text-sm font-medium uppercase tracking-[0.18em] text-muted transition hover:text-accent"
               >
                 {link.label}
@@ -65,8 +70,16 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Theme Toggle (Right side) */}
-          <div className="absolute right-5 md:right-12 flex items-center">
+          {/* Controls (Right side) */}
+          <div className="absolute right-5 md:right-12 flex items-center gap-4">
+            <button
+              onClick={() => { playClick(); toggleMute(); }}
+              onMouseEnter={playHover}
+              className="text-muted hover:text-accent transition-colors"
+              aria-label={isMuted ? "Unmute sound" : "Mute sound"}
+            >
+              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </button>
             <ThemeToggle />
           </div>
         </div>
@@ -84,7 +97,8 @@ export function Navbar() {
           >
             <button 
               className="absolute top-6 right-5 p-2 text-ink"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => { playClick(); setMobileMenuOpen(false); }}
+              onMouseEnter={playHover}
             >
               <X size={32} />
             </button>
@@ -94,6 +108,7 @@ export function Navbar() {
                   key={link.href} 
                   href={link.href} 
                   onClick={(e) => handleLinkClick(e, link.href)}
+                  onMouseEnter={playHover}
                   className="font-display text-4xl uppercase tracking-[0.1em] text-ink hover:text-accent transition-colors"
                 >
                   {link.label}

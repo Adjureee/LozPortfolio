@@ -12,12 +12,15 @@ gsap.registerPlugin(ScrollTrigger);
 
 import { Typewriter } from "@/components/public/typewriter";
 
+import { useSound } from "@/components/providers/sound-provider";
+
 const years: AcademicYear[] = ["First Year", "Second Year", "Third Year", "Fourth Year"];
 
 export function ProjectsGlide({ projects }: { projects: Project[] }) {
   const rootRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const grouped = useMemo(() => years.map((year) => ({ year, projects: projects.filter((project) => project.academic_year === year) })), [projects]);
+  const { playHover, playClick } = useSound();
 
   useEffect(() => {
     const root = rootRef.current;
@@ -71,6 +74,8 @@ export function ProjectsGlide({ projects }: { projects: Project[] }) {
                   <Link
                     key={project.id}
                     href={`/project/${project.id}`}
+                    onMouseEnter={playHover}
+                    onClick={playClick}
                     className="project-card group relative aspect-[4/3] sm:aspect-video xl:aspect-[4/3] overflow-hidden border border-line bg-ink text-paper"
                   >
                     {project.image_url ? (

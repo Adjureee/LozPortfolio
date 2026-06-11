@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "@/app/globals.css";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { SoundProvider } from "@/components/providers/sound-provider";
 import { Providers } from "@/components/providers";
 import { TerminalProvider } from "@/components/providers/terminal-provider";
 import { Toaster } from "sonner";
@@ -38,8 +40,12 @@ export default function RootLayout({
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`} suppressHydrationWarning>
         <TerminalProvider>
           <Providers>
-            {children}
-            <Toaster position="bottom-right" theme="dark" />
+            <SoundProvider>
+              <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
+                {children}
+                <Toaster position="bottom-right" theme="dark" />
+              </ThemeProvider>
+            </SoundProvider>
           </Providers>
         </TerminalProvider>
       </body>

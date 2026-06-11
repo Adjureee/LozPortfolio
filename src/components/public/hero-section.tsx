@@ -14,6 +14,7 @@ import { PhysicsGame } from "./physics-game";
 import { HackerTerminal } from "./hacker-terminal";
 import { ZorkEngine } from "./zork-engine";
 import { IsoGame } from "./iso-game";
+import { useSound } from "@/components/providers/sound-provider";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -392,6 +393,7 @@ function MagneticAvatar({ children, name, course, onYank, isTwinkling }: { child
 function MagneticButton({ children, href, onClick }: { children: React.ReactNode; href: string; onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void }) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const ref = useRef<HTMLAnchorElement>(null);
+  const { playHover, playClick } = useSound();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const { clientX, clientY } = e;
@@ -405,13 +407,19 @@ function MagneticButton({ children, href, onClick }: { children: React.ReactNode
     setPosition({ x: 0, y: 0 });
   };
 
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    playClick();
+    if (onClick) onClick(e);
+  };
+
   return (
     <motion.a
       ref={ref}
       href={href}
-      onClick={onClick}
+      onClick={handleClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onMouseEnter={playHover}
       animate={{ x: position.x, y: position.y }}
       transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
       className="inline-flex items-center justify-center bg-accent text-paper px-8 py-4 rounded-full font-bold text-sm uppercase tracking-wider shadow-xl cursor-pointer"

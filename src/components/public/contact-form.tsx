@@ -33,7 +33,7 @@ export function ContactForm() {
           id="name" 
           name="name" 
           required 
-          placeholder="Kenneth James G. Yamid"
+          placeholder="John Lyold Lozada"
           className="w-full bg-[#1A1A1A] border border-line/30 text-paper px-4 py-3 rounded-sm focus:outline-none focus:border-accent transition-colors"
         />
       </div>

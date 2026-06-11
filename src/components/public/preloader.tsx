@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const BOOT_LOGS = [
-  "Initializing core architecture...",
-  "Mounting graphical interfaces...",
-  "Bypassing firewall constraints...",
-  "Decrypting encrypted payload...",
-  "System access granted."
+  "INITIALIZING KERNEL ARCHITECTURE",
+  "ESTABLISHING SATELLITE UPLINK",
+  "BYPASSING SECURITY PROTOCOLS",
+  "DECRYPTING CORE ASSETS",
+  "SYSTEM ACCESS GRANTED"
 ];
 
 export function Preloader({ onComplete }: { onComplete: () => void }) {
@@ -22,11 +22,10 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          setTimeout(() => onComplete(), 800); // Wait slightly longer at 100%
+          setTimeout(() => onComplete(), 800); 
           return 100;
         }
-        // Smooth logarithmic easing
-        const increment = prev < 50 ? Math.random() * 2 : Math.random() * 5 + 1;
+        const increment = prev < 60 ? Math.random() * 2 : Math.random() * 4 + 1;
         return Math.min(prev + increment, 100);
       });
     }, 40);
@@ -38,87 +37,116 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
   }, [onComplete]);
 
   useEffect(() => {
-    if (progress < 20) setLogIdx(0);
+    if (progress < 25) setLogIdx(0);
     else if (progress < 50) setLogIdx(1);
     else if (progress < 75) setLogIdx(2);
     else if (progress < 95) setLogIdx(3);
     else setLogIdx(4);
   }, [progress]);
 
-  // Format progress as 3 digits
   const formattedProgress = Math.floor(progress).toString().padStart(3, "0");
 
   return (
     <motion.div
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, clipPath: "inset(50% 0 50% 0)" }}
-      transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-      className="fixed inset-0 z-[9999] bg-ink text-paper flex items-center justify-center font-mono overflow-hidden"
+      exit={{ opacity: 0, y: "-100%" }}
+      transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+      className="fixed inset-0 z-[9999] bg-[#050505] text-paper flex items-center justify-center font-mono overflow-hidden"
     >
-      {/* 1px Edge-Tracing Frame Progress Bar */}
-      <div className="absolute inset-4 border border-line/10 pointer-events-none" />
-      <motion.div 
-        className="absolute top-4 left-4 h-[1px] bg-accent z-10"
-        style={{ width: `calc(${progress}% - 2rem)` }}
-      />
-      <motion.div 
-        className="absolute bottom-4 right-4 h-[1px] bg-accent z-10"
-        style={{ width: `calc(${progress}% - 2rem)` }}
-      />
-
-      {/* Center Percentage Display */}
-      <div className="flex flex-col items-center gap-2 relative z-20">
-        <div className="text-[10px] uppercase tracking-[0.3em] text-muted mb-2">
-          Sys_Boot Sequence
-        </div>
+      {/* Architectural CAD Grid Lines */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-0">
+        <div className="w-full h-[1px] bg-white/[0.04] absolute top-1/2 -translate-y-1/2" />
+        <div className="h-full w-[1px] bg-white/[0.04] absolute left-1/2 -translate-x-1/2" />
         
-        <div className="text-6xl md:text-8xl font-light tracking-tighter flex items-end overflow-hidden h-24 md:h-32">
+        {/* Center Target */}
+        <div className="w-[12vw] h-[12vw] max-w-[150px] max-h-[150px] border border-white/[0.03] rounded-full flex items-center justify-center">
+          <div className="w-[1px] h-[10px] bg-accent/50 absolute top-0" />
+          <div className="w-[1px] h-[10px] bg-accent/50 absolute bottom-0" />
+          <div className="w-[10px] h-[1px] bg-accent/50 absolute left-0" />
+          <div className="w-[10px] h-[1px] bg-accent/50 absolute right-0" />
+        </div>
+      </div>
+
+      {/* Top Left Branding */}
+      <div className="absolute top-6 left-6 md:top-10 md:left-10 flex flex-col gap-1 text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-muted z-10">
+        <span className="text-paper">Adjureee_OS</span>
+        <span>SYS.BUILD.2026</span>
+      </div>
+
+      {/* Top Right Coordinates */}
+      <div className="absolute top-6 right-6 md:top-10 md:right-10 flex flex-col items-end gap-1 text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-muted z-10">
+        <span className="text-accent drop-shadow-[0_0_5px_rgba(0,255,0,0.5)]">
+          P_ID: {Math.floor(progress * 8.432).toString().padStart(4, "0")}
+        </span>
+        <span>LAT: 14.5995 N, 120.9842 E</span>
+      </div>
+
+      {/* Center Bisection Progress Line (Behind Text) */}
+      <div className="absolute top-1/2 left-0 w-full h-[2px] -translate-y-1/2 z-10">
+        <motion.div 
+          className="h-full bg-accent drop-shadow-[0_0_12px_rgba(0,255,0,1)]"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      {/* Massive Typography Counter */}
+      <div className="relative z-20 flex items-end mix-blend-difference pointer-events-none">
+        <div className="text-[25vw] leading-[0.8] font-bold tracking-tighter text-paper">
           <AnimatePresence mode="popLayout">
             {formattedProgress.split('').map((digit, i) => (
               <motion.span
                 key={`${i}-${digit}`}
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: "-100%", opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className={progress === 100 ? "text-accent" : "text-paper"}
+                initial={{ y: "50%", opacity: 0, filter: "blur(10px)" }}
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                exit={{ y: "-50%", opacity: 0, filter: "blur(10px)" }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="inline-block"
               >
                 {digit}
               </motion.span>
             ))}
           </AnimatePresence>
-          <span className="text-xl md:text-2xl text-accent ml-1 mb-2 md:mb-4">%</span>
         </div>
+        <div className="text-[5vw] text-accent mb-[2vw] ml-2 font-light tracking-widest">%</div>
       </div>
 
-      {/* Bottom Layout - Minimal HUD */}
-      <div className="absolute bottom-10 left-10 text-[10px] md:text-xs text-muted uppercase tracking-widest flex flex-col gap-1">
-        <span className="opacity-50">STATUS</span>
+      {/* Bottom HUD Logs */}
+      <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-[8px] md:text-[10px] text-muted uppercase tracking-widest flex flex-col gap-2 z-10 w-full max-w-[300px]">
+        <div className="w-full h-[1px] bg-white/[0.1]" />
         <AnimatePresence mode="wait">
           <motion.div
             key={logIdx}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 10 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="flex items-center gap-2 text-paper"
+            className="flex items-start gap-2 text-paper"
           >
-            <span className="text-accent">{">"}</span> 
-            {BOOT_LOGS[logIdx]}
+            <span className="text-accent mt-[2px]">{">"}</span> 
+            <span className="leading-tight">{BOOT_LOGS[logIdx]}</span>
             <motion.span
               animate={{ opacity: [1, 0] }}
-              transition={{ duration: 0.8, repeat: Infinity }}
-              className="w-2 h-3 bg-accent ml-1 inline-block"
+              transition={{ duration: 0.6, repeat: Infinity }}
+              className="w-2 h-3 bg-accent inline-block mt-[1px]"
             />
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <div className="absolute bottom-10 right-10 text-[10px] md:text-xs text-muted uppercase tracking-widest text-right flex flex-col gap-1">
-        <span className="opacity-50">ENCRYPTION</span>
-        <span className="text-paper">AES-256-GCM</span>
+      {/* Bottom Right Data stream indicator */}
+      <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 flex flex-col items-end gap-2 text-[8px] md:text-[10px] text-muted uppercase tracking-widest z-10">
+        <div className="w-16 h-[1px] bg-white/[0.1]" />
+        <div className="flex items-center gap-3 text-paper">
+          <span>{progress === 100 ? "UNLOCKED" : "DECRYPTING"}</span>
+          <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            className="w-3 h-3 border border-accent border-t-transparent rounded-full"
+          />
+        </div>
       </div>
     </motion.div>
   );
 }
+
 

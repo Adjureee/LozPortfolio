@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
 import { Mail, MailOpen, Trash2 } from "lucide-react";
 import { markMessageRead, deleteMessage } from "@/app/actions/contact";
 import type { ContactMessage } from "@/lib/types";
@@ -51,7 +50,7 @@ function MessageCard({ message }: { message: ContactMessage }) {
           <p className="text-sm text-muted">{message.email}</p>
         </div>
         <div className="text-xs text-muted">
-          {format(new Date(message.created_at), "MMM d, yyyy 'at' h:mm a")}
+          {new Date(message.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
         </div>
       </div>
       

@@ -192,6 +192,8 @@ export default async function DashboardPage() {
               ))}
             </div>
           </Panel>
+        </section>
+
         <section id="inbox" className="mt-5">
           <Panel title="Message Inbox">
             <InboxPanel messages={messages} />

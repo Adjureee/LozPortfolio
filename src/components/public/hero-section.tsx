@@ -89,12 +89,17 @@ export function HeroSection({ config }: { config: SiteConfig | null }) {
   const [showTerminal, setShowTerminal] = useState(false);
   const [showZork, setShowZork] = useState(false);
   const [showIso, setShowIso] = useState(false);
+  const lenis = useLenis();
   
   const hasConfig = Boolean(config?.display_name || config?.title || config?.about_me);
 
   const handleConnectClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    if (lenis) {
+      lenis.scrollTo('#contact', { duration: 2.5, easing: (t) => 1 - Math.pow(1 - t, 4) });
+    } else {
+      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleYank = () => {

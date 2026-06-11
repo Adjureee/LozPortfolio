@@ -40,7 +40,7 @@ export function TechStackSection() {
           {technologies.map((tech, idx) => (
             <div 
               key={idx} 
-              className="relative min-w-[280px] shrink-0 mx-4 flex items-center justify-center gap-6 border-2 border-line bg-paper px-8 py-6 transition-all duration-300 hover:-translate-y-2 hover:border-ink hover:shadow-[6px_6px_0px_var(--color-accent)] group"
+              className="relative min-w-[180px] md:min-w-[280px] shrink-0 mx-2 md:mx-4 flex items-center justify-center gap-4 md:gap-6 border-2 border-line bg-paper px-4 md:px-8 py-4 md:py-6 transition-all duration-300 hover:-translate-y-2 hover:border-ink hover:shadow-[6px_6px_0px_var(--color-accent)] group"
             >
               <div className="relative w-12 h-12 shrink-0 flex items-center justify-center">
                 <img 

@@ -161,7 +161,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
                 </p>
               )}
               
-              <h1 className="font-display text-5xl md:text-7xl lg:text-[5.5rem] font-medium tracking-tight leading-[1.05] mb-8 min-h-[3.5em] md:min-h-[2.5em]">
+              <h1 className="font-display text-5xl md:text-7xl lg:text-[5.5rem] font-medium tracking-tight leading-[1.05] mb-8 min-h-[2em] sm:min-h-[3em] md:min-h-[2.5em]">
                 {config?.title ? <Typewriter text={config.title} delay={500} start={isReady} /> : "Creative Designer"}
               </h1>
               
@@ -182,7 +182,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
 
             <div className="hero-image relative min-h-[50vh] md:min-h-full flex flex-col items-center justify-center p-8 md:p-12 overflow-hidden">
               {config?.avatar_url ? (
-                <div className="relative flex flex-col items-center w-full max-w-sm">
+                <div className="relative flex flex-col items-center w-full max-w-[16rem] md:max-w-sm">
                   <MagneticAvatar name={config.display_name || "Loz"} course="BSIT - 3A" onYank={handleYank} isTwinkling={showFireworks}>
                     <Image 
                       src={config.avatar_url} 
@@ -286,7 +286,7 @@ function MagneticAvatar({ children, name, course, onYank, isTwinkling }: { child
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center w-full max-w-64 h-96 mx-auto z-50" style={{ perspective: 1200 }}>
+    <div className="relative flex flex-col items-center justify-center w-full max-w-56 md:max-w-64 h-72 md:h-96 mx-auto z-50" style={{ perspective: 1200 }}>
       {/* The Lanyard (Sling) */}
       <motion.div 
         className="absolute bottom-[calc(100%-24px)] w-6 h-[200vh] bg-accent z-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] border-l border-r border-black/20 pointer-events-none"

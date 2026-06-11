@@ -25,31 +25,36 @@ export function ProjectsGlide({ projects }: { projects: Project[] }) {
     if (!root || !track) return;
 
     const context = gsap.context(() => {
-      const tween = gsap.to(track, {
-        x: () => -(track.scrollWidth - window.innerWidth),
-        ease: "none",
-        scrollTrigger: {
-          trigger: root,
-          start: "top top",
-          end: () => `+=${track.scrollWidth}`,
-          scrub: 1,
-          pin: true,
-          invalidateOnRefresh: true
-        }
+      // Use matchMedia to only apply horizontal scrolling on desktop (>768px)
+      const mm = gsap.matchMedia();
+
+      mm.add("(min-width: 768px)", () => {
+        gsap.to(track, {
+          x: () => -(track.scrollWidth - window.innerWidth),
+          ease: "none",
+          scrollTrigger: {
+            trigger: root,
+            start: "top top",
+            end: () => `+=${track.scrollWidth}`,
+            scrub: 1,
+            pin: true,
+            invalidateOnRefresh: true
+          }
+        });
       });
-      // Removed individual card animations that were causing them to get stuck invisible.
-      // The horizontal sliding track animation is sufficient!
+      // On mobile (<768px), it does nothing, letting native vertical scrolling take over.
+
     }, root);
 
     return () => context.revert();
   }, [projects]);
 
   return (
-    <section ref={rootRef} id="projects" className="relative min-h-screen overflow-hidden border-y border-line bg-paper">
-      <div ref={trackRef} className="flex h-screen w-max">
+    <section ref={rootRef} id="projects" className="relative min-h-screen border-y border-line bg-paper overflow-hidden">
+      <div ref={trackRef} className="flex flex-col md:flex-row md:h-screen w-full md:w-max">
         {grouped.map(({ year, projects: yearProjects }) => (
-          <article key={year} className="flex w-screen shrink-0 flex-col justify-center px-5 py-20 md:px-12">
-            <div className="mb-8 flex items-end justify-between gap-6">
+          <article key={year} className="flex w-full md:w-screen shrink-0 flex-col justify-center px-5 py-20 md:px-12 border-b md:border-b-0 border-line">
+            <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
               <div>
                 <p className="text-sm uppercase tracking-[0.24em] text-muted">Featured Projects</p>
                 <h2 className="font-display text-5xl md:text-8xl">

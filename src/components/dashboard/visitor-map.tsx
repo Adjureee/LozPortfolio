@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
 import type { Visitor } from "@/lib/types";
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -29,33 +29,35 @@ export function VisitorMap({ visitors }: { visitors: Visitor[] }) {
           height={400}
           style={{ width: "100%", height: "100%" }}
         >
-          <Geographies geography={geoUrl}>
-            {({ geographies }) =>
-              geographies.map((geo) => (
-                <Geography
-                  key={geo.rsmKey}
-                  geography={geo}
-                  fill="rgb(var(--line) / 0.3)"
-                  stroke="rgb(var(--paper) / 0.1)"
-                  strokeWidth={0.5}
-                  style={{
-                    default: { outline: "none" },
-                    hover: { outline: "none", fill: "rgb(var(--line) / 0.6)" },
-                    pressed: { outline: "none" },
-                  }}
-                />
-              ))
-            }
-          </Geographies>
-          
-          {markers.map((marker) => (
-            <Marker key={marker.id} coordinates={[marker.longitude!, marker.latitude!]}>
-              {/* Outer glowing halo */}
-              <circle r={8} fill="rgb(var(--accent))" opacity={0.3} className="animate-pulse" />
-              {/* Inner dot */}
-              <circle r={3} fill="rgb(var(--accent))" style={{ filter: "drop-shadow(0 0 5px rgb(var(--accent)))" }} />
-            </Marker>
-          ))}
+          <ZoomableGroup zoom={1} minZoom={1} maxZoom={10}>
+            <Geographies geography={geoUrl}>
+              {({ geographies }) =>
+                geographies.map((geo) => (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    fill="rgb(var(--line) / 0.3)"
+                    stroke="rgb(var(--paper) / 0.1)"
+                    strokeWidth={0.5}
+                    style={{
+                      default: { outline: "none" },
+                      hover: { outline: "none", fill: "rgb(var(--line) / 0.6)" },
+                      pressed: { outline: "none" },
+                    }}
+                  />
+                ))
+              }
+            </Geographies>
+            
+            {markers.map((marker) => (
+              <Marker key={marker.id} coordinates={[marker.longitude!, marker.latitude!]}>
+                {/* Outer glowing halo */}
+                <circle r={8} fill="rgb(var(--accent))" opacity={0.3} className="animate-pulse" />
+                {/* Inner dot */}
+                <circle r={3} fill="rgb(var(--accent))" style={{ filter: "drop-shadow(0 0 5px rgb(var(--accent)))" }} />
+              </Marker>
+            ))}
+          </ZoomableGroup>
         </ComposableMap>
       </div>
     </div>

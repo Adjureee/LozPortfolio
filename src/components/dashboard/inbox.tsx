@@ -49,7 +49,7 @@ function MessageCard({ message }: { message: ContactMessage }) {
           </h4>
           <p className="text-sm text-muted">{message.email}</p>
         </div>
-        <div className="text-xs text-muted">
+        <div className="text-xs text-muted" suppressHydrationWarning>
           {new Date(message.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
         </div>
       </div>

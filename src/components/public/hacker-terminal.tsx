@@ -129,13 +129,18 @@ export function HackerTerminal({ isOpen, onClose, onLaunchZork, onLaunchIso }: H
   return (
     <div className="fixed left-0 right-0 top-0 z-[100] flex h-[50vh] min-h-[300px] flex-col border-b-2 border-green-500/50 bg-ink/95 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out animate-in slide-in-from-top">
       {/* Header */}
-      <div className="flex items-center justify-between bg-green-900/20 px-4 py-2 border-b border-green-500/30">
+      <div className="flex items-center justify-between bg-green-900/20 px-4 py-2.5 border-b border-green-500/30">
         <div className="flex items-center gap-2 text-green-500">
           <TerminalIcon size={16} />
           <span className="font-mono text-xs font-bold tracking-widest">HACKER TERMINAL</span>
         </div>
-        <button onClick={onClose} className="text-green-500/50 hover:text-green-400">
-          <X size={16} />
+        <button
+          onClick={onClose}
+          aria-label="Close terminal"
+          title="Close terminal"
+          className="flex items-center justify-center w-8 h-8 rounded-sm border border-green-900/60 bg-green-900/20 text-green-500/70 hover:text-green-400 hover:bg-red-900/40 hover:border-red-500/60 transition-all duration-150 active:scale-90"
+        >
+          <X size={15} strokeWidth={2.5} />
         </button>
       </div>
 

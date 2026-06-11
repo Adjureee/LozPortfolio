@@ -70,7 +70,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
         setShowProgress(true);
       }, fastScrollDuration);
       
-      timeouts.push(scrollInterval as any);
+      timeouts.push(scrollInterval as unknown as NodeJS.Timeout);
     }, fastScrollDelay);
     timeouts.push(tFast);
 

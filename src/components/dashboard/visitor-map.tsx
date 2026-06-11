@@ -35,12 +35,12 @@ export function VisitorMap({ visitors }: { visitors: Visitor[] }) {
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill="rgba(var(--line), 0.3)"
-                  stroke="rgba(var(--paper), 0.1)"
+                  fill="rgb(var(--line) / 0.3)"
+                  stroke="rgb(var(--paper) / 0.1)"
                   strokeWidth={0.5}
                   style={{
                     default: { outline: "none" },
-                    hover: { outline: "none", fill: "rgba(var(--line), 0.6)" },
+                    hover: { outline: "none", fill: "rgb(var(--line) / 0.6)" },
                     pressed: { outline: "none" },
                   }}
                 />

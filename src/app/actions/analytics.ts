@@ -12,13 +12,13 @@ export async function recordVisitor() {
     const realIp = headersList.get("x-real-ip");
     
     // In local dev, this might be ::1
-    let ip = forwardedFor ? forwardedFor.split(",")[0].trim() : (realIp || "127.0.0.1");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : (realIp || "127.0.0.1");
 
     // Attempt to get location from Vercel headers first (fastest)
     let city = headersList.get("x-vercel-ip-city");
     let country = headersList.get("x-vercel-ip-country");
-    let latStr = headersList.get("x-vercel-ip-latitude");
-    let lonStr = headersList.get("x-vercel-ip-longitude");
+    const latStr = headersList.get("x-vercel-ip-latitude");
+    const lonStr = headersList.get("x-vercel-ip-longitude");
     
     let latitude: number | null = latStr ? parseFloat(latStr) : null;
     let longitude: number | null = lonStr ? parseFloat(lonStr) : null;

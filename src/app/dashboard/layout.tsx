@@ -17,7 +17,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     <div className="flex min-h-screen bg-paper text-ink flex-col md:flex-row">
       <Sidebar />
       
-      <main className="flex-1 px-5 py-8 md:px-10 max-h-screen overflow-y-auto">
+      <main className="flex-1 px-5 py-8 md:px-10">
         <header className="mb-10 flex flex-wrap items-center justify-end gap-6 border-b border-line pb-6">
           <a href="/dashboard" className="relative group cursor-pointer" title="Inbox">
             <Mail className="text-ink group-hover:text-accent transition-colors" size={24} />

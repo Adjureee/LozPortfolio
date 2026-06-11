@@ -78,3 +78,12 @@ export type ContactMessage = {
   is_read: boolean;
   created_at: string;
 };
+
+export type Visitor = {
+  id: string;
+  ip_address: string;
+  city: string | null;
+  country: string | null;
+  user_agent: string | null;
+  visited_at: string;
+};

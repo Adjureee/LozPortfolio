@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings, FolderKanban, BriefcaseBusiness, Trophy, LogOut } from "lucide-react";
+import { LayoutDashboard, Settings, FolderKanban, BriefcaseBusiness, Trophy, LogOut, Activity } from "lucide-react";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Analytics", href: "/dashboard/analytics", icon: Activity },
   { name: "Site Config", href: "/dashboard/config", icon: Settings },
   { name: "Projects", href: "/dashboard/projects", icon: FolderKanban },
   { name: "Experiences", href: "/dashboard/experiences", icon: BriefcaseBusiness },

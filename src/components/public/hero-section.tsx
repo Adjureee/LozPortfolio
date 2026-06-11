@@ -150,7 +150,7 @@ export function HeroSection({ config }: { config: SiteConfig | null }) {
             <div className="hero-content flex flex-col justify-start pt-4 md:pt-8 lg:pt-12 px-8 md:px-12 lg:px-16 pb-8 border-b md:border-b-0 md:border-r border-line/50">
               {config?.display_name && (
                 <p className="text-sm font-semibold uppercase tracking-[0.24em] text-muted mb-4 mt-4">
-                  Hello, I'm {config.display_name}
+                  Hello, I&apos;m {config.display_name}
                 </p>
               )}
               
@@ -267,9 +267,9 @@ function MagneticAvatar({ children, name, course, onYank, isTwinkling }: { child
 
   const barcodePattern = [2, 4, 1, 3, 2, 1, 5, 2, 1, 4, 2, 3, 1, 2, 4, 1, 3, 2, 1, 2];
 
-  const handleDrag = (event: any, info: any) => {
-    // Yank the terminal down if pulled hard enough
-    if (info.offset.y > 180 && !hasYankedRef.current) {
+  const handleDrag = (event: unknown, info: import("framer-motion").PanInfo) => {
+    // If pulled down far enough, pop the physics game!
+    if (info.offset.y > 150 && !hasYankedRef.current) {
       hasYankedRef.current = true;
       onYank?.();
     } else if (info.offset.y < 100) {

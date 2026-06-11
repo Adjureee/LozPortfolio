@@ -92,7 +92,7 @@ export function ContactSection({ contacts }: { contacts: ContactSettings | null 
               <span className="w-12 h-px bg-accent"></span> Get in touch
             </p>
             <h2 className="font-display text-6xl md:text-[7.5rem] leading-[0.9] tracking-tighter">
-              Let's build <br/> something <span className="text-accent italic font-light pr-4">together.</span>
+              Let&apos;s build <br/> something <span className="text-accent italic font-light pr-4">together.</span>
             </h2>
           </div>
           

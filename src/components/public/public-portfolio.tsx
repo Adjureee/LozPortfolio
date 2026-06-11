@@ -12,7 +12,6 @@ import { ContactSection } from "@/components/public/contact-section";
 
 import { Navbar } from "@/components/public/navbar";
 
-import { AboutSection } from "@/components/public/about-section";
 
 import { CustomCursor } from "@/components/public/custom-cursor";
 import { TechStackSection } from "@/components/public/tech-stack";

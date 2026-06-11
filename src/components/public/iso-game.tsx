@@ -128,8 +128,8 @@ export function IsoGame({ onClose }: { onClose: () => void }) {
       const dy = state.py - state.vy;
       const dist = Math.sqrt(dx*dx + dy*dy);
       if (dist > 0) {
-        let nvx = state.vx + (dx/dist) * enemySpeed;
-        let nvy = state.vy + (dy/dist) * enemySpeed;
+        const nvx = state.vx + (dx/dist) * enemySpeed;
+        const nvy = state.vy + (dy/dist) * enemySpeed;
         // Basic enemy wall sliding
         if (map[Math.floor(nvy)][Math.floor(nvx)] === 1) {
           state.vx = nvx; state.vy = nvy;

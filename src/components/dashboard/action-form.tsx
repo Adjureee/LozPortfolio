@@ -21,8 +21,8 @@ export function ActionForm({
       try {
         await action(formData);
         toast.success(successMessage);
-      } catch (err: any) {
-        toast.error(err.message || "Failed to save.");
+      } catch (err: unknown) {
+        toast.error(err instanceof Error ? err.message : "Failed to save.");
       }
     });
   };

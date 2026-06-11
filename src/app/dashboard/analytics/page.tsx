@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Visitor } from "@/lib/types";
+import { VisitorMap } from "@/components/dashboard/visitor-map";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,8 @@ export default async function AnalyticsPage() {
         <h2 className="text-3xl font-display font-bold">Visitor Analytics</h2>
         <p className="text-muted mt-2">Monitor traffic and visitor locations.</p>
       </div>
+      
+      <VisitorMap visitors={visitorList} />
 
       <div className="bg-ink/5 border border-line rounded-lg overflow-hidden">
         <div className="overflow-x-auto">

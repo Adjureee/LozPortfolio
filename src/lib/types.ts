@@ -84,6 +84,8 @@ export type Visitor = {
   ip_address: string;
   city: string | null;
   country: string | null;
+  latitude: number | null;
+  longitude: number | null;
   user_agent: string | null;
   visited_at: string;
 };

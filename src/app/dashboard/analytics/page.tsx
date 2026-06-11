@@ -50,6 +50,7 @@ export default async function AnalyticsPage() {
                 visitorList.map((v) => {
                   const date = new Date(v.visited_at);
                   const formattedDate = date.toLocaleString("en-US", {
+                    timeZone: "Asia/Manila",
                     month: "short",
                     day: "numeric",
                     year: "numeric",

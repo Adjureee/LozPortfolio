@@ -38,33 +38,36 @@ export function Navbar() {
   return (
     <>
       <nav className={`fixed inset-x-0 top-0 z-[100] transition-all duration-300 ${scrolled ? "bg-paper/80 backdrop-blur-md border-b border-line shadow-sm py-4" : "bg-transparent py-6"}`}>
-        <div className="mx-auto flex w-full items-center justify-between px-5 md:px-12 relative max-w-7xl">
-          {/* Logo or Spacer for Mobile */}
-          <div className="md:hidden font-display text-lg tracking-widest font-bold">LOZ.</div>
+        <div className="mx-auto flex w-full items-center justify-center px-5 relative md:px-12 min-h-[32px]">
+          
+          {/* Mobile Hamburger (Left side) */}
+          <div className="md:hidden absolute left-5 flex items-center">
+            <button 
+              className="p-2 -ml-2 text-ink"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open Mobile Menu"
+            >
+              <Menu size={24} />
+            </button>
+          </div>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex flex-wrap items-center justify-center gap-12 absolute left-1/2 -translate-x-1/2">
+          <div className="hidden md:flex flex-wrap items-center justify-center gap-12">
             {links.map((link) => (
               <a 
                 key={link.href} 
                 href={link.href} 
                 onClick={(e) => handleLinkClick(e, link.href)}
-                className="text-sm font-medium uppercase tracking-[0.18em] text-muted transition hover:text-accent"
+                className="text-xs md:text-sm font-medium uppercase tracking-[0.18em] text-muted transition hover:text-accent"
               >
                 {link.label}
               </a>
             ))}
           </div>
 
-          {/* Right Side: Theme Toggle & Hamburger */}
-          <div className="flex items-center gap-4">
+          {/* Theme Toggle (Right side) */}
+          <div className="absolute right-5 md:right-12 flex items-center">
             <ThemeToggle />
-            <button 
-              className="md:hidden p-2 text-ink"
-              onClick={() => setMobileMenuOpen(true)}
-            >
-              <Menu size={24} />
-            </button>
           </div>
         </div>
       </nav>

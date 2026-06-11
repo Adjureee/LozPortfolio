@@ -34,7 +34,7 @@ export function ContactForm() {
           name="name" 
           required 
           placeholder="John Lyold Lozada"
-          className="w-full bg-[#1A1A1A] border border-line/30 text-paper px-4 py-3 rounded-sm focus:outline-none focus:border-accent transition-colors"
+          className="w-full bg-transparent border border-line/50 text-ink px-4 py-3 rounded-sm focus:outline-none focus:border-accent transition-colors"
         />
       </div>
 
@@ -46,7 +46,7 @@ export function ContactForm() {
           name="email" 
           required 
           placeholder="you@example.com"
-          className="w-full bg-[#1A1A1A] border border-line/30 text-paper px-4 py-3 rounded-sm focus:outline-none focus:border-accent transition-colors"
+          className="w-full bg-transparent border border-line/50 text-ink px-4 py-3 rounded-sm focus:outline-none focus:border-accent transition-colors"
         />
       </div>
 
@@ -58,7 +58,7 @@ export function ContactForm() {
           required 
           rows={5}
           placeholder="What's on your mind?"
-          className="w-full bg-[#1A1A1A] border border-line/30 text-paper px-4 py-3 rounded-sm focus:outline-none focus:border-accent transition-colors resize-y"
+          className="w-full bg-transparent border border-line/50 text-ink px-4 py-3 rounded-sm focus:outline-none focus:border-accent transition-colors resize-y"
         />
       </div>
 

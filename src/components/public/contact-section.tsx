@@ -12,75 +12,55 @@ function TypewriterHeading() {
   const ref = useRef<HTMLHeadingElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
 
-  const line1 = "Let's build ";
-  const line2 = "something ";
-  const line3 = "together.";
+  const text = "Let's build\nsomething together.";
+  const chars = text.split("");
 
-  const getDelay = (idx: number) => idx * 0.08; // Typing speed
+  const container = {
+    hidden: { opacity: 1 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
 
-  let globalIdx = 0;
+  const child = {
+    hidden: { opacity: 0, display: "none" },
+    visible: { opacity: 1, display: "inline", transition: { duration: 0.01 } },
+  };
 
   return (
-    <h2
+    <motion.h2
       ref={ref}
+      variants={container}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
       className="font-display text-5xl md:text-[6.5rem] leading-[0.9] tracking-tighter"
     >
-      <span className="block">
-        {line1.split("").map((char, index) => {
-          const idx = globalIdx++;
-          return (
-            <motion.span
-              key={`l1-${index}`}
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ duration: 0, delay: getDelay(idx) }}
-              className="whitespace-pre"
-            >
-              {char}
-            </motion.span>
-          );
-        })}
-      </span>
-      <span className="block">
-        {line2.split("").map((char, index) => {
-          const idx = globalIdx++;
-          return (
-            <motion.span
-              key={`l2-${index}`}
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ duration: 0, delay: getDelay(idx) }}
-              className="whitespace-pre"
-            >
-              {char}
-            </motion.span>
-          );
-        })}
-        <span className="text-accent italic font-light relative pr-4">
-          {line3.split("").map((char, index) => {
-            const idx = globalIdx++;
-            return (
-              <motion.span
-                key={`l3-${index}`}
-                initial={{ opacity: 0 }}
-                animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-                transition={{ duration: 0, delay: getDelay(idx) }}
-                className="whitespace-pre"
-              >
-                {char}
-              </motion.span>
-            );
-          })}
-          {/* Blinking cursor */}
+      {chars.map((char, index) => {
+        if (char === "\n") return <br key={index} />;
+
+        const isTogether = index >= text.indexOf("together.");
+
+        return (
           <motion.span
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: [0, 1, 0] } : { opacity: 0 }}
-            transition={{ repeat: Infinity, duration: 0.8, delay: getDelay(globalIdx) }}
-            className="inline-block w-[0.08em] h-[0.8em] bg-accent ml-2 align-baseline translate-y-[-0.1em]"
-          />
-        </span>
-      </span>
-    </h2>
+            key={index}
+            variants={child}
+            className={isTogether ? "text-accent italic font-light" : ""}
+          >
+            {char}
+          </motion.span>
+        );
+      })}
+      {/* Blinking cursor */}
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: [0, 1, 0] } : { opacity: 0 }}
+        transition={{ repeat: Infinity, duration: 0.8, delay: chars.length * 0.08 }}
+        className="inline-block w-[0.08em] h-[0.8em] bg-accent ml-2 align-baseline translate-y-[-0.1em]"
+      />
+    </motion.h2>
   );
 }
 

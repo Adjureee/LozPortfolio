@@ -149,3 +149,71 @@ body.matrix-mode-active video {
 
 /* Barrel Roll */
 /* Earthquake */
+
+body.matrix-mode-active img,
+body.matrix-mode-active video {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+@keyframes earthquake {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  10%, 90% { transform: translate3d(-10px, -5px, 0) rotate(-1deg); }
+  20%, 80% { transform: translate3d(10px, 5px, 0) rotate(1deg); }
+  30%, 50%, 70% { transform: translate3d(-15px, 10px, 0) rotate(-2deg); }
+  40%, 60% { transform: translate3d(15px, -10px, 0) rotate(2deg); }
+}
+
+/* AI Takeover Mode */
+body.ai-takeover-active * {
+  font-family: 'Courier New', Courier, monospace !important;
+  color: #10B981 !important; /* Emerald 500 */
+  background: transparent !important;
+  border-color: #10B981 !important;
+  box-shadow: none !important;
+  text-shadow: 0 0 5px rgba(16, 185, 129, 0.5) !important;
+  transition: all 0.1s !important;
+}
+body.ai-takeover-active {
+  background: #000 !important;
+}
+
+/* 3D Hologram Mode */
+:root {
+  --holo-rx: 15deg;
+  --holo-ry: -15deg;
+}
+
+body.hologram-mode-active {
+  background: #000;
+  overflow: hidden;
+  perspective: 2000px;
+}
+
+body.hologram-mode-active #main-hologram-wrapper {
+  transform-style: preserve-3d;
+  transform: scale(0.6) rotateX(var(--holo-rx)) rotateY(var(--holo-ry));
+  transition: transform 0.1s ease-out;
+  box-shadow: 0 0 100px rgba(92, 201, 190, 0.2);
+  border: 1px solid rgba(92, 201, 190, 0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  height: 100vh;
+  pointer-events: none;
+}
+
+body.hologram-mode-active #main-hologram-wrapper * {
+  transform-style: preserve-3d;
+}
+
+body.hologram-mode-active h1, 
+body.hologram-mode-active h2, 
+body.hologram-mode-active h3, 
+body.hologram-mode-active img, 
+body.hologram-mode-active button {
+  transform: translateZ(60px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+body.hologram-mode-active .hero-image {
+  transform: translateZ(120px);
+}

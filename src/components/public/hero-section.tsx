@@ -199,9 +199,20 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
                         alt="Hover Avatar" 
                         fill 
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover object-top opacity-0 transition-opacity duration-[1.5s] group-hover:opacity-100 absolute inset-0" 
+                        className={`object-cover object-top opacity-0 transition-opacity duration-[1.5s] group-hover:opacity-100 ${showFireworks ? 'opacity-100' : ''}`}
+                        priority
                       />
                     )}
+                    
+                    {/* Secret AI Takeover Trigger */}
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.dispatchEvent(new CustomEvent('trigger-ai-takeover'));
+                      }}
+                      className="absolute top-6 right-6 w-3 h-3 bg-red-500 rounded-full animate-pulse z-[60] hover:scale-150 hover:bg-red-400 transition-all cursor-pointer opacity-80"
+                      aria-label="Do not click"
+                    />
                   </MagneticAvatar>
                   
                   {/* Subtle Yank Hint */}

@@ -8,6 +8,8 @@ import { Providers } from "@/components/providers";
 import { BsodOverlay } from "@/components/public/bsod-overlay";
 import { ConsoleEasterEgg } from "@/components/public/console-easter-egg";
 import { MatrixOverlay } from "@/components/public/matrix-overlay";
+import { AiTakeoverOverlay } from "@/components/public/ai-takeover-overlay";
+import { HologramModeOverlay } from "@/components/public/hologram-mode-overlay";
 import { TerminalProvider } from "@/components/providers/terminal-provider";
 import { Toaster } from "sonner";
 
@@ -44,11 +46,15 @@ export default function RootLayout({
         <BsodOverlay />
         <MatrixOverlay />
         <ConsoleEasterEgg />
+        <AiTakeoverOverlay />
+        <HologramModeOverlay />
         <TerminalProvider>
           <Providers>
             <SoundProvider>
               <ThemeProvider>
-                {children}
+                <div id="main-hologram-wrapper">
+                  {children}
+                </div>
                 <Toaster position="bottom-right" theme="dark" />
               </ThemeProvider>
             </SoundProvider>

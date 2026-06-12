@@ -245,6 +245,18 @@ export function ContactSection({ contacts }: { contacts: ContactSettings | null 
         </div>
       </div>
 
+      {/* Secret Hologram Trigger */}
+      <div className="w-full flex justify-end px-5 md:px-12 mb-4 relative z-20">
+        <button 
+          onClick={() => window.dispatchEvent(new CustomEvent('trigger-hologram-mode'))}
+          className="p-2 opacity-10 hover:opacity-100 transition-opacity text-xs font-bold text-accent border border-accent/20 rounded group flex items-center gap-2"
+          title="Enable Hologram Mode"
+        >
+          <span className="group-hover:inline hidden">3D MODE</span>
+          <div className="w-3 h-3 border-2 border-accent transform rotate-45" />
+        </button>
+      </div>
+
       <Footer />
     </section>
   );

@@ -245,15 +245,15 @@ export function ContactSection({ contacts }: { contacts: ContactSettings | null 
         </div>
       </div>
 
-      {/* Secret Hologram Trigger */}
+      {/* Secret Asteroids Trigger */}
       <div className="w-full flex justify-end px-5 md:px-12 mb-4 relative z-20">
         <button 
-          onClick={() => window.dispatchEvent(new CustomEvent('trigger-hologram-mode'))}
-          className="p-2 opacity-10 hover:opacity-100 transition-opacity text-xs font-bold text-accent border border-accent/20 rounded group flex items-center gap-2"
-          title="Enable Hologram Mode"
+          onClick={() => window.dispatchEvent(new CustomEvent('trigger-asteroids-mode'))}
+          className="p-2 opacity-10 hover:opacity-100 transition-opacity text-xs font-bold text-red-500 border border-red-500/20 rounded group flex items-center gap-2"
+          title="Enable Destroy Mode"
         >
-          <span className="group-hover:inline hidden">3D MODE</span>
-          <div className="w-3 h-3 border-2 border-accent transform rotate-45" />
+          <span className="group-hover:inline hidden">DESTROY MODE</span>
+          <div className="w-3 h-3 bg-red-500 rounded-sm transform rotate-45 group-hover:animate-pulse" />
         </button>
       </div>
 

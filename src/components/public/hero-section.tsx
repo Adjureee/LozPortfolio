@@ -203,19 +203,17 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
                         priority
                       />
                     )}
-                    
-                    {/* Secret AI Takeover Trigger */}
-                    <button 
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        window.dispatchEvent(new CustomEvent('trigger-ai-takeover'));
-                      }}
-                      className="absolute top-6 right-6 w-4 h-4 bg-red-500 rounded-full animate-pulse z-[60] hover:scale-150 hover:bg-red-400 transition-all cursor-pointer opacity-80 shadow-[0_0_10px_red]"
-                      aria-label="Do not click"
-                    />
                   </MagneticAvatar>
+                  
+                  {/* Secret AI Takeover Trigger (Moved outside MagneticAvatar to fix clickability) */}
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.dispatchEvent(new CustomEvent('trigger-ai-takeover'));
+                    }}
+                    className="absolute top-4 right-8 md:right-16 w-4 h-4 bg-red-500 rounded-full animate-pulse z-[60] hover:scale-150 hover:bg-red-400 transition-all cursor-pointer opacity-80 shadow-[0_0_10px_red]"
+                    aria-label="Do not click"
+                  />
                   
                   {/* Subtle Yank Hint */}
                   <motion.div 

@@ -56,8 +56,10 @@ export function SadOfficeRoom(props: React.JSX.IntrinsicElements['group'] & {
       <TransformControls 
         mode={props.transformMode || 'translate'}
         onMouseDown={() => { isDragging.current = true; }}
-        onMouseUp={() => { isDragging.current = false; }}
-        onObjectChange={() => {
+        onMouseUp={() => { 
+          isDragging.current = false; 
+          // Fire the state update ONLY when the user releases the mouse.
+          // Doing this on every frame causes massive lag due to React re-renders!
           if (props.onTransformChange && meshRef.current) {
              const pos = meshRef.current.position;
              const rot = meshRef.current.rotation;

@@ -121,6 +121,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       const newCount = prev + 1;
       if (newCount >= 3) {
         setShowDesktopOS(true);
+        setIsBootingOS(true);
         return 0; // reset
       }
       return newCount;

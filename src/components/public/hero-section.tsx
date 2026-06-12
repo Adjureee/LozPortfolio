@@ -84,6 +84,8 @@ function TechFireworks({ onComplete }: { onComplete: () => void }) {
   );
 }
 
+import { CRTOsScene } from "./crt-os-scene";
+
 export function HeroSection({ config, isReady = true }: { config: SiteConfig | null, isReady?: boolean }) {
   const rootRef = useRef<HTMLElement>(null);
   const [showFireworks, setShowFireworks] = useState(false);
@@ -309,16 +311,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       {/* Overlays */}
       {showDesktopOS && (
         <div className="fixed inset-0 z-[9999] bg-black">
-          {isBootingOS ? (
-            <OSBootSequence onComplete={() => setIsBootingOS(false)} />
-          ) : (
-            <iframe 
-              src="/monitor-os/index.html" 
-              className="w-full h-full border-0 animate-in fade-in duration-500"
-              title="Desktop OS"
-              allowFullScreen
-            ></iframe>
-          )}
+          <CRTOsScene isBootingOS={isBootingOS} onCompleteBoot={() => setIsBootingOS(false)} />
         </div>
       )}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}
@@ -463,7 +456,7 @@ function MagneticAvatar({ children, name, course, onYank, isTwinkling }: { child
   );
 }
 
-function OSBootSequence({ onComplete }: { onComplete: () => void }) {
+export function OSBootSequence({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {

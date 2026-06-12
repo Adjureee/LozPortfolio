@@ -90,6 +90,8 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [showTerminal, setShowTerminal] = useState(false);
   const [showZork, setShowZork] = useState(false);
   const [showIso, setShowIso] = useState(false);
+  const [showPhysicsGame, setShowPhysicsGame] = useState(false);
+  const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
   
   const hasConfig = Boolean(config?.display_name || config?.title || config?.about_me);
@@ -104,6 +106,15 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   };
 
   const handleYank = () => {
+    setYankCount(prev => {
+      const newCount = prev + 1;
+      if (newCount === 3) {
+        setShowPhysicsGame(true);
+        return 0; // Reset after triggering
+      }
+      return newCount;
+    });
+
     if (!showFireworks) {
       setShowFireworks(true);
     }
@@ -262,7 +273,8 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
         }}
       />
 
-      {/* Games */}
+      {/* Games & Easter Eggs */}
+      {showPhysicsGame && <PhysicsGame onClose={() => setShowPhysicsGame(false)} />}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}
       {showIso && <IsoGame onClose={() => setShowIso(false)} />}
     </section>

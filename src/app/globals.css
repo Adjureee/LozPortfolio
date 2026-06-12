@@ -122,3 +122,56 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 
+  Easter Egg Animations 
+*/
+
+/* Matrix Mode Glitch Effect */
+body.matrix-mode-active {
+  filter: hue-rotate(90deg) contrast(120%) saturate(150%) brightness(80%);
+  animation: matrix-glitch 2s infinite linear alternate-reverse;
+}
+
+body.matrix-mode-active img,
+body.matrix-mode-active video {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+@keyframes matrix-glitch {
+  0% { transform: translate(0) skew(0deg); }
+  20% { transform: translate(-2px, 1px) skew(1deg); filter: hue-rotate(90deg) contrast(150%); }
+  40% { transform: translate(-1px, -1px) skew(-1deg); }
+  60% { transform: translate(2px, 2px) skew(0deg); filter: hue-rotate(180deg); }
+  80% { transform: translate(1px, -2px) skew(2deg); }
+  100% { transform: translate(0) skew(0deg); filter: hue-rotate(90deg); }
+}
+
+/* Barrel Roll */
+body.animate-barrel-roll {
+  animation: barrel-roll 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: center center;
+  overflow-x: hidden;
+}
+
+@keyframes barrel-roll {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Earthquake */
+body.animate-earthquake {
+  animation: earthquake 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both infinite;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  overflow-x: hidden;
+}
+
+@keyframes earthquake {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  10%, 90% { transform: translate3d(-10px, -5px, 0) rotate(-1deg); }
+  20%, 80% { transform: translate3d(10px, 5px, 0) rotate(1deg); }
+  30%, 50%, 70% { transform: translate3d(-15px, 10px, 0) rotate(-2deg); }
+  40%, 60% { transform: translate3d(15px, -10px, 0) rotate(2deg); }
+}

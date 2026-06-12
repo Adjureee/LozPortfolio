@@ -95,12 +95,29 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
   const { playClick } = useSound();
+  
+  const startupAudioRef = useRef<HTMLAudioElement>(null);
+  const shutdownAudioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (showDesktopOS && !isBootingOS) {
+      if (startupAudioRef.current) {
+        startupAudioRef.current.currentTime = 0;
+        startupAudioRef.current.play().catch(e => console.error('Audio play failed:', e));
+      }
+    }
+  }, [showDesktopOS, isBootingOS]);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
       if (event.data.type === 'CLOSE_OS') {
         setShowDesktopOS(false);
+      } else if (event.data.type === 'PLAY_SHUTDOWN') {
+        if (shutdownAudioRef.current) {
+          shutdownAudioRef.current.currentTime = 0;
+          shutdownAudioRef.current.play().catch(e => console.error('Audio play failed:', e));
+        }
       } else if (event.data.type === 'mousedown') {
         playClick();
       }
@@ -306,6 +323,10 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       )}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}
       {showIso && <IsoGame onClose={() => setShowIso(false)} />}
+
+      {/* Hidden Audio Elements */}
+      <audio ref={startupAudioRef} src="/startup.wav" preload="auto" />
+      <audio ref={shutdownAudioRef} src="/shutdown.wav" preload="auto" />
     </section>
   );
 }

@@ -43,6 +43,7 @@
                 // Observe for Shutdown animation text and close OS
                 const observer = new MutationObserver((mutations) => {
                     if (document.body.innerText.includes("Beginning Pre-Shutdown Sequence...")) {
+                        window.parent.postMessage({ type: 'PLAY_SHUTDOWN' }, '*');
                         setTimeout(() => {
                             window.parent.postMessage({ type: 'CLOSE_OS' }, '*');
                         }, 2500); // Wait 2.5s to let the user see the text

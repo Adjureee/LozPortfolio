@@ -96,6 +96,10 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const lenis = useLenis();
   const { playClick } = useSound();
   
+  // CRT Monitor Calibration
+  const [crtConfig, setCrtConfig] = useState({ top: 10, left: 10, width: 80, height: 80, radius: 2 });
+  const [isCalibrating, setIsCalibrating] = useState(true);
+
   const startupAudioRef = useRef<HTMLAudioElement>(null);
   const shutdownAudioRef = useRef<HTMLAudioElement>(null);
 
@@ -308,17 +312,80 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
 
       {/* Overlays */}
       {showDesktopOS && (
-        <div className="fixed inset-0 z-[9999] bg-black">
-          {isBootingOS ? (
-            <OSBootSequence onComplete={() => setIsBootingOS(false)} />
-          ) : (
-            <iframe 
-              src="/monitor-os/index.html" 
-              className="w-full h-full border-0 animate-in fade-in duration-500"
-              title="Desktop OS"
-              allowFullScreen
-            ></iframe>
-          )}
+        <div className="fixed inset-0 z-[9999] bg-black overflow-hidden flex items-center justify-center">
+          {/* CRT Monitor Image Background */}
+          <div 
+            className="relative w-full h-full max-w-[100vw] max-h-[100vh]"
+            style={{
+              backgroundImage: "url('/crt-desk.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat"
+            }}
+          >
+            {/* The actual OS Screen */}
+            <div 
+              className="absolute overflow-hidden"
+              style={{
+                top: `${crtConfig.top}%`,
+                left: `${crtConfig.left}%`,
+                width: `${crtConfig.width}%`,
+                height: `${crtConfig.height}%`,
+                borderRadius: `${crtConfig.radius}%`,
+                boxShadow: "inset 0 0 20px rgba(0,0,0,0.8), 0 0 50px rgba(0,255,255,0.1)"
+              }}
+            >
+              {/* Scanline overlay */}
+              <div className="absolute inset-0 pointer-events-none z-50 mix-blend-overlay opacity-30" 
+                style={{
+                  backgroundImage: "linear-gradient(transparent 50%, rgba(0, 0, 0, 0.5) 50%)",
+                  backgroundSize: "100% 4px"
+                }}
+              />
+              {/* Screen Glare */}
+              <div className="absolute inset-0 pointer-events-none z-50 mix-blend-screen opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
+
+              {isBootingOS ? (
+                <OSBootSequence onComplete={() => setIsBootingOS(false)} />
+              ) : (
+                <iframe 
+                  src="/monitor-os/index.html" 
+                  className="w-full h-full border-0 animate-in fade-in duration-500"
+                  title="Desktop OS"
+                  allowFullScreen
+                ></iframe>
+              )}
+            </div>
+
+            {/* Calibration UI */}
+            {isCalibrating && (
+              <div className="absolute bottom-5 left-5 bg-black/80 text-white p-4 rounded-lg z-[10000] flex flex-col gap-2 w-80 font-mono text-sm">
+                <h3 className="font-bold border-b border-white/20 pb-2">Align Screen over Green Area</h3>
+                <label className="flex flex-col text-xs">Top: {crtConfig.top.toFixed(1)}%
+                  <input type="range" min="0" max="100" step="0.1" value={crtConfig.top} onChange={e => setCrtConfig(p => ({...p, top: parseFloat(e.target.value)}))} />
+                </label>
+                <label className="flex flex-col text-xs">Left: {crtConfig.left.toFixed(1)}%
+                  <input type="range" min="0" max="100" step="0.1" value={crtConfig.left} onChange={e => setCrtConfig(p => ({...p, left: parseFloat(e.target.value)}))} />
+                </label>
+                <label className="flex flex-col text-xs">Width: {crtConfig.width.toFixed(1)}%
+                  <input type="range" min="0" max="100" step="0.1" value={crtConfig.width} onChange={e => setCrtConfig(p => ({...p, width: parseFloat(e.target.value)}))} />
+                </label>
+                <label className="flex flex-col text-xs">Height: {crtConfig.height.toFixed(1)}%
+                  <input type="range" min="0" max="100" step="0.1" value={crtConfig.height} onChange={e => setCrtConfig(p => ({...p, height: parseFloat(e.target.value)}))} />
+                </label>
+                <label className="flex flex-col text-xs">Border Radius: {crtConfig.radius.toFixed(1)}%
+                  <input type="range" min="0" max="50" step="0.1" value={crtConfig.radius} onChange={e => setCrtConfig(p => ({...p, radius: parseFloat(e.target.value)}))} />
+                </label>
+                <button 
+                  className="mt-2 bg-green-500 text-black font-bold py-1 px-2 rounded"
+                  onClick={() => setIsCalibrating(false)}
+                >
+                  Done Calibrating
+                </button>
+                <p className="text-[10px] text-gray-400 mt-2">Adjust the sliders to perfectly fit the iframe into the monitor screen. Once done, paste the values to me!</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}

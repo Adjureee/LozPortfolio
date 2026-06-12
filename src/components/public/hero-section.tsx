@@ -205,13 +205,13 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
                     )}
                   </MagneticAvatar>
                   
-                  {/* Secret AI Takeover Trigger (Moved outside MagneticAvatar to fix clickability) */}
+                  {/* Secret AI Takeover Trigger (Blends in) */}
                   <button 
                     onClick={(e) => {
                       e.preventDefault();
                       window.dispatchEvent(new CustomEvent('trigger-ai-takeover'));
                     }}
-                    className="absolute top-4 right-8 md:right-16 w-4 h-4 bg-red-500 rounded-full animate-pulse z-[60] hover:scale-150 hover:bg-red-400 transition-all cursor-pointer opacity-80 shadow-[0_0_10px_red]"
+                    className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-10 bg-transparent z-[60] cursor-pointer"
                     aria-label="Do not click"
                   />
                   

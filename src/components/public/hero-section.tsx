@@ -310,7 +310,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
 
       {/* Overlays */}
       {showDesktopOS && (
-        <div className="fixed inset-0 z-[9999] bg-black">
+        <div className="fixed inset-0 z-[9999] bg-black" data-lenis-prevent="true">
           <CRTOsScene isBootingOS={isBootingOS} onCompleteBoot={() => setIsBootingOS(false)} />
         </div>
       )}

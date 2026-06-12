@@ -68,8 +68,8 @@ export function SadOfficeRoom(props: React.JSX.IntrinsicElements['group'] & { is
       </Html>
 
       {/* Temporary Calibration UI (Remove when perfectly aligned) */}
-      <Html position={[-3, 0, 0]} center>
-        <div className="bg-white/90 p-4 rounded-lg shadow-xl text-black flex flex-col gap-2 w-64 text-sm font-mono z-50">
+      <Html>
+        <div className="fixed top-20 left-10 bg-white/90 p-4 rounded-lg shadow-xl text-black flex flex-col gap-2 w-64 text-sm font-mono z-[10000]">
           <div className="font-bold mb-2 border-b pb-1">Screen Calibration</div>
           {Object.entries(config).map(([key, value]) => (
             <label key={key} className="flex justify-between items-center gap-2">

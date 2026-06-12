@@ -127,6 +127,16 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [playClick]);
+
+  useEffect(() => {
+    if (lenis) {
+      if (showDesktopOS || showZork || showIso) {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    }
+  }, [showDesktopOS, showZork, showIso, lenis]);
   
   const hasConfig = Boolean(config?.display_name || config?.title || config?.about_me);
 

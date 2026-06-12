@@ -11,7 +11,7 @@ import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from
 import type { SiteConfig } from "@/lib/types";
 import { Typewriter } from "@/components/public/typewriter";
 import { TerminalProvider } from "@/components/providers/terminal-provider";
-import { GeocitiesMode } from "./geocities-mode";
+import { DesktopOS } from "./os/desktop-os";
 import { HackerTerminal } from "./hacker-terminal";
 import { ZorkEngine } from "./zork-engine";
 import { IsoGame } from "./iso-game";
@@ -91,7 +91,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [showTerminal, setShowTerminal] = useState(false);
   const [showZork, setShowZork] = useState(false);
   const [showIso, setShowIso] = useState(false);
-  const [showGeocities, setShowGeocities] = useState(false);
+  const [showDesktopOS, setShowDesktopOS] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
   
@@ -110,7 +110,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
     setYankCount(prev => {
       const newCount = prev + 1;
       if (newCount >= 3) {
-        setShowGeocities(true);
+        setShowDesktopOS(true);
         return 0; // reset
       }
       return newCount;
@@ -275,7 +275,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       />
 
       {/* Overlays */}
-      {showGeocities && <GeocitiesMode onClose={() => setShowGeocities(false)} />}
+      {showDesktopOS && <DesktopOS onClose={() => setShowDesktopOS(false)} />}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}
       {showIso && <IsoGame onClose={() => setShowIso(false)} />}
     </section>

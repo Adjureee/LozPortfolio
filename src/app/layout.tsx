@@ -9,7 +9,6 @@ import { BsodOverlay } from "@/components/public/bsod-overlay";
 import { ConsoleEasterEgg } from "@/components/public/console-easter-egg";
 import { MatrixOverlay } from "@/components/public/matrix-overlay";
 import { AiTakeoverOverlay } from "@/components/public/ai-takeover-overlay";
-import { AsteroidsOverlay } from "@/components/public/asteroids-overlay";
 import { TerminalProvider } from "@/components/providers/terminal-provider";
 import { Toaster } from "sonner";
 
@@ -47,7 +46,6 @@ export default function RootLayout({
         <MatrixOverlay />
         <ConsoleEasterEgg />
         <AiTakeoverOverlay />
-        <AsteroidsOverlay />
         <TerminalProvider>
           <Providers>
             <SoundProvider>

@@ -163,16 +163,42 @@ body.matrix-mode-active video {
   40%, 60% { transform: translate3d(15px, -10px, 0) rotate(2deg); }
 }
 
-/* AI Takeover Mode */
-body.ai-takeover-active * {
-  font-family: 'Courier New', Courier, monospace !important;
-  color: #10B981 !important; /* Emerald 500 */
-  background: transparent !important;
-  border-color: #10B981 !important;
-  box-shadow: none !important;
-  text-shadow: 0 0 5px rgba(16, 185, 129, 0.5) !important;
-  transition: all 0.1s !important;
+/* Cinematic AI Takeover */
+body.ai-takeover-glitch {
+  animation: cinematic-glitch-shake 0.15s infinite;
+  overflow: hidden !important;
 }
-body.ai-takeover-active {
-  background: #000 !important;
+
+body.ai-takeover-glitch * {
+  animation: cinematic-glitch-colors 0.3s infinite;
+}
+
+@keyframes cinematic-glitch-shake {
+  0% { transform: translate(3px, 2px) rotate(0deg); }
+  20% { transform: translate(-3px, -2px) rotate(-1deg); }
+  40% { transform: translate(-5px, 3px) rotate(1deg); }
+  60% { transform: translate(5px, -3px) rotate(-1deg); }
+  80% { transform: translate(-3px, -3px) rotate(1deg); }
+  100% { transform: translate(3px, 3px) rotate(0deg); }
+}
+
+@keyframes cinematic-glitch-colors {
+  0% { filter: invert(0) hue-rotate(0deg); }
+  25% { filter: invert(1) hue-rotate(90deg) contrast(200%); transform: skewX(3deg); }
+  50% { filter: invert(0) hue-rotate(180deg); transform: skewX(-3deg); }
+  75% { filter: invert(1) hue-rotate(270deg) contrast(200%); transform: skewX(1deg); }
+  100% { filter: invert(0) hue-rotate(360deg); }
+}
+
+body.crt-turn-off {
+  animation: crt-turn-off-anim 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards !important;
+  transform-origin: center center;
+  background-color: #000;
+}
+
+@keyframes crt-turn-off-anim {
+  0% { transform: scale(1, 1); opacity: 1; filter: brightness(1) contrast(1); }
+  40% { transform: scale(1, 0.005); opacity: 1; filter: brightness(10) contrast(5); }
+  70% { transform: scale(0.005, 0.005); opacity: 1; filter: brightness(10) contrast(5); }
+  100% { transform: scale(0, 0); opacity: 0; filter: brightness(0); }
 }

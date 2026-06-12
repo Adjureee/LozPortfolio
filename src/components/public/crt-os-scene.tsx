@@ -121,6 +121,7 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
             <label key={key} className="flex justify-between items-center gap-2">
               <span className="w-10 uppercase font-bold text-green-300">{key}</span>
               <input 
+                id={`calib-${key}`}
                 type="number" 
                 step={key === 'scale' ? 0.01 : 0.1} 
                 value={Number(value).toFixed(2)} 
@@ -129,7 +130,7 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
               />
             </label>
           ))}
-          <div className="mt-2 p-2 bg-black/60 rounded text-[10px] text-gray-400 break-all select-all leading-tight">
+          <div id="calib-json" className="mt-2 p-2 bg-black/60 rounded text-[10px] text-gray-400 break-all select-all leading-tight">
             {JSON.stringify(screenConfig)}
           </div>
         </div>

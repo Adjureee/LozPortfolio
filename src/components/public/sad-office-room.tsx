@@ -55,12 +55,10 @@ export function SadOfficeRoom(props: React.JSX.IntrinsicElements['group'] & {
       {/* TransformControls allows visual dragging, rotating, and scaling directly in the 3D scene */}
       <TransformControls 
         mode={props.transformMode || 'translate'}
-        onMouseDown={() => { isDragging.current = true; }}
-        onMouseUp={() => { 
-          isDragging.current = false; 
-          // Fire the state update ONLY when the user releases the mouse.
-          // Doing this on every frame causes massive lag due to React re-renders!
-          if (props.onTransformChange && meshRef.current) {
+        onDraggingChanged={(e) => { 
+          isDragging.current = e?.value ?? false; 
+          // Commit the final state to React when dragging stops
+          if (!isDragging.current && props.onTransformChange && meshRef.current) {
              const pos = meshRef.current.position;
              const rot = meshRef.current.rotation;
              const scale = meshRef.current.scale.x / 4;
@@ -68,6 +66,30 @@ export function SadOfficeRoom(props: React.JSX.IntrinsicElements['group'] & {
                 x: pos.x, y: pos.y, z: pos.z,
                 rx: rot.x, ry: rot.y, rz: rot.z,
                 scale: scale
+             });
+          }
+        }}
+        onObjectChange={() => {
+          // BLAZING FAST PURE DOM UPDATE (Bypasses React entirely to prevent Canvas lag!)
+          if (meshRef.current) {
+             const pos = meshRef.current.position;
+             const rot = meshRef.current.rotation;
+             const scale = meshRef.current.scale.x / 4;
+             
+             const updateEl = (id: string, val: number) => {
+               const el = document.getElementById(`calib-${id}`) as HTMLInputElement;
+               if (el && document.activeElement !== el) el.value = val.toFixed(2);
+             };
+             
+             updateEl('x', pos.x); updateEl('y', pos.y); updateEl('z', pos.z);
+             updateEl('rx', rot.x); updateEl('ry', rot.y); updateEl('rz', rot.z);
+             updateEl('scale', scale);
+             
+             const jsonEl = document.getElementById('calib-json');
+             if (jsonEl) jsonEl.textContent = JSON.stringify({
+                x: Number(pos.x.toFixed(3)), y: Number(pos.y.toFixed(3)), z: Number(pos.z.toFixed(3)),
+                rx: Number(rot.x.toFixed(3)), ry: Number(rot.y.toFixed(3)), rz: Number(rot.z.toFixed(3)),
+                scale: Number(scale.toFixed(3))
              });
           }
         }}

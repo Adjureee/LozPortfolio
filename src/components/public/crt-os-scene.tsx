@@ -124,7 +124,7 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
                 id={`calib-${key}`}
                 type="number" 
                 step={key === 'scale' ? 0.01 : 0.1} 
-                value={Number(value).toFixed(2)} 
+                defaultValue={Number(value).toFixed(2)} 
                 onChange={(e) => setScreenConfig(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
                 className="flex-1 bg-black/50 text-white border border-white/20 rounded px-2 py-1 outline-none focus:border-green-400 font-mono text-right"
               />

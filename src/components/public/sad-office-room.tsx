@@ -58,10 +58,11 @@ export function SadOfficeRoom(props: React.JSX.IntrinsicElements['group'] & {
         onDraggingChanged={(e) => { 
           isDragging.current = e?.value ?? false; 
           // Commit the final state to React when dragging stops
-          if (!isDragging.current && props.onTransformChange && meshRef.current) {
-             const pos = meshRef.current.position;
-             const rot = meshRef.current.rotation;
-             const scale = meshRef.current.scale.x / 4;
+          if (!isDragging.current && props.onTransformChange && e?.target?.object) {
+             const obj = e.target.object;
+             const pos = obj.position;
+             const rot = obj.rotation;
+             const scale = obj.scale.x / 4;
              props.onTransformChange({
                 x: pos.x, y: pos.y, z: pos.z,
                 rx: rot.x, ry: rot.y, rz: rot.z,
@@ -69,12 +70,13 @@ export function SadOfficeRoom(props: React.JSX.IntrinsicElements['group'] & {
              });
           }
         }}
-        onObjectChange={() => {
+        onObjectChange={(e) => {
           // BLAZING FAST PURE DOM UPDATE (Bypasses React entirely to prevent Canvas lag!)
-          if (meshRef.current) {
-             const pos = meshRef.current.position;
-             const rot = meshRef.current.rotation;
-             const scale = meshRef.current.scale.x / 4;
+          if (e?.target?.object) {
+             const obj = e.target.object;
+             const pos = obj.position;
+             const rot = obj.rotation;
+             const scale = obj.scale.x / 4;
              
              const updateEl = (id: string, val: number) => {
                const el = document.getElementById(`calib-${id}`) as HTMLInputElement;

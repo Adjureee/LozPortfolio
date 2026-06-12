@@ -105,7 +105,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
     if (showDesktopOS && !isBootingOS) {
       if (startupAudioRef.current) {
         startupAudioRef.current.currentTime = 0;
-        startupAudioRef.current.play().catch(e => console.error('Audio play failed:', e));
+        startupAudioRef.current.play().catch(() => {});
       }
     }
   }, [showDesktopOS, isBootingOS]);
@@ -118,7 +118,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       } else if (event.data.type === 'PLAY_SHUTDOWN') {
         if (shutdownAudioRef.current) {
           shutdownAudioRef.current.currentTime = 0;
-          shutdownAudioRef.current.play().catch(e => console.error('Audio play failed:', e));
+          shutdownAudioRef.current.play().catch(() => {});
         }
       } else if (event.data.type === 'mousedown') {
         playClick();

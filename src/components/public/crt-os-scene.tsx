@@ -26,8 +26,7 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
           target={[0, -1, 0]}
           minPolarAngle={Math.PI / 4}
           maxPolarAngle={Math.PI / 2 + 0.1} // Allow looking down at the keyboard, but not too far under the desk
-          minDistance={0.5}
-          maxDistance={12}
+          zoomSpeed={2}
         />
       </Canvas>
     </div>

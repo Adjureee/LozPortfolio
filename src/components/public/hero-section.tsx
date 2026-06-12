@@ -10,7 +10,8 @@ import { useLenis } from "lenis/react";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import type { SiteConfig } from "@/lib/types";
 import { Typewriter } from "@/components/public/typewriter";
-import { PhysicsGame } from "./physics-game";
+import { TerminalProvider } from "@/components/providers/terminal-provider";
+import { GeocitiesMode } from "./geocities-mode";
 import { HackerTerminal } from "./hacker-terminal";
 import { ZorkEngine } from "./zork-engine";
 import { IsoGame } from "./iso-game";
@@ -90,7 +91,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [showTerminal, setShowTerminal] = useState(false);
   const [showZork, setShowZork] = useState(false);
   const [showIso, setShowIso] = useState(false);
-  const [showPhysicsGame, setShowPhysicsGame] = useState(false);
+  const [showGeocities, setShowGeocities] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
   
@@ -108,9 +109,9 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const handleYank = () => {
     setYankCount(prev => {
       const newCount = prev + 1;
-      if (newCount === 3) {
-        setShowPhysicsGame(true);
-        return 0; // Reset after triggering
+      if (newCount >= 3) {
+        setShowGeocities(true);
+        return 0; // reset
       }
       return newCount;
     });
@@ -273,8 +274,8 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
         }}
       />
 
-      {/* Games & Easter Eggs */}
-      {showPhysicsGame && <PhysicsGame onClose={() => setShowPhysicsGame(false)} />}
+      {/* Overlays */}
+      {showGeocities && <GeocitiesMode onClose={() => setShowGeocities(false)} />}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}
       {showIso && <IsoGame onClose={() => setShowIso(false)} />}
     </section>

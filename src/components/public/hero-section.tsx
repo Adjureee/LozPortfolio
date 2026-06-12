@@ -11,7 +11,6 @@ import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from
 import type { SiteConfig } from "@/lib/types";
 import { Typewriter } from "@/components/public/typewriter";
 import { TerminalProvider } from "@/components/providers/terminal-provider";
-import { DesktopOS } from "./os/desktop-os";
 import { HackerTerminal } from "./hacker-terminal";
 import { ZorkEngine } from "./zork-engine";
 import { IsoGame } from "./iso-game";
@@ -275,7 +274,22 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       />
 
       {/* Overlays */}
-      {showDesktopOS && <DesktopOS onClose={() => setShowDesktopOS(false)} />}
+      {showDesktopOS && (
+        <div className="fixed inset-0 z-[9999] bg-black">
+          <iframe 
+            src="/monitor-os/index.html" 
+            className="w-full h-full border-0"
+            title="Desktop OS"
+            allowFullScreen
+          ></iframe>
+          <button 
+            onClick={() => setShowDesktopOS(false)}
+            className="absolute top-4 right-4 bg-gray-300 text-black border-2 border-t-white border-l-white border-b-gray-600 border-r-gray-600 px-4 py-1 font-bold font-sans active:border-t-gray-600 active:border-l-gray-600 active:border-b-white active:border-r-white z-50"
+          >
+            X Close OS
+          </button>
+        </div>
+      )}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}
       {showIso && <IsoGame onClose={() => setShowIso(false)} />}
     </section>

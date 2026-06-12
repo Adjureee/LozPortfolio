@@ -91,6 +91,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [showZork, setShowZork] = useState(false);
   const [showIso, setShowIso] = useState(false);
   const [showDesktopOS, setShowDesktopOS] = useState(false);
+  const [isBootingOS, setIsBootingOS] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
 
@@ -286,12 +287,16 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       {/* Overlays */}
       {showDesktopOS && (
         <div className="fixed inset-0 z-[9999] bg-black">
-          <iframe 
-            src="/monitor-os/index.html" 
-            className="w-full h-full border-0"
-            title="Desktop OS"
-            allowFullScreen
-          ></iframe>
+          {isBootingOS ? (
+            <OSBootSequence onComplete={() => setIsBootingOS(false)} />
+          ) : (
+            <iframe 
+              src="/monitor-os/index.html" 
+              className="w-full h-full border-0 animate-in fade-in duration-500"
+              title="Desktop OS"
+              allowFullScreen
+            ></iframe>
+          )}
         </div>
       )}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}
@@ -428,6 +433,73 @@ function MagneticAvatar({ children, name, course, onYank, isTwinkling }: { child
           </div>
         </div>
       </motion.div>
+    </div>
+  );
+}
+
+function OSBootSequence({ onComplete }: { onComplete: () => void }) {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const sequence = [
+      { delay: 800, step: 1 },
+      { delay: 1600, step: 2 },
+      { delay: 2400, step: 3 },
+      { delay: 3500, step: 4 },
+      { delay: 5000, step: 5 }, // Finish
+    ];
+    
+    const timeouts = sequence.map(({ delay, step: s }) => 
+      setTimeout(() => setStep(s), delay)
+    );
+    
+    const finishTimer = setTimeout(onComplete, 5500);
+    return () => {
+      timeouts.forEach(clearTimeout);
+      clearTimeout(finishTimer);
+    };
+  }, [onComplete]);
+
+  return (
+    <div className="absolute inset-0 z-[10000] bg-black text-[#c0c0c0] font-mono text-sm md:text-lg p-4 md:p-8 flex flex-col pointer-events-none overflow-hidden">
+      {step < 4 && <div className="animate-pulse mb-4 w-3 h-5 bg-[#c0c0c0]"></div>}
+      
+      {step >= 1 && (
+        <div className="mb-4">
+          <p>Award Modular BIOS v4.51PG, An Energy Star Ally</p>
+          <p>Copyright (C) 1984-95, Award Software, Inc.</p>
+          <br/>
+          <p>PENTIUM-S CPU at 133MHz</p>
+          <p>Memory Test : 32768K OK</p>
+        </div>
+      )}
+      
+      {step >= 2 && (
+        <div className="mb-4">
+          <p>Award Plug and Play BIOS Extension  v1.0A</p>
+          <p>Initialize Plug and Play Cards...</p>
+          <p>PNP Init Completed</p>
+        </div>
+      )}
+      
+      {step >= 3 && (
+        <div className="mb-4">
+          <p>Detecting HDD Primary Master   ... WDC AC31600H</p>
+          <p>Detecting HDD Primary Slave    ... None</p>
+          <p>Detecting HDD Secondary Master ... CD-ROM Drive</p>
+          <p>Detecting HDD Secondary Slave  ... None</p>
+        </div>
+      )}
+
+      {step >= 4 && (
+        <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in duration-500">
+          <div className="text-white text-center mb-10">
+            <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter mb-2">Microsoft</h1>
+            <h2 className="text-3xl md:text-6xl font-bold tracking-widest">Windows 95</h2>
+          </div>
+          <div className="animate-pulse mt-auto mb-10 text-xl md:text-2xl text-white">Starting Windows 95...</div>
+        </div>
+      )}
     </div>
   );
 }

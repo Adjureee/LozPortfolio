@@ -6,6 +6,8 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { SoundProvider } from "@/components/providers/sound-provider";
 import { Providers } from "@/components/providers";
 import { BsodOverlay } from "@/components/public/bsod-overlay";
+import { ConsoleEasterEgg } from "@/components/public/console-easter-egg";
+import { MatrixOverlay } from "@/components/public/matrix-overlay";
 import { TerminalProvider } from "@/components/providers/terminal-provider";
 import { Toaster } from "sonner";
 
@@ -40,6 +42,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className="dark">
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`} suppressHydrationWarning>
         <BsodOverlay />
+        <MatrixOverlay />
+        <ConsoleEasterEgg />
         <TerminalProvider>
           <Providers>
             <SoundProvider>

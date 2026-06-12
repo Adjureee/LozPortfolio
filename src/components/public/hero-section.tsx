@@ -93,6 +93,16 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [showDesktopOS, setShowDesktopOS] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'CLOSE_OS') {
+        setShowDesktopOS(false);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
   
   const hasConfig = Boolean(config?.display_name || config?.title || config?.about_me);
 
@@ -282,12 +292,6 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
             title="Desktop OS"
             allowFullScreen
           ></iframe>
-          <button 
-            onClick={() => setShowDesktopOS(false)}
-            className="absolute top-4 right-4 bg-gray-300 text-black border-2 border-t-white border-l-white border-b-gray-600 border-r-gray-600 px-4 py-1 font-bold font-sans active:border-t-gray-600 active:border-l-gray-600 active:border-b-white active:border-r-white z-50"
-          >
-            X Close OS
-          </button>
         </div>
       )}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}

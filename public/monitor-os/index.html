@@ -39,6 +39,17 @@
                         '*',
                     );
                 });
+
+                // Observe for Shutdown animation text and close OS
+                const observer = new MutationObserver((mutations) => {
+                    if (document.body.innerText.includes("Shutting Down...")) {
+                        setTimeout(() => {
+                            window.parent.postMessage({ type: 'CLOSE_OS' }, '*');
+                        }, 2500); // Wait 2.5s to let the user see the text
+                        observer.disconnect();
+                    }
+                });
+                observer.observe(document.body, { childList: true, subtree: true, characterData: true });
             };
         </script>
     <script src="/monitor-os/js-dos/js-dos.js"></script>

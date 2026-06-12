@@ -94,16 +94,20 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [isBootingOS, setIsBootingOS] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
+  const { playClick } = useSound();
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === 'CLOSE_OS') {
+      if (!event.data) return;
+      if (event.data.type === 'CLOSE_OS') {
         setShowDesktopOS(false);
+      } else if (event.data.type === 'mousedown') {
+        playClick();
       }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [playClick]);
   
   const hasConfig = Boolean(config?.display_name || config?.title || config?.about_me);
 

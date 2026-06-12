@@ -32,6 +32,7 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
     scale: 1
   });
 
+  const [transformMode, setTransformMode] = useState<'translate' | 'rotate' | 'scale'>('translate');
   const [orbitTarget, setOrbitTarget] = useState<[number, number, number]>([0, 0, 0]);
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
@@ -61,7 +62,11 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
         <pointLight position={[-10, -10, -10]} intensity={0.5} />
         
         <Suspense fallback={null}>
-          <SadOfficeRoom screenConfig={screenConfig} />
+          <SadOfficeRoom 
+            screenConfig={screenConfig} 
+            transformMode={transformMode}
+            onTransformChange={setScreenConfig}
+          />
           <SceneInspector onTargetFound={handleTargetFound} />
         </Suspense>
 
@@ -91,22 +96,40 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
           style={{ pointerEvents: 'auto' }}
         >
           <div className="font-bold mb-2 border-b border-white/20 pb-1 text-green-400">⬛ Screen Calibration</div>
-          <p className="text-[10px] text-gray-400 mb-2">
-            Move the green rectangle over the CRT screen glass. Send me the numbers when aligned.
+          <p className="text-[10px] text-gray-400 mb-2 leading-tight">
+            Use the 3D Gizmo to drag the green screen into place. 
+            Click the buttons below to switch Gizmo modes.
           </p>
+
+          <div className="flex gap-2 mb-2">
+            {(['translate', 'rotate', 'scale'] as const).map(mode => (
+              <button 
+                key={mode}
+                onClick={() => setTransformMode(mode)}
+                className={`flex-1 py-1 rounded text-xs uppercase font-bold border transition-colors ${
+                  transformMode === mode 
+                    ? 'bg-green-500 text-black border-green-500' 
+                    : 'bg-black/50 text-gray-400 border-white/20 hover:border-green-500 hover:text-green-400'
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+
           {Object.entries(screenConfig).map(([key, value]) => (
             <label key={key} className="flex justify-between items-center gap-2">
               <span className="w-10 uppercase font-bold text-green-300">{key}</span>
               <input 
                 type="number" 
                 step={key === 'scale' ? 0.01 : 0.1} 
-                value={value} 
+                value={Number(value).toFixed(2)} 
                 onChange={(e) => setScreenConfig(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
                 className="flex-1 bg-black/50 text-white border border-white/20 rounded px-2 py-1 outline-none focus:border-green-400 font-mono text-right"
               />
             </label>
           ))}
-          <div className="mt-2 p-2 bg-black/60 rounded text-[10px] text-gray-400 break-all select-all">
+          <div className="mt-2 p-2 bg-black/60 rounded text-[10px] text-gray-400 break-all select-all leading-tight">
             {JSON.stringify(screenConfig)}
           </div>
         </div>

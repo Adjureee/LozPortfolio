@@ -202,3 +202,8 @@ body.crt-turn-off {
   70% { transform: scale(0.005, 0.005); opacity: 1; filter: brightness(10) contrast(5); }
   100% { transform: scale(0, 0); opacity: 0; filter: brightness(0); }
 }
+
+/* Force standard cursor override for 3D interactions */
+body.force-system-cursor, body.force-system-cursor * {
+  cursor: auto !important;
+}

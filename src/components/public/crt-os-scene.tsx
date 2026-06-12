@@ -98,15 +98,12 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
             <label key={key} className="flex justify-between items-center gap-2">
               <span className="w-10 uppercase font-bold text-green-300">{key}</span>
               <input 
-                type="range" 
-                min={key === 'scale' ? 0.01 : -50} 
-                max={key === 'scale' ? 5 : 50} 
+                type="number" 
                 step={key === 'scale' ? 0.01 : 0.1} 
                 value={value} 
-                onChange={(e) => setScreenConfig(prev => ({ ...prev, [key]: parseFloat(e.target.value) }))}
-                className="flex-1 accent-green-400"
+                onChange={(e) => setScreenConfig(prev => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
+                className="flex-1 bg-black/50 text-white border border-white/20 rounded px-2 py-1 outline-none focus:border-green-400 font-mono text-right"
               />
-              <span className="w-14 text-right text-xs text-green-200 font-mono">{value.toFixed(2)}</span>
             </label>
           ))}
           <div className="mt-2 p-2 bg-black/60 rounded text-[10px] text-gray-400 break-all select-all">

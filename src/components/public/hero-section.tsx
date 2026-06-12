@@ -132,8 +132,10 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
     if (lenis) {
       if (showDesktopOS || showZork || showIso) {
         lenis.stop();
+        document.body.classList.add("force-system-cursor");
       } else {
         lenis.start();
+        document.body.classList.remove("force-system-cursor");
       }
     }
   }, [showDesktopOS, showZork, showIso, lenis]);

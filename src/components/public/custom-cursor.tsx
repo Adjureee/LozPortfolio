@@ -25,6 +25,12 @@ export function CustomCursor() {
     const moveCursor = (e: MouseEvent) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
+      
+      if (document.body.classList.contains("force-system-cursor")) {
+        if (isVisible) setIsVisible(false);
+        return;
+      }
+      
       if (!isVisible) setIsVisible(true);
     };
 

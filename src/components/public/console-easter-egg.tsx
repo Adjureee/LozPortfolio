@@ -100,31 +100,11 @@ export function ConsoleEasterEgg() {
         }, 500);
         return "System failure imminent.";
       },
-      roll: () => {
-        console.log("%cDO A BARREL ROLL!", "color: #3B82F6; font-weight: bold; font-size: 16px;");
-        if (!document.body.classList.contains("animate-barrel-roll")) {
-          document.body.classList.add("animate-barrel-roll");
-          setTimeout(() => document.body.classList.remove("animate-barrel-roll"), 2000);
-        }
-        return "Wheeeee!";
-      },
-      shake: () => {
-        console.log("%cEARTHQUAKE INITIATED!", "color: #F59E0B; font-weight: bold; font-size: 16px;");
-        if (!document.body.classList.contains("animate-earthquake")) {
-          document.body.classList.add("animate-earthquake");
-          setTimeout(() => document.body.classList.remove("animate-earthquake"), 2500);
-        }
-        return "Hold on tight!";
-      },
       help: () => {
         console.log(
-          "%cAVAILABLE COMMANDS:\n\n%c- loz.about()\n- loz.skills()\n- loz.contact()\n- loz.roll()     %c[FUN]%c\n- loz.shake()    %c[FUN]%c\n- loz.hack()     %c[DANGER]%c\n- loz.crash()    %c[DANGER]%c\n- loz.help()",
+          "%cAVAILABLE COMMANDS:\n\n%c- loz.about()\n- loz.skills()\n- loz.contact()\n- loz.hack()     %c[DANGER]%c\n- loz.crash()    %c[DANGER]%c\n- loz.help()",
           "color: #8B5CF6; font-weight: bold; font-size: 16px;",
           "color: #A78BFA; font-size: 14px; line-height: 1.5; font-family: monospace;",
-          "color: #3B82F6; font-weight: bold;",
-          "color: #A78BFA;",
-          "color: #F59E0B; font-weight: bold;",
-          "color: #A78BFA;",
           "color: #EF4444; font-weight: bold;",
           "color: #A78BFA;",
           "color: #EF4444; font-weight: bold;",

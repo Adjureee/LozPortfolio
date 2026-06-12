@@ -8,7 +8,6 @@ import { Providers } from "@/components/providers";
 import { BsodOverlay } from "@/components/public/bsod-overlay";
 import { ConsoleEasterEgg } from "@/components/public/console-easter-egg";
 import { MatrixOverlay } from "@/components/public/matrix-overlay";
-import { EasterEggEffects } from "@/components/public/easter-egg-effects";
 import { TerminalProvider } from "@/components/providers/terminal-provider";
 import { Toaster } from "sonner";
 
@@ -45,7 +44,6 @@ export default function RootLayout({
         <BsodOverlay />
         <MatrixOverlay />
         <ConsoleEasterEgg />
-        <EasterEggEffects />
         <TerminalProvider>
           <Providers>
             <SoundProvider>

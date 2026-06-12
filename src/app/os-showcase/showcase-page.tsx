@@ -1,12 +1,22 @@
 "use client";
 
 import { PortfolioData } from "@/lib/types";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ExternalLink, Github, Linkedin, FileText } from "lucide-react";
-import { useEffect } from "react";
+import { ExternalLink } from "lucide-react";
+import { PT_Serif } from "next/font/google";
+
+const serifFont = PT_Serif({ 
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  style: ["normal", "italic"]
+});
+
+type Tab = "home" | "about" | "experience" | "projects" | "contact";
 
 export function ShowcasePage({ data }: { data: PortfolioData }) {
-  const { config, projects, experiences, achievements, contacts } = data;
+  const [activeTab, setActiveTab] = useState<Tab>("home");
+  const { config, projects, experiences, contacts } = data;
 
   useEffect(() => {
     document.body.style.cursor = "auto";
@@ -22,183 +32,225 @@ export function ShowcasePage({ data }: { data: PortfolioData }) {
     };
   }, []);
 
-  // Authentic Windows 95 border styles
-  const win95Outset = "border-t-[2px] border-l-[2px] border-t-[#ffffff] border-l-[#ffffff] border-b-[2px] border-r-[2px] border-b-[#808080] border-r-[#808080] bg-[#c0c0c0]";
-  const win95Inset = "border-t-[2px] border-l-[2px] border-t-[#808080] border-l-[#808080] border-b-[2px] border-r-[2px] border-b-[#ffffff] border-r-[#ffffff] bg-white";
-  const win95DeepInset = "border-t-[2px] border-l-[2px] border-t-[#000000] border-l-[#000000] border-b-[2px] border-r-[2px] border-b-[#ffffff] border-r-[#ffffff] bg-white";
-  const win95ButtonActive = "active:border-t-[#808080] active:border-l-[#808080] active:border-b-[#ffffff] active:border-r-[#ffffff]";
+  const navItems: { id: Tab; label: string }[] = [
+    { id: "about", label: "ABOUT" },
+    { id: "experience", label: "EXPERIENCE" },
+    { id: "projects", label: "PROJECTS" },
+    { id: "contact", label: "CONTACT" }
+  ];
 
-  return (
-    <div 
-      className="min-h-screen bg-[#c0c0c0] text-black p-4 select-auto overflow-y-auto antialiased" 
-      style={{ fontFamily: "'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif" }}
-    >
-      <div className="max-w-4xl mx-auto space-y-4">
-        
-        {/* Header Window */}
-        <div className={`${win95Outset} p-[3px]`}>
-          <div className="bg-[#000080] text-white px-2 py-1 font-bold mb-2 flex items-center justify-between">
-            <span className="text-sm">System Properties</span>
-            <div className="flex gap-1">
-              <div className={`${win95Outset} w-4 h-4 bg-[#c0c0c0] flex items-center justify-center cursor-default`}><span className="text-black leading-none font-bold pb-1">-</span></div>
-              <div className={`${win95Outset} w-4 h-4 bg-[#c0c0c0] flex items-center justify-center cursor-default`}><span className="text-black leading-none font-bold pb-1 block">X</span></div>
-            </div>
-          </div>
-          
-          <div className="p-3 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-            {config?.avatar_url && (
-              <div className={`${win95Inset} p-1 flex-shrink-0 w-32 h-32 relative`}>
-                <Image src={config.avatar_url} alt="Avatar" fill className="object-cover" />
-              </div>
-            )}
-            <div className="flex-grow">
-              <h1 className="text-2xl mb-1 flex items-center gap-2">
-                <Image src="/os-icons/computer.png" alt="PC" width={24} height={24} className="pixelated" />
-                {config?.display_name || "John Lyold Lozada"}
-              </h1>
-              <div className="w-full h-[1px] bg-[#808080] my-2"></div>
-              <div className="w-full h-[1px] bg-[#ffffff] mb-2 -mt-[7px]"></div>
-              
-              <p className="text-sm mb-2">{config?.title || "IT Professional"}</p>
-              
-              <div className="mt-6 flex flex-wrap gap-2">
-                {contacts?.github_url && (
-                  <a href={contacts.github_url} target="_blank" rel="noopener noreferrer" className={`${win95Outset} ${win95ButtonActive} px-3 py-1 flex items-center gap-2 hover:bg-[#c0c0c0] text-sm`}>
-                    <Github size={16} /> GitHub
-                  </a>
-                )}
-                {contacts?.linkedin_url && (
-                  <a href={contacts.linkedin_url} target="_blank" rel="noopener noreferrer" className={`${win95Outset} ${win95ButtonActive} px-3 py-1 flex items-center gap-2 hover:bg-[#c0c0c0] text-sm`}>
-                    <Linkedin size={16} /> LinkedIn
-                  </a>
-                )}
-                {contacts?.resume_url && (
-                  <a href={contacts.resume_url} target="_blank" rel="noopener noreferrer" className={`${win95Outset} ${win95ButtonActive} px-3 py-1 flex items-center gap-2 hover:bg-[#c0c0c0] text-sm`}>
-                    <FileText size={16} /> Resume
-                  </a>
-                )}
-              </div>
-            </div>
+  // Helper to render the resume banner
+  const renderResumeBanner = () => {
+    if (!contacts?.resume_url) return null;
+    return (
+      <a href={contacts.resume_url} target="_blank" rel="noopener noreferrer" className="block w-full border-b-2 border-gray-300 pb-4 mb-8 group cursor-pointer hover:opacity-80 transition-opacity">
+        <div className="flex items-center gap-4">
+          <div className="text-4xl group-hover:-rotate-12 transition-transform duration-300">📄</div>
+          <div>
+            <h3 className="font-bold text-xl text-gray-800">Looking for my resume?</h3>
+            <p className="text-gray-600">Click here to download it!</p>
           </div>
         </div>
+      </a>
+    );
+  };
 
-        {/* About Section */}
-        {config?.about_me && (
-          <div className={`${win95Outset} p-[3px]`}>
-            <div className="bg-[#000080] text-white px-2 py-1 font-bold mb-2 flex items-center justify-between">
-              <span className="text-sm">Notepad - AboutMe.txt</span>
-              <div className="flex gap-1">
-                <div className={`${win95Outset} w-4 h-4 bg-[#c0c0c0] flex items-center justify-center`}><span className="text-black leading-none font-bold pb-1 block">X</span></div>
+  // Content renderers
+  const renderHome = () => (
+    <div className="h-full flex flex-col items-center justify-center text-center px-4 animate-in fade-in duration-500">
+      <h1 className="text-5xl md:text-7xl font-bold text-gray-900 tracking-tight mb-4" style={{ fontFamily: "Georgia, serif" }}>
+        {config?.display_name || "John Lyold Lozada"}
+      </h1>
+      <h2 className="text-2xl md:text-3xl font-bold text-gray-600 mb-16" style={{ fontFamily: "Courier New, monospace", letterSpacing: "-0.5px" }}>
+        As an aspiring fullstack dev
+      </h2>
+      <div className="flex flex-wrap justify-center gap-6 md:gap-12 text-lg font-bold">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className="text-gray-800 hover:underline underline-offset-8 decoration-2 cursor-pointer transition-all"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderAbout = () => (
+    <div className="animate-in fade-in duration-500">
+      <h2 className="text-5xl font-bold mb-8 text-gray-900" style={{ fontFamily: "Georgia, serif" }}>About Me</h2>
+      {config?.avatar_url && (
+        <div className="mb-8 w-48 h-48 relative grayscale hover:grayscale-0 transition-all duration-500">
+          <Image src={config.avatar_url} alt="Profile" fill className="object-cover border-4 border-gray-900" />
+        </div>
+      )}
+      <div className="text-lg leading-relaxed text-gray-800 space-y-6" style={{ fontFamily: "Georgia, serif" }}>
+        <p className="whitespace-pre-wrap">{config?.about_me}</p>
+      </div>
+    </div>
+  );
+
+  const renderExperience = () => (
+    <div className="animate-in fade-in duration-500">
+      {renderResumeBanner()}
+      <div className="space-y-16">
+        {experiences.map((exp) => (
+          <div key={exp.id}>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-6">
+              <div>
+                <h2 className="text-5xl font-bold text-gray-900 mb-2" style={{ fontFamily: "Georgia, serif" }}>{exp.company}</h2>
+                <h3 className="text-2xl font-bold text-gray-700" style={{ fontFamily: "Courier New, monospace" }}>{exp.title}</h3>
+              </div>
+              <div className="text-right mt-4 md:mt-0">
+                <p className="text-lg font-bold text-gray-800" style={{ fontFamily: "Georgia, serif" }}>{exp.location || "Remote"}</p>
+                <p className="text-lg font-bold text-gray-600" style={{ fontFamily: "Georgia, serif" }}>{exp.date_range}</p>
               </div>
             </div>
-            <div className="p-1">
-              <div className={`${win95Inset} p-2 text-sm leading-relaxed whitespace-pre-wrap`}>
-                {config.about_me}
+            <ul className="space-y-4 text-lg text-gray-800 leading-relaxed" style={{ fontFamily: "Georgia, serif" }}>
+              {exp.bullet_points.map((pt, i) => (
+                <li key={i} className="text-justify">{pt}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderProjects = () => (
+    <div className="animate-in fade-in duration-500">
+      <h2 className="text-5xl font-bold mb-12 text-gray-900" style={{ fontFamily: "Georgia, serif" }}>Projects</h2>
+      <div className="space-y-16">
+        {projects.map((project) => (
+          <div key={project.id}>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-6">
+              <div>
+                <h3 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: "Georgia, serif" }}>{project.title}</h3>
+                <p className="text-xl font-bold text-gray-700" style={{ fontFamily: "Courier New, monospace" }}>{project.academic_year}</p>
               </div>
+              {project.project_url && (
+                <a href={project.project_url} target="_blank" rel="noopener noreferrer" className="text-lg font-bold text-gray-800 hover:underline mt-4 md:mt-0" style={{ fontFamily: "Georgia, serif" }}>
+                  View Project &rarr;
+                </a>
+              )}
             </div>
+            <div className="text-lg text-gray-800 leading-relaxed mb-6" style={{ fontFamily: "Georgia, serif" }}>
+              {project.description}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {project.tech_stack.map((tech) => (
+                <span key={tech} className="text-sm font-bold text-gray-600 border border-gray-400 px-2 py-1" style={{ fontFamily: "Courier New, monospace" }}>
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderContact = () => (
+    <div className="animate-in fade-in duration-500">
+      <h2 className="text-5xl font-bold mb-8 text-gray-900" style={{ fontFamily: "Georgia, serif" }}>Contact</h2>
+      <p className="text-xl mb-12 text-gray-800" style={{ fontFamily: "Georgia, serif" }}>
+        Feel free to reach out. I&apos;m currently open to new opportunities!
+      </p>
+      
+      <div className="space-y-6 text-2xl font-bold" style={{ fontFamily: "Georgia, serif" }}>
+        {contacts?.linkedin_url && (
+          <div>
+            <a href={contacts.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-gray-900 hover:underline flex items-center gap-4">
+              LINKEDIN <ExternalLink size={24} />
+            </a>
           </div>
         )}
-
-        {/* Projects Section */}
-        <div className={`${win95Outset} p-[3px]`}>
-          <div className="bg-[#000080] text-white px-2 py-1 font-bold mb-2 flex items-center justify-between">
-             <span className="text-sm">Projects Explorer</span>
-             <div className="flex gap-1">
-                <div className={`${win95Outset} w-4 h-4 bg-[#c0c0c0] flex items-center justify-center`}><span className="text-black leading-none font-bold pb-1 block">X</span></div>
-              </div>
+        {contacts?.github_url && (
+          <div>
+            <a href={contacts.github_url} target="_blank" rel="noopener noreferrer" className="text-gray-900 hover:underline flex items-center gap-4">
+              GITHUB <ExternalLink size={24} />
+            </a>
           </div>
-          <div className="p-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {projects.map((project) => (
-              <div key={project.id} className={`${win95Outset} p-2 flex flex-col`}>
-                <div className="flex gap-2 items-center mb-1">
-                  <Image src="/os-icons/folder.png" alt="Folder" width={16} height={16} className="pixelated" />
-                  <h4 className="text-md font-bold">{project.title}</h4>
-                </div>
-                <p className="text-xs text-gray-700 mb-2 pl-6">{project.academic_year}</p>
-                
-                <div className={`${win95Inset} p-2 mb-3 flex-grow text-sm`}>
-                  {project.description}
-                </div>
-                
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {project.tech_stack.map((tech) => (
-                    <span key={tech} className={`${win95Inset} text-[10px] px-1 py-0.5`}>{tech}</span>
-                  ))}
-                </div>
-                
-                {project.project_url && (
-                  <div className="mt-auto flex justify-end">
-                    <a href={project.project_url} target="_blank" rel="noopener noreferrer" className={`${win95Outset} ${win95ButtonActive} px-3 py-1 flex items-center gap-1 text-xs hover:bg-[#c0c0c0]`}>
-                      Open.exe
-                    </a>
-                  </div>
-                )}
-              </div>
-            ))}
+        )}
+        {contacts?.resume_url && (
+          <div>
+            <a href={contacts.resume_url} target="_blank" rel="noopener noreferrer" className="text-gray-900 hover:underline flex items-center gap-4">
+              RESUME <ExternalLink size={24} />
+            </a>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Experience */}
-          <div className={`${win95Outset} p-[3px]`}>
-            <div className="bg-[#000080] text-white px-2 py-1 font-bold mb-2 flex items-center justify-between">
-              <span className="text-sm">Experience.exe</span>
-              <div className={`${win95Outset} w-4 h-4 bg-[#c0c0c0] flex items-center justify-center`}><span className="text-black leading-none font-bold pb-1 block">X</span></div>
-            </div>
-            <div className="p-1">
-              <div className={`${win95Inset} p-3 space-y-4 max-h-80 overflow-y-auto bg-white`}>
-                {experiences.map((exp) => (
-                  <div key={exp.id} className="pb-3 border-b border-[#c0c0c0] last:border-0 last:pb-0">
-                    <h4 className="font-bold flex items-center gap-1">
-                      <Image src="/os-icons/file.png" alt="File" width={14} height={14} className="pixelated" />
-                      {exp.title}
-                    </h4>
-                    <p className="text-sm font-semibold ml-5">{exp.company}</p>
-                    <p className="text-xs text-gray-700 mb-2 ml-5">{exp.date_range} {exp.location ? `| ${exp.location}` : ""}</p>
-                    <ul className="list-disc list-inside space-y-1 text-sm ml-5">
-                      {exp.bullet_points.map((pt, i) => (
-                        <li key={i}>{pt}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Achievements */}
-          <div className={`${win95Outset} p-[3px]`}>
-            <div className="bg-[#000080] text-white px-2 py-1 font-bold mb-2 flex items-center justify-between">
-              <span className="text-sm">Achievements.log</span>
-              <div className={`${win95Outset} w-4 h-4 bg-[#c0c0c0] flex items-center justify-center`}><span className="text-black leading-none font-bold pb-1 block">X</span></div>
-            </div>
-            <div className="p-1">
-              <div className={`${win95Inset} p-3 space-y-4 max-h-80 overflow-y-auto bg-white`}>
-                {achievements.map((ach) => (
-                  <div key={ach.id} className="pb-3 border-b border-[#c0c0c0] last:border-0 last:pb-0">
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="font-bold text-sm flex items-center gap-1">
-                        <Image src="/os-icons/file.png" alt="File" width={14} height={14} className="pixelated" />
-                        {ach.title}
-                      </h4>
-                    </div>
-                    <span className="text-xs text-gray-700 mb-1 ml-5 block">
-                      {new Date(ach.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short' })}
-                    </span>
-                    <p className="text-sm ml-5">{ach.description}</p>
-                    {ach.url && (
-                      <a href={ach.url} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 ml-5 text-xs text-[#0000EE] hover:underline">
-                        View Certificate
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
+        )}
       </div>
+    </div>
+  );
+
+  if (activeTab === "home") {
+    return (
+      <div className={`w-full h-screen bg-[#fdfdfd] overflow-hidden ${serifFont.className}`}>
+        {renderHome()}
+      </div>
+    );
+  }
+
+  // Split layout for inner pages
+  return (
+    <div className={`w-full h-screen bg-[#fdfdfd] flex flex-col md:flex-row overflow-hidden ${serifFont.className}`}>
+      
+      {/* Left Sidebar */}
+      <div className="w-full md:w-1/3 lg:w-1/4 p-8 md:p-12 lg:p-16 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col flex-shrink-0 bg-[#fdfdfd] z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <div className="mb-12">
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-[1.1] tracking-tight" style={{ fontFamily: "Georgia, serif" }}>
+            {config?.display_name ? config.display_name.split(' ').map((word, i) => (
+              <span key={i} className="block">{word}</span>
+            )) : (
+              <>
+                <span className="block">John</span>
+                <span className="block">Lyold</span>
+                <span className="block">Lozada</span>
+              </>
+            )}
+          </h1>
+          <p className="mt-4 text-xl font-bold text-gray-600" style={{ fontFamily: "Georgia, serif" }}>
+            Showcase &apos;{new Date().getFullYear().toString().slice(-2)}
+          </p>
+        </div>
+        
+        <nav className="flex flex-col space-y-6 mt-auto md:mt-12 text-lg font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <button
+            onClick={() => setActiveTab("home")}
+            className="text-left text-gray-800 hover:underline underline-offset-4 w-fit"
+          >
+            HOME
+          </button>
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`text-left w-fit transition-all ${
+                activeTab === item.id 
+                  ? "text-gray-900 underline underline-offset-4" 
+                  : "text-gray-800 hover:underline underline-offset-4"
+              }`}
+            >
+              {activeTab === item.id && <span className="mr-2">&bull;</span>}
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Right Content */}
+      <div className="w-full md:w-2/3 lg:w-3/4 p-8 md:p-12 lg:p-16 overflow-y-auto bg-[#fdfdfd]">
+        <div className="max-w-3xl">
+          {activeTab === "about" && renderAbout()}
+          {activeTab === "experience" && renderExperience()}
+          {activeTab === "projects" && renderProjects()}
+          {activeTab === "contact" && renderContact()}
+        </div>
+      </div>
+      
     </div>
   );
 }

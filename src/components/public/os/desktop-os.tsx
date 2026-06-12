@@ -39,7 +39,7 @@ export function DesktopOS({ onClose }: { onClose: () => void }) {
       height: 440,
       content: (
         <iframe 
-          src="https://archive.org/embed/msdos_Doom_1993" 
+          src="https://archive.org/embed/doom_dos" 
           width="100%" 
           height="100%" 
           frameBorder="0" 
@@ -117,7 +117,10 @@ SKILLS:
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#008080] overflow-hidden font-sans select-none touch-none text-black">
+    <div 
+      className="fixed inset-0 z-[9999] bg-[#008080] overflow-hidden select-none touch-none text-black"
+      style={{ fontFamily: "'MS Sans Serif', 'Microsoft Sans Serif', 'Tahoma', 'Segoe UI', sans-serif" }}
+    >
       {/* Desktop Icons */}
       <div className="absolute top-4 left-4 flex flex-col gap-6">
         <DesktopIcon 
@@ -195,7 +198,7 @@ SKILLS:
         </div>
 
         {/* System Tray Clock */}
-        <div className="px-3 py-1 border-2 border-t-[#808080] border-l-[#808080] border-r-white border-b-white bg-[#C0C0C0] text-sm font-sans">
+        <div className="px-3 py-1 border-2 border-t-[#808080] border-l-[#808080] border-r-white border-b-white bg-[#C0C0C0] text-sm">
           {time}
         </div>
       </div>

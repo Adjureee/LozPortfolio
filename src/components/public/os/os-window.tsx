@@ -45,7 +45,7 @@ export function OSWindow({
       dragMomentum={false}
       initial={finalPos}
       onMouseDown={onFocus}
-      style={{ width: finalWidth, height: finalHeight, zIndex, position: 'absolute' }}
+      style={{ width: finalWidth, height: finalHeight, zIndex, position: 'absolute', fontFamily: "'MS Sans Serif', 'Microsoft Sans Serif', 'Tahoma', 'Segoe UI', sans-serif" }}
       className={`flex flex-col bg-[#C0C0C0] border-2 border-t-white border-l-white border-r-[#808080] border-b-[#808080] shadow-[2px_2px_0_#000]`}
     >
       {/* Title Bar */}
@@ -55,7 +55,7 @@ export function OSWindow({
       >
         <div className="flex items-center gap-2 overflow-hidden pl-1">
           {icon && <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center">{icon}</span>}
-          <span className="font-bold text-sm truncate font-sans">{title}</span>
+          <span className="font-bold text-sm truncate">{title}</span>
         </div>
         
         <button 

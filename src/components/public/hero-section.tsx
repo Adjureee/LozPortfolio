@@ -123,7 +123,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const handleYank = () => {
     setYankCount(prev => {
       const newCount = prev + 1;
-      if (newCount >= 3) {
+      if (newCount >= 5) {
         setShowDesktopOS(true);
         setIsBootingOS(true);
         return 0; // reset
@@ -451,7 +451,7 @@ function OSBootSequence({ onComplete }: { onComplete: () => void }) {
       { delay: 1600, step: 2 },
       { delay: 2400, step: 3 },
       { delay: 3500, step: 4 },
-      { delay: 5000, step: 5 }, // Finish
+      { delay: 4500, step: 5 },
     ];
     
     const timeouts = sequence.map(({ delay, step: s }) => 
@@ -465,46 +465,62 @@ function OSBootSequence({ onComplete }: { onComplete: () => void }) {
     };
   }, []);
 
+  const getCurrentDate = () => {
+    const date = new Date();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   return (
     <div className="absolute inset-0 z-[10000] bg-black text-[#c0c0c0] font-mono text-sm md:text-lg p-4 md:p-8 flex flex-col pointer-events-none overflow-hidden">
-      {step < 4 && <div className="animate-pulse mb-4 w-3 h-5 bg-[#c0c0c0]"></div>}
+      <div className="w-full flex justify-between mb-4">
+        <div>
+          <p className="text-[#00ff00] font-bold">Lozada,</p>
+          <p className="text-[#00ff00] font-bold">John Lyold C. Lozada Inc.</p>
+        </div>
+        <div className="text-right hidden sm:block">
+          <p>Released: 01/13/2000</p>
+          <p>HHBIOS (C)2000 John Lyold C. Lozada Inc.,</p>
+        </div>
+      </div>
+      
+      <p>HSP S13 2000-2022 Special UC131S</p>
+      <br />
       
       {step >= 1 && (
-        <div className="mb-4">
-          <p>Award Modular BIOS v4.51PG, An Energy Star Ally</p>
-          <p>Copyright (C) 1984-95, Award Software, Inc.</p>
-          <br/>
-          <p>PENTIUM-S CPU at 133MHz</p>
-          <p>Memory Test : 32768K OK</p>
-        </div>
+        <>
+          <p>HSP Showcase(tm) XX 113</p>
+          <p>Checking RAM : 14000 OK</p>
+          <br />
+          <br />
+        </>
       )}
       
-      {step >= 2 && (
-        <div className="mb-4">
-          <p>Award Plug and Play BIOS Extension  v1.0A</p>
-          <p>Initialize Plug and Play Cards...</p>
-          <p>PNP Init Completed</p>
-        </div>
+      {step >= 2 && step < 4 && (
+        <p className="animate-pulse text-[#c0c0c0]">WAIT</p>
       )}
       
-      {step >= 3 && (
-        <div className="mb-4">
-          <p>Detecting HDD Primary Master   ... WDC AC31600H</p>
-          <p>Detecting HDD Primary Slave    ... None</p>
-          <p>Detecting HDD Secondary Master ... CD-ROM Drive</p>
-          <p>Detecting HDD Secondary Slave  ... None</p>
-        </div>
-      )}
-
       {step >= 4 && (
-        <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in duration-500">
-          <div className="text-white text-center mb-10">
-            <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter mb-2">Microsoft</h1>
-            <h2 className="text-3xl md:text-6xl font-bold tracking-widest">Windows 95</h2>
-          </div>
-          <div className="animate-pulse mt-auto mb-10 text-xl md:text-2xl text-white">Starting Windows 95...</div>
-        </div>
+        <p>FINISHED LOADING RESOURCES</p>
       )}
+      
+      <br />
+      
+      {step >= 5 && (
+        <p>
+          All Content Loaded, launching <b className="text-[#00ff00]">&apos;John Lyold C. Lozada Portfolio Showcase&apos;</b> V1.0
+        </p>
+      )}
+      
+      <br />
+      {step < 5 && <span className="animate-pulse inline-block w-3 h-5 bg-[#c0c0c0] mb-4"></span>}
+
+      <div className="mt-auto flex justify-between w-full">
+        <p>Press <b className="text-white">DEL</b> to enter SETUP , <b className="text-white">ESC</b> to skip memory test</p>
+        <p>{getCurrentDate()}</p>
+      </div>
     </div>
   );
 }

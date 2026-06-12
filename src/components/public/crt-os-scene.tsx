@@ -7,7 +7,7 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
   return (
     <div className="w-full h-full bg-black">
       <Canvas>
-        <PerspectiveCamera makeDefault position={[0, 5, 20]} fov={50} />
+        <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={50} />
         
         {/* Lights for the MeshStandardMaterial */}
         <ambientLight intensity={1.5} />
@@ -23,10 +23,11 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
         {/* Camera Limits */}
         <OrbitControls 
           enablePan={false} 
+          target={[0, -1, 0]}
           minPolarAngle={Math.PI / 4}
           maxPolarAngle={Math.PI / 2 + 0.1} // Allow looking down at the keyboard, but not too far under the desk
-          minDistance={5}
-          maxDistance={30}
+          minDistance={0.5}
+          maxDistance={12}
         />
       </Canvas>
     </div>

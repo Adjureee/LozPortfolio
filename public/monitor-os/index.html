@@ -59,8 +59,49 @@
         emulators.pathPrefix = '/monitor-os/js-dos/';
     </script>
         <script defer src="./static/js/main.fe030160.js"></script>
-        <link href="./static/css/main.c4751a8b.css" rel="stylesheet" />
-    </head>
+        <link href="./static/css/main.c4751a8b.css" rel="stylesheet">
+    <style>
+        /* Strict Windows 95 Theme Overrides */
+        :root {
+            --button-highlight: #ffffff;
+            --button-face: #dfdfdf;
+            --button-shadow: #808080;
+            --window-frame: #000000;
+            --surface: #c0c0c0; /* Gray for windows and taskbar */
+            --surface-hover: #c0c0c0;
+        }
+
+        /* Desktop Background */
+        body, html, #root, .App {
+            background-color: #008080 !important;
+            font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', 'MSSerif', sans-serif !important;
+        }
+
+        /* Ensure texts use the correct font and color */
+        * {
+            font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', 'MSSerif', sans-serif !important;
+        }
+        
+        .toolbar-text, .site-button, p, h1, h2, h3, h4 {
+            font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', 'MSSerif', sans-serif !important;
+        }
+
+        /* Fix Start button / Taskbar */
+        .start-menu-option {
+            background-color: #c0c0c0 !important;
+            color: black !important;
+        }
+        .start-menu-option:hover {
+            background-color: #000080 !important;
+            color: white !important;
+        }
+        
+        /* If surface is used for windows, force them to be gray */
+        .window, .window-container, [style*="background-color: silver"] {
+            background-color: #c0c0c0 !important;
+        }
+    </style>
+</head>
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div

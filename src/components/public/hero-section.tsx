@@ -454,12 +454,12 @@ function OSBootSequence({ onComplete }: { onComplete: () => void }) {
       setTimeout(() => setStep(s), delay)
     );
     
-    const finishTimer = setTimeout(onComplete, 5500);
+    const finishTimer = setTimeout(() => onComplete(), 5500);
     return () => {
-      timeouts.forEach(clearTimeout);
+      timeouts.forEach((t) => clearTimeout(t));
       clearTimeout(finishTimer);
     };
-  }, [onComplete]);
+  }, []);
 
   return (
     <div className="absolute inset-0 z-[10000] bg-black text-[#c0c0c0] font-mono text-sm md:text-lg p-4 md:p-8 flex flex-col pointer-events-none overflow-hidden">

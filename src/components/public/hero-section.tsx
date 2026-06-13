@@ -111,6 +111,37 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const startupAudioRef = useRef<HTMLAudioElement | null>(null);
   const shutdownAudioRef = useRef<HTMLAudioElement | null>(null);
 
+  const confirmShutdown = useCallback(() => {
+    setShowShutdownDialog(false);
+    setIsShuttingDown(true);
+    
+    if (!isMutedRef.current && shutdownAudioRef.current) {
+      shutdownAudioRef.current.currentTime = 0;
+      shutdownAudioRef.current.play().catch((e) => console.error(e));
+    }
+
+    // After 2 seconds, show the safe to turn off screen
+    setTimeout(() => {
+      setIsSafeToTurnOff(true);
+      
+      // After 3 seconds of safe to turn off, trigger power down
+      setTimeout(() => {
+        setPowerDownComplete(true);
+        // Play mechanical click
+        if (!isMutedRef.current) playClick();
+        
+        // Fully close after power down animation finishes
+        setTimeout(() => {
+          setShowDesktopOS(false);
+          // Reset states
+          setIsShuttingDown(false);
+          setIsSafeToTurnOff(false);
+          setPowerDownComplete(false);
+        }, 1000);
+      }, 3000);
+    }, 2000);
+  }, [playClick]);
+
   useEffect(() => {
     // Imperatively load audio objects so they can be unlocked securely
     // Using .wav since the .mp3s are empty stubs that throw NotSupportedError
@@ -150,39 +181,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       }
     };
 
-    const confirmShutdown = () => {
-      setShowShutdownDialog(false);
-      setIsShuttingDown(true);
-      
-      if (!isMutedRef.current && shutdownAudioRef.current) {
-        shutdownAudioRef.current.currentTime = 0;
-        shutdownAudioRef.current.play().catch((e) => console.error(e));
-      }
-
-      // After 2 seconds, show the safe to turn off screen
-      setTimeout(() => {
-        setIsSafeToTurnOff(true);
-        
-        // After 3 seconds of safe to turn off, trigger power down
-        setTimeout(() => {
-          setPowerDownComplete(true);
-          // Play mechanical click
-          if (!isMutedRef.current) playClick();
-          
-          // Fully close after power down animation finishes
-          setTimeout(() => {
-            setShowDesktopOS(false);
-            // Reset states
-            setIsShuttingDown(false);
-            setIsSafeToTurnOff(false);
-            setPowerDownComplete(false);
-          }, 1000);
-        }, 3000);
-      }, 2000);
-    };
-
-    // Attach to window so we can call it from the dialog which is rendered outside useEffect
-    (window as any).__confirmShutdown = confirmShutdown;
+    // removed confirmShutdown from here
 
     const handleGlobalMouseUp = () => {
       // blank
@@ -414,7 +413,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
                 <div className="p-4 text-sm flex flex-col items-center">
                   <p className="mb-4 text-center">Are you sure you want to shut down the computer?</p>
                   <div className="flex gap-4">
-                    <button onClick={() => (window as any).__confirmShutdown?.()} className="px-6 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">Yes</button>
+                    <button onClick={confirmShutdown} className="px-6 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">Yes</button>
                     <button onClick={() => setShowShutdownDialog(false)} className="px-6 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">No</button>
                   </div>
                 </div>

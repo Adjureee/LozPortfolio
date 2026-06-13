@@ -9,7 +9,7 @@ export type CameraState = 'BOOTING' | 'AT_SCREEN' | 'ZOOMED_OUT';
 
 export function CRTOsScene({ isBootingOS, isAwaitingBoot, onCompleteBoot }: { isBootingOS: boolean, isAwaitingBoot?: boolean, onCompleteBoot: () => void }) {
   const cameraControlsRef = useRef<CameraControlsImpl>(null);
-  const [cameraTarget, setCameraTarget] = useState<[number, number, number]>([0, 0, 0]);
+  const [cameraTarget, setCameraTarget] = useState<[number, number, number] | null>(null);
   
   // Camera State Machine
   const [cameraState, setCameraState] = useState<CameraState>(
@@ -44,7 +44,7 @@ export function CRTOsScene({ isBootingOS, isAwaitingBoot, onCompleteBoot }: { is
 
   // Execute Camera Transition Animations
   useEffect(() => {
-    if (!cameraControlsRef.current || cameraTarget[0] === 0) return;
+    if (!cameraControlsRef.current || !cameraTarget) return;
 
     if (cameraState === 'BOOTING' || cameraState === 'AT_SCREEN') {
       // Smoothly fly towards the monitor

@@ -50,6 +50,9 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   onMonitorLeave3D?: () => void;
   onMonitorEnterHTML?: () => void;
   onMonitorLeaveHTML?: () => void;
+  isShuttingDown?: boolean;
+  isSafeToTurnOff?: boolean;
+  powerDownComplete?: boolean;
 }) {
   const { nodes, materials } = useGLTF('/commodore_64__computer_full_pack.glb') as unknown as GLTFResult
   
@@ -122,26 +125,66 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                 onMouseEnter={props.onMonitorEnterHTML}
                 onMouseLeave={props.onMonitorLeaveHTML}
               >
-                {/* Scanline Overlay */}
-                <div className="absolute inset-0 pointer-events-none z-50 mix-blend-overlay opacity-30" 
+                {/* CRT Power Down Animation Wrapper */}
+                <motion.div 
+                  className="absolute inset-0 w-full h-full bg-black z-0 flex items-center justify-center overflow-hidden"
+                  animate={props.powerDownComplete ? {
+                    scaleY: [1, 0.01, 0.01, 0],
+                    scaleX: [1, 1, 0.01, 0],
+                    opacity: [1, 1, 0.8, 0],
+                    backgroundColor: ["#000", "#fff", "#fff", "#000"]
+                  } : {}}
+                  transition={{ 
+                    duration: 0.8, 
+                    times: [0, 0.3, 0.6, 1],
+                    ease: "easeIn" 
+                  }}
+                  style={{ transformOrigin: 'center center' }}
+                >
+                  <AnimatePresence>
+                    {!props.isShuttingDown && !props.isAwaitingBoot && (
+                      <motion.div
+                        initial={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="w-full h-full absolute inset-0"
+                      >
+                        {props.isBootingOS ? (
+                          <OSBootSequence onComplete={() => props.onCompleteBoot?.()} />
+                        ) : (
+                          <iframe 
+                            src="/monitor-os/index.html" 
+                            className="w-full h-full border-0 pointer-events-auto"
+                            title="Desktop OS"
+                          />
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <AnimatePresence>
+                    {props.isSafeToTurnOff && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute inset-0 z-[100] flex items-center justify-center bg-black"
+                      >
+                        <p className="text-[#FF8C00] font-sans text-2xl max-w-md text-center leading-relaxed" style={{ textShadow: "1px 1px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000" }}>
+                          It is now safe to turn off your computer.
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+
+                {/* Scanline Overlay (always on top) */}
+                <div className="absolute inset-0 pointer-events-none z-[200] mix-blend-overlay opacity-30" 
                   style={{
                     backgroundImage: "linear-gradient(transparent 50%, rgba(0, 0, 0, 0.5) 50%)",
                     backgroundSize: "100% 4px"
                   }}
                 />
-                <div className="absolute inset-0 pointer-events-none z-50 mix-blend-screen opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
-                
-                {props.isAwaitingBoot ? (
-                  <div className="w-full h-full bg-black"></div>
-                ) : props.isBootingOS ? (
-                  <OSBootSequence onComplete={() => props.onCompleteBoot?.()} />
-                ) : (
-                  <iframe 
-                    src="/monitor-os/index.html" 
-                    className="w-full h-full border-0"
-                    title="Desktop OS"
-                  ></iframe>
-                )}
+                <div className="absolute inset-0 pointer-events-none z-[200] mix-blend-screen opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
               </div>
             </Html>
           )}

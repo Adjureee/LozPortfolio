@@ -46,8 +46,43 @@
                         window.parent.postMessage({ type: 'PLAY_SHUTDOWN' }, '*');
                         setTimeout(() => {
                             window.parent.postMessage({ type: 'CLOSE_OS' }, '*');
-                        }, 2500); // Wait 2.5s to let the user see the text
+                        }, 2500);
                         observer.disconnect();
+                    }
+
+                    // Inject Shut Down button into the Start Menu
+                    const startMenu = document.querySelector('nav[style*="position: absolute"][style*="bottom: 100%"]'); // Common heuristc for the start menu
+                    if (startMenu && !document.getElementById('custom-shutdown-btn')) {
+                        // Find the container where options are listed
+                        const optionsContainer = startMenu; 
+                        
+                        const shutdownBtn = document.createElement('div');
+                        shutdownBtn.id = 'custom-shutdown-btn';
+                        shutdownBtn.className = 'start-menu-option';
+                        shutdownBtn.style.cssText = 'display: flex; align-items: center; padding: 4px 10px; cursor: pointer; height: 35px; width: 100%; border: none; outline: none; margin-top: 4px; border-top: 1px solid #808080;';
+                        
+                        shutdownBtn.innerHTML = `
+                            <div style="width: 24px; height: 24px; background: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"red\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18.36 6.64a9 9 0 1 1-12.73 0\"></path><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"12\"></line></svg>') no-repeat center center; margin-right: 8px;"></div>
+                            <span style="font-family: 'Millennium', 'Times New Roman', serif; font-size: 14px; margin-top: 2px;"><u>S</u>hut Down...</span>
+                        `;
+                        
+                        shutdownBtn.onmouseover = () => {
+                            shutdownBtn.style.backgroundColor = '#000080';
+                            shutdownBtn.style.color = 'white';
+                        };
+                        shutdownBtn.onmouseout = () => {
+                            shutdownBtn.style.backgroundColor = 'transparent';
+                            shutdownBtn.style.color = 'inherit';
+                        };
+                        
+                        shutdownBtn.onclick = () => {
+                            window.parent.postMessage({ type: 'TRIGGER_SHUTDOWN_DIALOG' }, '*');
+                            // Close start menu by clicking elsewhere
+                            document.body.click(); 
+                        };
+                        
+                        // Append to the bottom of the start menu
+                        optionsContainer.appendChild(shutdownBtn);
                     }
                 });
                 observer.observe(document.body, { childList: true, subtree: true, characterData: true });

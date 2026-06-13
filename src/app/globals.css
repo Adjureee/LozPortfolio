@@ -207,3 +207,7 @@ body.crt-turn-off {
 body.force-system-cursor, body.force-system-cursor * {
   cursor: auto !important;
 }
+
+body.force-system-cursor {
+  overflow: hidden !important;
+}

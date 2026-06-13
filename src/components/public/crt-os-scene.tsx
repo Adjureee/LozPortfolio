@@ -24,6 +24,7 @@ export function CRTOsScene({
   isShuttingDown?: boolean;
   isSafeToTurnOff?: boolean;
   powerDownComplete?: boolean;
+  onShutdown?: () => void;
 }) {
   const cameraControlsRef = useRef<CameraControlsImpl>(null);
   const [cameraTarget, setCameraTarget] = useState<[number, number, number] | null>(null);
@@ -131,12 +132,12 @@ export function CRTOsScene({
         />
       </Canvas>
 
-      <ZoomedOutOverlay isVisible={cameraState === 'ZOOMED_OUT'} />
+      <ZoomedOutOverlay isVisible={cameraState === 'ZOOMED_OUT'} onShutdown={onShutdown} />
     </div>
   );
 }
 
-function ZoomedOutOverlay({ isVisible }: { isVisible: boolean }) {
+function ZoomedOutOverlay({ isVisible, onShutdown }: { isVisible: boolean; onShutdown?: () => void }) {
   const [time, setTime] = useState(new Date());
   const { isMuted, toggleMute, unlockAndUnmute } = useSound();
 
@@ -161,28 +162,45 @@ function ZoomedOutOverlay({ isVisible }: { isVisible: boolean }) {
             {time.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit', second: '2-digit' })}
           </div>
 
-          <button 
-            onClick={async () => {
-              if (isMuted) {
-                await unlockAndUnmute();
-              } else {
-                toggleMute();
-              }
-            }}
-            className="flex items-center gap-3 px-4 py-2 bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-sm font-mono tracking-widest active:scale-95 transition-all duration-75"
-          >
-            {isMuted ? (
-              <>
-                <VolumeX className="w-4 h-4 text-white/50" />
-                <span className="text-white/50">SOUND OFF</span>
-              </>
-            ) : (
-              <>
-                <Volume2 className="w-4 h-4 text-[#3ECF8E]" />
-                <span className="text-white/90">SOUND ON</span>
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={async () => {
+                if (isMuted) {
+                  await unlockAndUnmute();
+                } else {
+                  toggleMute();
+                }
+              }}
+              className="flex items-center gap-3 px-4 py-2 bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-sm font-mono tracking-widest active:scale-95 transition-all duration-75"
+            >
+              {isMuted ? (
+                <>
+                  <VolumeX className="w-4 h-4 text-white/50" />
+                  <span className="text-white/50">SOUND OFF</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4 text-white" />
+                  <span className="text-white">SOUND ON</span>
+                </>
+              )}
+            </button>
+
+            <button 
+              onClick={() => {
+                // Ensure audio is unlocked if possible, then trigger shutdown
+                if (isMuted) {
+                  unlockAndUnmute().then(() => onShutdown?.());
+                } else {
+                  onShutdown?.();
+                }
+              }}
+              className="flex items-center gap-3 px-4 py-2 bg-red-900/40 hover:bg-red-600/60 backdrop-blur-md border border-red-500/30 rounded-full text-sm font-mono tracking-widest text-white/90 active:scale-95 transition-all duration-75"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+              POWER OFF
+            </button>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

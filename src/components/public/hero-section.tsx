@@ -398,6 +398,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
             isShuttingDown={isShuttingDown}
             isSafeToTurnOff={isSafeToTurnOff}
             powerDownComplete={powerDownComplete}
+            onShutdown={confirmShutdown}
           />
           
           {showShutdownDialog && (

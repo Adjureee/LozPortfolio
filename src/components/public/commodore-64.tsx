@@ -204,31 +204,25 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                 onPointerDown={props.onMonitorDown3D}
                 onPointerUp={props.onMonitorUp3D}
               >
-                {/* Screen Content Wrapper with CSS Safe Zone (inset-[24px]) */}
-                <div className="absolute inset-[24px] bg-black z-0 flex items-center justify-center overflow-hidden rounded-lg">
+                {/* CRT Power Down Animation Wrapper with CSS Safe Zone (inset-[24px]) */}
+                <motion.div 
+                  className="absolute inset-[24px] bg-black z-0 flex items-center justify-center overflow-hidden rounded-lg"
+                  animate={props.powerDownComplete ? {
+                    scaleY: [1, 0.01, 0.01, 0],
+                    scaleX: [1, 1, 0.01, 0],
+                    opacity: [1, 1, 0.8, 0],
+                    backgroundColor: ["#000", "#fff", "#fff", "#000"]
+                  } : {}}
+                  transition={{ 
+                    duration: 0.8, 
+                    times: [0, 0.3, 0.6, 1],
+                    ease: "easeIn" 
+                  }}
+                  style={{ transformOrigin: 'center center' }}
+                >
                   <AnimatePresence>
-                    {props.isShuttingDown ? (
+                    {!props.isShuttingDown && props.bootPhase !== 'off' && (
                       <motion.div
-                        key="shutdown"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.1 }}
-                        className="w-full h-full absolute inset-0 z-50 bg-black"
-                      >
-                        <video 
-                          ref={(el) => {
-                            if (el) el.play().catch(console.error);
-                          }}
-                          src="/video/shutdown.mp4" 
-                          className="w-full h-full object-cover absolute inset-0 pointer-events-none"
-                          playsInline 
-                          onEnded={() => props.onShutdownComplete?.()}
-                        />
-                      </motion.div>
-                    ) : props.bootPhase !== 'off' ? (
-                      <motion.div
-                        key="boot"
                         initial={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5 }}
@@ -258,10 +252,9 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                           />
                         )}
                       </motion.div>
-                    ) : null}
+                    )}
                   </AnimatePresence>
-
-                  {/* Render the Windows 95 Dialog INSIDE the 3D Monitor! */}
+                </motion.div>    {/* Render the Windows 95 Dialog INSIDE the 3D Monitor! */}
                   <AnimatePresence>
                     {props.showShutdownDialog && (
                       <motion.div 
@@ -329,7 +322,19 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                     )}
                   </AnimatePresence>
 
-
+                  <AnimatePresence>
+                    {props.isSafeToTurnOff && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute inset-0 z-[100] flex items-center justify-center bg-black"
+                      >
+                        <p className="text-[#FF8C00] font-sans text-2xl max-w-md text-center leading-relaxed" style={{ textShadow: "1px 1px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000" }}>
+                          It is now safe to turn off your computer.
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Scanline Overlay (always on top) */}

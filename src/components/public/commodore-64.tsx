@@ -43,6 +43,8 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   isBootingOS?: boolean;
   onCompleteBoot?: () => void;
   onAutoAlign?: (pos: [number, number, number]) => void;
+  scaleFactor?: number;
+  positionOffset?: [number, number, number];
 }) {
   const { nodes, materials } = useGLTF('/commodore_64__computer_full_pack.glb') as unknown as GLTFResult
   
@@ -95,8 +97,12 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
           {screenPos && (
             <Html 
               transform 
-              position={[screenPos.x, screenPos.y, screenPos.z]}
-              scale={0.025} // Visually calibrated scale to perfectly fit the screen dimensions
+              position={[
+                screenPos.x + (props.positionOffset?.[0] || 0), 
+                screenPos.y + (props.positionOffset?.[1] || 0), 
+                screenPos.z + (props.positionOffset?.[2] || 0)
+              ]}
+              scale={props.scaleFactor || 0.025}
               className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
               style={{ borderRadius: '64px', overflow: 'hidden' }}
             >

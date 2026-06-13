@@ -107,26 +107,14 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     osc.stop(ctx.currentTime + 0.05);
   }, [isMuted]);
 
-  // Synthesize a snappy "pop" for clicks
+  // Use authentic mechanical click for all UI buttons
   const playClick = useCallback(() => {
-    if (isMuted || !audioContextRef.current) return;
+    if (isMuted || !clickDownRef.current) return;
     
-    const ctx = audioContextRef.current;
-    const osc = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-    
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(400, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
-    
-    gainNode.gain.setValueAtTime(0.05, ctx.currentTime); // Slightly louder than hover
-    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-    
-    osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
-    
-    osc.start();
-    osc.stop(ctx.currentTime + 0.1);
+    // Create a clone to allow rapid overlapping clicks
+    const clickClone = clickDownRef.current.cloneNode() as HTMLAudioElement;
+    clickClone.volume = clickDownRef.current.volume;
+    clickClone.play().catch(() => {});
   }, [isMuted]);
 
   // Authentic Monitor Click Sounds

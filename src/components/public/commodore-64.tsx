@@ -49,25 +49,30 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   const screenRef = useRef<THREE.Mesh>(null);
   const [targetReady, setTargetReady] = useState(false);
 
-  // Compute the exact geometric center of the screen mesh
-  const screenCenter = useMemo(() => {
+  const [screenPos, setScreenPos] = useState<THREE.Vector3 | null>(null);
+
+  useEffect(() => {
     if (!nodes.Object_19.geometry.boundingBox) {
       nodes.Object_19.geometry.computeBoundingBox();
     }
     const center = new THREE.Vector3();
     nodes.Object_19.geometry.boundingBox?.getCenter(center);
-    return center;
+    
+    // The screen curves outward. The center Z is inside the glass.
+    // The very front tip of the glass is the bounding box max Z.
+    const maxZ = nodes.Object_19.geometry.boundingBox?.max.z || center.z;
+    
+    setScreenPos(new THREE.Vector3(center.x, center.y, maxZ + 0.01)); // Place exactly on the glass surface
   }, [nodes.Object_19.geometry]);
 
   useEffect(() => {
-    if (screenRef.current && props.onAutoAlign) {
+    if (screenRef.current && screenPos && props.onAutoAlign) {
       screenRef.current.updateMatrixWorld(true);
-      // Get the world position of the EXACT geometric center of the glass
-      const worldCenter = screenCenter.clone().applyMatrix4(screenRef.current.matrixWorld);
+      const worldCenter = screenPos.clone().applyMatrix4(screenRef.current.matrixWorld);
       props.onAutoAlign([worldCenter.x, worldCenter.y, worldCenter.z]);
       setTargetReady(true);
     }
-  }, [screenCenter, props.onAutoAlign]);
+  }, [screenPos, props.onAutoAlign]);
 
   return (
     <group {...props} dispose={null}>
@@ -87,39 +92,36 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
         
         {/* The distinct, separate screen mesh! */}
         <mesh ref={screenRef} geometry={nodes.Object_19.geometry} material={materials.monitor_screen}>
-          {/* 
-            By placing Html as a child of the mesh, it automatically inherits 
-            all complex transforms (position, rotation, scale) of the monitor group!
-            We just need to offset it to the geometric center of the geometry.
-          */}
-          <Html 
-            transform 
-            position={[screenCenter.x, screenCenter.y, screenCenter.z + 0.05]} // 0.05 local offset to push slightly outward
-            scale={0.0003} // Scaled to roughly fit a C64 monitor
-            className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
-            style={{ borderRadius: '64px', overflow: 'hidden' }}
-          >
-            <div className="w-full h-full relative" style={{ borderRadius: '64px', overflow: 'hidden' }}>
-              {/* Scanline Overlay */}
-              <div className="absolute inset-0 pointer-events-none z-50 mix-blend-overlay opacity-30" 
-                style={{
-                  backgroundImage: "linear-gradient(transparent 50%, rgba(0, 0, 0, 0.5) 50%)",
-                  backgroundSize: "100% 4px"
-                }}
-              />
-              <div className="absolute inset-0 pointer-events-none z-50 mix-blend-screen opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
-              
-              {props.isBootingOS ? (
-                <OSBootSequence onComplete={() => props.onCompleteBoot?.()} />
-              ) : (
-                <iframe 
-                  src="/monitor-os/index.html" 
-                  className="w-full h-full border-0"
-                  title="Desktop OS"
-                ></iframe>
-              )}
-            </div>
-          </Html>
+          {screenPos && (
+            <Html 
+              transform 
+              position={[screenPos.x, screenPos.y, screenPos.z]}
+              scale={0.0035} // Physically perfectly matched to the 3.05 bounding box width
+              className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
+              style={{ borderRadius: '64px', overflow: 'hidden' }}
+            >
+              <div className="w-full h-full relative" style={{ borderRadius: '64px', overflow: 'hidden' }}>
+                {/* Scanline Overlay */}
+                <div className="absolute inset-0 pointer-events-none z-50 mix-blend-overlay opacity-30" 
+                  style={{
+                    backgroundImage: "linear-gradient(transparent 50%, rgba(0, 0, 0, 0.5) 50%)",
+                    backgroundSize: "100% 4px"
+                  }}
+                />
+                <div className="absolute inset-0 pointer-events-none z-50 mix-blend-screen opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
+                
+                {props.isBootingOS ? (
+                  <OSBootSequence onComplete={() => props.onCompleteBoot?.()} />
+                ) : (
+                  <iframe 
+                    src="/monitor-os/index.html" 
+                    className="w-full h-full border-0"
+                    title="Desktop OS"
+                  ></iframe>
+                )}
+              </div>
+            </Html>
+          )}
         </mesh>
 
         <mesh geometry={nodes.Object_21.geometry} material={materials.monitor_white} position={[1.265, -0.148, 2.24]} rotation={[Math.PI / 2, 0, 0]} />

@@ -7,6 +7,8 @@ interface SoundContextType {
   toggleMute: () => void;
   playHover: () => void;
   playClick: () => void;
+  playMouseDown: () => void;
+  playMouseUp: () => void;
 }
 
 const SoundContext = createContext<SoundContextType | undefined>(undefined);
@@ -14,19 +16,39 @@ const SoundContext = createContext<SoundContextType | undefined>(undefined);
 export function SoundProvider({ children }: { children: React.ReactNode }) {
   const [isMuted, setIsMuted] = useState(true);
   const audioContextRef = useRef<AudioContext | null>(null);
-
-  // Background Music
   const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const mouseDownBufferRef = useRef<AudioBuffer | null>(null);
+  const mouseUpBufferRef = useRef<AudioBuffer | null>(null);
 
   useEffect(() => {
     // Initialize Web Audio API on first user interaction to comply with Autoplay policies
-    const initAudio = () => {
+    const initAudio = async () => {
       if (!audioContextRef.current) {
         const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
         audioContextRef.current = new AudioCtx();
       }
       if (audioContextRef.current.state === "suspended") {
-        audioContextRef.current.resume();
+        await audioContextRef.current.resume();
+      }
+
+      // Pre-load retro monitor click audio
+      if (!mouseDownBufferRef.current && audioContextRef.current) {
+        try {
+          const [downRes, upRes] = await Promise.all([
+            fetch('/static/audio/mouse/mouse_down.mp3'),
+            fetch('/static/audio/mouse/mouse_up.mp3')
+          ]);
+          if (downRes.ok && upRes.ok) {
+            const [downData, upData] = await Promise.all([
+              downRes.arrayBuffer(),
+              upRes.arrayBuffer()
+            ]);
+            mouseDownBufferRef.current = await audioContextRef.current.decodeAudioData(downData);
+            mouseUpBufferRef.current = await audioContextRef.current.decodeAudioData(upData);
+          }
+        } catch (e) {
+          console.error("Failed to load mouse audio", e);
+        }
       }
     };
 
@@ -105,8 +127,25 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     osc.stop(ctx.currentTime + 0.1);
   }, [isMuted]);
 
+  // Authentic Monitor Click Sounds (Pre-loaded Buffers)
+  const playMouseDown = useCallback(() => {
+    if (isMuted || !audioContextRef.current || !mouseDownBufferRef.current) return;
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = mouseDownBufferRef.current;
+    source.connect(audioContextRef.current.destination);
+    source.start(0);
+  }, [isMuted]);
+
+  const playMouseUp = useCallback(() => {
+    if (isMuted || !audioContextRef.current || !mouseUpBufferRef.current) return;
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = mouseUpBufferRef.current;
+    source.connect(audioContextRef.current.destination);
+    source.start(0);
+  }, [isMuted]);
+
   return (
-    <SoundContext.Provider value={{ isMuted, toggleMute, playHover, playClick }}>
+    <SoundContext.Provider value={{ isMuted, toggleMute, playHover, playClick, playMouseDown, playMouseUp }}>
       {children}
     </SoundContext.Provider>
   );

@@ -97,20 +97,21 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [isAwaitingBoot, setIsAwaitingBoot] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
-  const { playClick } = useSound();
+  const { playHover, playClick, playMouseDown, playMouseUp } = useSound();
   
   const startupAudioRef = useRef<HTMLAudioElement>(null);
   const shutdownAudioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    // Only play audio when OS is revealed (after awaiting and after booting)
-    if (showDesktopOS && !isBootingOS && !isAwaitingBoot) {
+    const handleStartup = () => {
       if (startupAudioRef.current) {
         startupAudioRef.current.currentTime = 0;
         startupAudioRef.current.play().catch(() => {});
       }
-    }
-  }, [showDesktopOS, isBootingOS, isAwaitingBoot]);
+    };
+    window.addEventListener('play-startup-audio', handleStartup);
+    return () => window.removeEventListener('play-startup-audio', handleStartup);
+  }, []);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -123,12 +124,25 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
           shutdownAudioRef.current.play().catch(() => {});
         }
       } else if (event.data.type === 'mousedown') {
-        playClick();
+        playMouseDown();
+      } else if (event.data.type === 'mouseup') {
+        playMouseUp();
       }
     };
+
+    const handleGlobalMouseUp = () => {
+      if (showDesktopOS && !isBootingOS && !isAwaitingBoot) {
+        playMouseUp();
+      }
+    };
+
     window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [playClick]);
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [playMouseDown, playMouseUp, showDesktopOS, isBootingOS, isAwaitingBoot]);
 
   useEffect(() => {
     if (lenis) {
@@ -357,7 +371,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       {showIso && <IsoGame onClose={() => setShowIso(false)} />}
 
       {/* Hidden Audio Elements */}
-      <audio ref={startupAudioRef} src="/startup.wav" preload="auto" />
+      <audio ref={startupAudioRef} src="/startup.mp3" preload="auto" />
       <audio ref={shutdownAudioRef} src="/shutdown.wav" preload="auto" />
     </section>
   );
@@ -498,6 +512,12 @@ function MagneticAvatar({ children, name, course, onYank, isTwinkling }: { child
 export function OSBootSequence({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(-1); // -1 = Awaiting camera zoom
   const ramRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (step === 4) {
+      window.dispatchEvent(new CustomEvent('play-startup-audio'));
+    }
+  }, [step]);
 
   useEffect(() => {
     // Total sequence starts after 1000ms camera zoom delay

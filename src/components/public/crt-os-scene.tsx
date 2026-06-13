@@ -134,7 +134,7 @@ export function CRTOsScene({
         <CameraControls 
           ref={cameraControlsRef} 
           makeDefault 
-          enabled={!isBootingOS && !isAwaitingBoot} // Lock controls during boot sequence and awaiting
+          enabled={bootPhase === 'os'} // Lock controls during boot sequence and awaiting
         />
       </Canvas>
 

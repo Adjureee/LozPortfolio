@@ -194,7 +194,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       window.removeEventListener('message', handleMessage);
       window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [showDesktopOS, isBootingOS, isAwaitingBoot]);
+  }, [showDesktopOS, isBootingOS, isAwaitingBoot, playMouseDown, playMouseUp]);
 
   useEffect(() => {
     if (lenis) {

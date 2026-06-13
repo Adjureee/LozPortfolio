@@ -133,6 +133,8 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                 style={{ borderRadius: '64px', overflow: 'hidden' }}
                 onMouseEnter={props.onMonitorEnterHTML}
                 onMouseLeave={props.onMonitorLeaveHTML}
+                onPointerDown={props.onMonitorDown3D}
+                onPointerUp={props.onMonitorUp3D}
               >
                 {/* CRT Power Down Animation Wrapper with CSS Safe Zone (inset-6) */}
                 <motion.div 

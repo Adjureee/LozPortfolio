@@ -398,28 +398,9 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
             isSafeToTurnOff={isSafeToTurnOff}
             powerDownComplete={powerDownComplete}
             onShutdown={confirmShutdown}
+            showShutdownDialog={showShutdownDialog}
+            onCancelShutdown={() => setShowShutdownDialog(false)}
           />
-          
-          {showShutdownDialog && (
-            <div className="fixed inset-0 z-[100000] flex items-center justify-center pointer-events-auto bg-black/20">
-              {/* Windows 95 Dialog Box */}
-              <div className="bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black p-[2px] w-80 shadow-md font-sans text-black pointer-events-auto">
-                {/* Title Bar */}
-                <div className="bg-[#000080] text-white font-bold px-1 py-0.5 flex justify-between items-center text-sm">
-                  <span>Shut Down Windows</span>
-                  <button onClick={() => setShowShutdownDialog(false)} className="bg-[#c0c0c0] text-black font-bold px-1.5 border-t border-l border-t-white border-l-white border-b border-r border-b-black border-r-black text-xs leading-none pb-0.5 active:border-t-black active:border-l-black active:border-b-white active:border-r-white">X</button>
-                </div>
-                {/* Content */}
-                <div className="p-4 text-sm flex flex-col items-center">
-                  <p className="mb-4 text-center">Are you sure you want to shut down the computer?</p>
-                  <div className="flex gap-4">
-                    <button onClick={confirmShutdown} className="px-6 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">Yes</button>
-                    <button onClick={() => setShowShutdownDialog(false)} className="px-6 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">No</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           <AnimatePresence>
             {isAwaitingBoot && (

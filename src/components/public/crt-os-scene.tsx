@@ -26,6 +26,8 @@ export function CRTOsScene({
   isSafeToTurnOff?: boolean;
   powerDownComplete?: boolean;
   onShutdown?: () => void;
+  showShutdownDialog?: boolean;
+  onCancelShutdown?: () => void;
 }) {
   const cameraControlsRef = useRef<CameraControlsImpl>(null);
   const [cameraTarget, setCameraTarget] = useState<[number, number, number] | null>(null);
@@ -111,6 +113,9 @@ export function CRTOsScene({
             isShuttingDown={isShuttingDown}
             isSafeToTurnOff={isSafeToTurnOff}
             powerDownComplete={powerDownComplete}
+            showShutdownDialog={showShutdownDialog}
+            onConfirmShutdown={onShutdown}
+            onCancelShutdown={onCancelShutdown}
             onAutoAlign={handleAutoAlign}
             onMonitorDown3D={playMouseDown}
             onMonitorUp3D={playMouseUp}

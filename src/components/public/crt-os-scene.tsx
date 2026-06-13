@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Commodore64 } from './commodore-64';
 import { useSound } from '@/components/providers/sound-provider';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, ArrowLeft } from 'lucide-react';
 
 export type CameraState = 'BOOTING' | 'AT_SCREEN' | 'ZOOMED_OUT';
 
@@ -141,12 +141,12 @@ export function CRTOsScene({
         />
       </Canvas>
 
-      <ZoomedOutOverlay isVisible={cameraState === 'ZOOMED_OUT'} onShutdown={onShutdown} />
+      <ZoomedOutOverlay isVisible={cameraState === 'ZOOMED_OUT'} onExit={onShutdownComplete} />
     </div>
   );
 }
 
-function ZoomedOutOverlay({ isVisible, onShutdown }: { isVisible: boolean; onShutdown?: () => void }) {
+function ZoomedOutOverlay({ isVisible, onExit }: { isVisible: boolean; onExit?: () => void }) {
   const [time, setTime] = useState(new Date());
   const { isMuted, toggleMute, unlockAndUnmute } = useSound();
 
@@ -196,18 +196,11 @@ function ZoomedOutOverlay({ isVisible, onShutdown }: { isVisible: boolean; onShu
             </button>
 
             <button 
-              onClick={() => {
-                // Ensure audio is unlocked if possible, then trigger shutdown
-                if (isMuted) {
-                  unlockAndUnmute().then(() => onShutdown?.());
-                } else {
-                  onShutdown?.();
-                }
-              }}
-              className="flex items-center gap-3 px-4 py-2 bg-red-900/40 hover:bg-red-600/60 backdrop-blur-md border border-red-500/30 rounded-full text-sm font-mono tracking-widest text-white/90 active:scale-95 transition-all duration-75"
+              onClick={() => onExit?.()}
+              className="flex items-center gap-3 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-full text-sm font-mono tracking-widest text-white active:scale-95 transition-all duration-75"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
-              POWER OFF
+              <ArrowLeft className="w-4 h-4" />
+              BACK TO PORTFOLIO
             </button>
           </div>
         </motion.div>

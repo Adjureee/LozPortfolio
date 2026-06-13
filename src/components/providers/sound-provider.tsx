@@ -100,26 +100,23 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
   // Use authentic mechanical click for all UI buttons
   const playClick = useCallback(() => {
-    if (isMuted) return;
     const audio = new Audio('/audio/real_click_down.mp3');
     audio.volume = 0.5;
     audio.play().catch(e => console.error("Click audio error:", e));
-  }, [isMuted]);
+  }, []);
 
   // Authentic Monitor Click Sounds
   const playMouseDown = useCallback(() => {
-    if (isMuted) return;
     const audio = new Audio('/audio/real_click_down.mp3');
     audio.volume = 0.5;
     audio.play().catch(e => console.error("MouseDown audio error:", e));
-  }, [isMuted]);
+  }, []);
 
   const playMouseUp = useCallback(() => {
-    if (isMuted) return;
     const audio = new Audio('/audio/real_click_up.mp3');
     audio.volume = 0.5;
     audio.play().catch(e => console.error("MouseUp audio error:", e));
-  }, [isMuted]);
+  }, []);
 
   return (
     <SoundContext.Provider value={{ isMuted, toggleMute, unlockAndUnmute, playHover, playClick, playMouseDown, playMouseUp }}>

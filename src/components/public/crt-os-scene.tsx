@@ -14,8 +14,6 @@ export function CRTOsScene({
   bootPhase,
   setBootPhase,
   isShuttingDown,
-  isSafeToTurnOff,
-  powerDownComplete,
   onShutdown,
   onShutdownComplete,
   onExitDesktop,
@@ -25,8 +23,6 @@ export function CRTOsScene({
   bootPhase: 'off' | 'post' | 'video' | 'os';
   setBootPhase: (phase: 'off' | 'post' | 'video' | 'os') => void;
   isShuttingDown?: boolean;
-  isSafeToTurnOff?: boolean;
-  powerDownComplete?: boolean;
   onShutdown?: () => void;
   onShutdownComplete?: () => void;
   onExitDesktop?: () => void;
@@ -115,8 +111,6 @@ export function CRTOsScene({
             bootPhase={bootPhase}
             setBootPhase={setBootPhase}
             isShuttingDown={isShuttingDown}
-            isSafeToTurnOff={isSafeToTurnOff}
-            powerDownComplete={powerDownComplete}
             showShutdownDialog={showShutdownDialog}
             onConfirmShutdown={onShutdown}
             onCancelShutdown={onCancelShutdown}

@@ -96,8 +96,6 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [bootPhase, setBootPhase] = useState<'off' | 'post' | 'video' | 'os'>('off');
   const [showShutdownDialog, setShowShutdownDialog] = useState(false);
   const [isShuttingDown, setIsShuttingDown] = useState(false);
-  const [isSafeToTurnOff, setIsSafeToTurnOff] = useState(false);
-  const [powerDownComplete, setPowerDownComplete] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
   const { playHover, playClick, playMouseDown, playMouseUp, isMuted } = useSound();
@@ -118,27 +116,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       shutdownAudioRef.current.currentTime = 0;
       shutdownAudioRef.current.play().catch((e) => console.error(e));
     }
-
-    // After 2 seconds, show the safe to turn off screen
-    setTimeout(() => {
-      setIsSafeToTurnOff(true);
-      
-      // After 3 seconds of safe to turn off, trigger power down
-      setTimeout(() => {
-        setPowerDownComplete(true);
-        // Play mechanical click
-        if (!isMutedRef.current) playClick();
-        
-        // Fully close after power down animation finishes
-        setTimeout(() => {
-          setIsShuttingDown(false);
-          setIsSafeToTurnOff(false);
-          setPowerDownComplete(false);
-          setBootPhase('off');
-        }, 1000);
-      }, 3000);
-    }, 2000);
-  }, [playClick]);
+  }, []);
 
   useEffect(() => {
     // Imperatively load audio objects so they can be unlocked securely
@@ -392,13 +370,9 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
             bootPhase={bootPhase}
             setBootPhase={setBootPhase}
             isShuttingDown={isShuttingDown}
-            isSafeToTurnOff={isSafeToTurnOff}
-            powerDownComplete={powerDownComplete}
             onShutdown={confirmShutdown}
             onShutdownComplete={() => {
               setIsShuttingDown(false);
-              setIsSafeToTurnOff(false);
-              setPowerDownComplete(false);
               setBootPhase('off');
             }}
             onExitDesktop={() => setShowDesktopOS(false)}

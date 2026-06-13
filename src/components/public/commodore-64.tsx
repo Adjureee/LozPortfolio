@@ -254,7 +254,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                           />
                         )}
                       </motion.div>
-                    )}
+                    ) : null}
                   </AnimatePresence>
 
                   {/* Render the Windows 95 Dialog INSIDE the 3D Monitor! */}

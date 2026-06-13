@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { CameraControls, PerspectiveCamera } from '@react-three/drei';
 import type CameraControlsImpl from 'camera-controls';
 import * as THREE from 'three';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Commodore64 } from './commodore-64';
 
 export type CameraState = 'BOOTING' | 'AT_SCREEN' | 'ZOOMED_OUT';
@@ -47,9 +48,9 @@ export function CRTOsScene({ isBootingOS, isAwaitingBoot, onCompleteBoot }: { is
     if (!cameraControlsRef.current || !cameraTarget) return;
 
     if (cameraState === 'BOOTING' || cameraState === 'AT_SCREEN') {
-      // Smoothly fly towards the monitor
+      // Smoothly fly towards the monitor with a tighter zoom
       cameraControlsRef.current.setLookAt(
-        cameraTarget[0], cameraTarget[1] + 0.2, cameraTarget[2] + 4.5, // Camera position
+        cameraTarget[0], cameraTarget[1] + 0.05, cameraTarget[2] + 2.5, // Tighter camera position
         cameraTarget[0], cameraTarget[1], cameraTarget[2],             // Target position
         true // Enable smooth transition!
       );
@@ -101,6 +102,37 @@ export function CRTOsScene({ isBootingOS, isAwaitingBoot, onCompleteBoot }: { is
           enabled={!isBootingOS && !isAwaitingBoot} // Lock controls during boot sequence and awaiting
         />
       </Canvas>
+
+      <ZoomedOutOverlay isVisible={cameraState === 'ZOOMED_OUT'} />
     </div>
+  );
+}
+
+function ZoomedOutOverlay({ isVisible }: { isVisible: boolean }) {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    if (!isVisible) return;
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, [isVisible]);
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="absolute top-12 left-12 md:top-16 md:left-16 z-50 pointer-events-none text-white font-display"
+        >
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight mb-2 drop-shadow-lg">John Lyold Lozada</h2>
+          <div className="text-lg md:text-xl lg:text-2xl text-white/70 font-mono tracking-widest drop-shadow-md">
+            {time.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit', second: '2-digit' })}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

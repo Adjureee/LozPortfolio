@@ -497,84 +497,120 @@ function MagneticAvatar({ children, name, course, onYank, isTwinkling }: { child
 
 export function OSBootSequence({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0);
+  const [ramCount, setRamCount] = useState(0);
 
   useEffect(() => {
-    // Total sequence compressed to exactly 3.5s
+    // Total sequence compressed to exactly 4.0s
     const sequence = [
-      { delay: 500, step: 1 },
-      { delay: 1000, step: 2 },
-      { delay: 1800, step: 3 },
-      { delay: 2500, step: 4 },
-      { delay: 3000, step: 5 },
+      { delay: 100, step: 1 }, // Flash ends quickly
+      { delay: 800, step: 2 }, // RAM finishes
+      { delay: 1500, step: 3 }, // Drivers list
+      { delay: 3500, step: 4 }, // Starting Windows
     ];
     
     const timeouts = sequence.map(({ delay, step: s }) => 
       setTimeout(() => setStep(s), delay)
     );
     
-    const finishTimer = setTimeout(() => onComplete(), 3500);
+    // Animate RAM counter during step 1
+    let raf: number;
+    const startTime = Date.now() + 100; // start counting at step 1
+    const ramDuration = 700; // finishes exactly at step 2 (800ms)
+    
+    const animateRam = () => {
+      const now = Date.now();
+      if (now < startTime) {
+        raf = requestAnimationFrame(animateRam);
+        return;
+      }
+      
+      const progress = Math.min((now - startTime) / ramDuration, 1);
+      setRamCount(Math.floor(progress * 640)); // 640K OK
+      
+      if (progress < 1) {
+        raf = requestAnimationFrame(animateRam);
+      }
+    };
+    raf = requestAnimationFrame(animateRam);
+
+    const finishTimer = setTimeout(() => onComplete(), 4000); // Exactly 4 seconds
     return () => {
       timeouts.forEach((t) => clearTimeout(t));
       clearTimeout(finishTimer);
+      cancelAnimationFrame(raf);
     };
   }, []);
 
-  const getCurrentDate = () => {
-    const date = new Date();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${month}/${day}/${year}`;
-  };
-
   return (
-    <div className="absolute inset-0 z-[10000] bg-black text-[#c0c0c0] font-mono text-sm md:text-lg p-4 md:p-8 flex flex-col pointer-events-none overflow-hidden">
-      <div className="w-full flex justify-between mb-4">
-        <div>
-          <p className="text-[#00ff00] font-bold">Lozada,</p>
-          <p className="text-[#00ff00] font-bold">John Lyold C. Lozada Inc.</p>
-        </div>
-        <div className="text-right hidden sm:block">
-          <p>Released: 01/13/2000</p>
-          <p>HHBIOS (C)2000 John Lyold C. Lozada Inc.,</p>
-        </div>
-      </div>
-      
-      <p>HSP S13 2000-2022 Special UC131S</p>
-      <br />
-      
-      {step >= 1 && (
-        <>
-          <p>HSP Showcase(tm) XX 113</p>
-          <p>Checking RAM : 14000 OK</p>
-          <br />
-          <br />
-        </>
-      )}
-      
-      {step >= 2 && step < 4 && (
-        <p className="animate-pulse text-[#c0c0c0]">WAIT</p>
-      )}
-      
-      {step >= 4 && (
-        <p>FINISHED LOADING RESOURCES</p>
-      )}
-      
-      <br />
-      
-      {step >= 5 && (
-        <p>
-          All Content Loaded, launching <b className="text-[#00ff00]">&apos;John Lyold C. Lozada Portfolio Showcase&apos;</b> V1.0
-        </p>
-      )}
-      
-      <br />
-      {step < 5 && <span className="animate-pulse inline-block w-3 h-5 bg-[#c0c0c0] mb-4"></span>}
+    <div className="absolute inset-0 z-[10000] bg-black overflow-hidden flex flex-col font-mono text-white text-xs md:text-sm p-4 md:p-6 pointer-events-none">
+      {/* Step 0: CRT Tube Flash */}
+      <AnimatePresence>
+        {step === 0 && (
+          <motion.div 
+            initial={{ opacity: 1, scaleY: 1 }}
+            exit={{ opacity: 0, scaleY: 0.01 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute inset-0 bg-white z-50 flex items-center justify-center shadow-[0_0_50px_#ffffff]"
+          >
+            <div className="w-full h-2 bg-white shadow-[0_0_20px_#ffffff]" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="mt-auto flex justify-between w-full">
-        <p>Press <b className="text-white">DEL</b> to enter SETUP , <b className="text-white">ESC</b> to skip memory test</p>
-        <p>{getCurrentDate()}</p>
-      </div>
+      {/* BIOS Screen */}
+      {step >= 1 && (
+        <div className="flex-1 flex flex-col gap-1 w-full max-w-3xl">
+          {/* Header Row: BIOS Info & Energy Star */}
+          <div className="flex justify-between items-start mb-6 w-full">
+            <div>
+              <p>American Megatrends Inc.,</p>
+              <p>System BIOS (C) 1995 American Megatrends Inc.,</p>
+              <p>HHBIOS (C) 2026 John Lyold C. Lozada</p>
+            </div>
+            
+            {/* Faux Energy Star Logo - ASCII Style */}
+            <div className="text-right hidden sm:block">
+              <pre className="text-[8px] leading-[8px] text-[#00ff00] font-bold">
+{`   ___
+  / _ \\_
+ / /_\\( \\
+/ /_\\\\ \\ \\
+\\____/\\_\\`}
+              </pre>
+              <p className="text-[10px] text-[#00ff00] font-bold mt-1 tracking-widest">EPA POLLUTION PREVENTER</p>
+            </div>
+          </div>
+
+          <p className="mb-2">Processor : Intel(R) Pentium(R) CPU at 133 MHz</p>
+          <p className="mb-4">Memory Test : <span className="font-bold">{ramCount}K OK</span></p>
+
+          {step >= 2 && (
+            <>
+              <p>Award Plug and Play BIOS Extension v1.0A</p>
+              <p>Initialize Plug and Play Cards...</p>
+              <p>PNP Init Completed</p>
+            </>
+          )}
+
+          {step >= 3 && (
+            <div className="mt-4 space-y-1">
+              <p>Detecting Primary Master   ... IDE Hard Disk</p>
+              <p>Detecting Primary Slave    ... None</p>
+              <p>Detecting Secondary Master ... CD-ROM</p>
+              <p>Detecting Secondary Slave  ... None</p>
+              <br />
+              <p>Loading Drivers.................... OK</p>
+              <p>Checking NVRAM..................... OK</p>
+              <br />
+              {step >= 4 ? (
+                <p>Starting Windows 95...</p>
+              ) : (
+                <span className="animate-pulse w-2 h-4 bg-[#c0c0c0] inline-block mt-2"></span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

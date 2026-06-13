@@ -105,13 +105,14 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
           {screenPos && (
             <Html 
               transform 
+              occlude="blending"
               position={[
                 screenPos.x + (props.positionOffset?.[0] || 0), 
                 screenPos.y + (props.positionOffset?.[1] || 0), 
-                screenPos.z + (props.positionOffset?.[2] || 0)
+                screenPos.z + 0.005 + (props.positionOffset?.[2] || 0) // Extra Z-offset to prevent z-fighting
               ]}
-              scale={props.scaleFactor || 0.146} // Hardcoded exact calibrated scale!
-              className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
+              scale={props.scaleFactor || 0.114} // Recalibrated for 1024px width (0.146 * 800 / 1024)
+              className="w-[1024px] h-[768px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
               style={{ borderRadius: '64px', overflow: 'hidden' }}
             >
               <div 

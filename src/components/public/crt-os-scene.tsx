@@ -1,4 +1,4 @@
-import React, { Suspense, useRef, useState, useCallback } from 'react';
+import React, { Suspense, useRef, useState, useCallback, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';

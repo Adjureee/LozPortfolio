@@ -101,7 +101,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [powerDownComplete, setPowerDownComplete] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
-  const { playHover, playClick, isMuted } = useSound();
+  const { playHover, playClick, playMouseDown, playMouseUp, isMuted } = useSound();
   const isMutedRef = useRef(isMuted);
 
   useEffect(() => {

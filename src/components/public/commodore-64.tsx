@@ -297,7 +297,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                           It is now safe to turn off your computer.
                         </p>
                       </motion.div>
-                    ) : null}
+                    )}
                   </AnimatePresence>
                 </div>
 

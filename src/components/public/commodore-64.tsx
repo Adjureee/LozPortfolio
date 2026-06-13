@@ -10,9 +10,18 @@ import { GLTF } from 'three-stdlib'
 import { motion, AnimatePresence } from 'framer-motion'
 
 
-function PostSequence() {
+function PostSequence({ onComplete }: { onComplete: () => void }) {
   const ramRef = useRef<HTMLSpanElement>(null);
   const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    if (step === 1) {
+      const timer = setTimeout(() => {
+        onComplete();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [step, onComplete]);
 
   useEffect(() => {
     let raf: number;
@@ -117,15 +126,6 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   onShutdownComplete?: () => void;
 }) {
   const { nodes, materials } = useGLTF('/commodore_64__computer_full_pack.glb') as unknown as GLTFResult
-  
-  useEffect(() => {
-    if (props.bootPhase === 'post') {
-      const timer = setTimeout(() => {
-        props.setBootPhase?.('video');
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [props.bootPhase, props.setBootPhase]);
   
   const screenRef = useRef<THREE.Mesh>(null);
   const [targetReady, setTargetReady] = useState(false);
@@ -234,15 +234,19 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                         transition={{ duration: 0.5 }}
                         className="w-full h-full absolute inset-0"
                       >
-                        {props.bootPhase === 'post' && <PostSequence />}
-                        {props.bootPhase === 'video' && (
+                        {props.bootPhase === 'post' && <PostSequence onComplete={() => props.setBootPhase?.('video')} />}
+                        {(props.bootPhase === 'post' || props.bootPhase === 'video') && (
                           <video 
                             ref={(el) => {
-                              if (el) el.play().catch(console.error);
+                              if (el && props.bootPhase === 'video') {
+                                el.play().catch(console.error);
+                              }
                             }}
                             src="/video/startup.mp4" 
                             className="w-full h-full object-cover absolute inset-0 z-50 pointer-events-none"
+                            style={{ opacity: props.bootPhase === 'video' ? 1 : 0 }}
                             playsInline 
+                            preload="auto"
                             onEnded={() => props.setBootPhase?.('os')}
                           />
                         )}

@@ -18,8 +18,8 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
   const [isMuted, setIsMuted] = useState(true);
   const audioContextRef = useRef<AudioContext | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
-  const mouseDownBufferRef = useRef<AudioBuffer | null>(null);
-  const mouseUpBufferRef = useRef<AudioBuffer | null>(null);
+  const clickDownRef = useRef<HTMLAudioElement | null>(null);
+  const clickUpRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     // Initialize Web Audio API on first user interaction to comply with Autoplay policies
@@ -40,6 +40,13 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     bgmRef.current = new Audio("/audio/bgm.mp3");
     bgmRef.current.loop = true;
     bgmRef.current.volume = 0.15;
+
+    // Authentic Mechanical Clicks
+    clickDownRef.current = new Audio('/audio/real_click_down.mp3');
+    clickDownRef.current.volume = 0.5;
+
+    clickUpRef.current = new Audio('/audio/real_click_up.mp3');
+    clickUpRef.current.volume = 0.5;
 
     return () => {
       window.removeEventListener("click", initAudio);
@@ -122,21 +129,17 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     osc.stop(ctx.currentTime + 0.1);
   }, [isMuted]);
 
-  // Authentic Monitor Click Sounds (Pre-loaded Buffers)
+  // Authentic Monitor Click Sounds
   const playMouseDown = useCallback(() => {
-    if (isMuted || !audioContextRef.current || !mouseDownBufferRef.current) return;
-    const source = audioContextRef.current.createBufferSource();
-    source.buffer = mouseDownBufferRef.current;
-    source.connect(audioContextRef.current.destination);
-    source.start(0);
+    if (isMuted || !clickDownRef.current) return;
+    clickDownRef.current.currentTime = 0;
+    clickDownRef.current.play().catch(() => {});
   }, [isMuted]);
 
   const playMouseUp = useCallback(() => {
-    if (isMuted || !audioContextRef.current || !mouseUpBufferRef.current) return;
-    const source = audioContextRef.current.createBufferSource();
-    source.buffer = mouseUpBufferRef.current;
-    source.connect(audioContextRef.current.destination);
-    source.start(0);
+    if (isMuted || !clickUpRef.current) return;
+    clickUpRef.current.currentTime = 0;
+    clickUpRef.current.play().catch(() => {});
   }, [isMuted]);
 
   return (

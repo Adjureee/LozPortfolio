@@ -49,6 +49,8 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   positionOffset?: [number, number, number];
   onMonitorEnter3D?: () => void;
   onMonitorLeave3D?: () => void;
+  onMonitorDown3D?: () => void;
+  onMonitorUp3D?: () => void;
   onMonitorEnterHTML?: () => void;
   onMonitorLeaveHTML?: () => void;
   isShuttingDown?: boolean;
@@ -101,6 +103,8 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
         position={[0, 0.368, -2.43]}
         onPointerEnter={props.onMonitorEnter3D}
         onPointerOut={props.onMonitorLeave3D}
+        onPointerDown={props.onMonitorDown3D}
+        onPointerUp={props.onMonitorUp3D}
       >
         <mesh geometry={nodes.Object_17.geometry} material={materials.monitor_black} />
         <mesh geometry={nodes.Object_18.geometry} material={materials.monitor_white} />

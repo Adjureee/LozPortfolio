@@ -144,9 +144,9 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       } else if (event.data.type === 'TRIGGER_SHUTDOWN_DIALOG') {
         setShowShutdownDialog(true);
       } else if (event.data.type === 'mousedown') {
-        playClick(); // Fallback to synthesized click
+        playMouseDown();
       } else if (event.data.type === 'mouseup') {
-        // synthesize up click if needed, or leave blank
+        playMouseUp();
       }
     };
 

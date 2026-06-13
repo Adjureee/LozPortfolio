@@ -10,10 +10,25 @@ import { Volume2, VolumeX } from 'lucide-react';
 
 export type CameraState = 'BOOTING' | 'AT_SCREEN' | 'ZOOMED_OUT';
 
-export function CRTOsScene({ isBootingOS, isAwaitingBoot, onCompleteBoot }: { isBootingOS: boolean, isAwaitingBoot?: boolean, onCompleteBoot: () => void }) {
+export function CRTOsScene({ 
+  isBootingOS, 
+  isAwaitingBoot, 
+  onCompleteBoot,
+  isShuttingDown,
+  isSafeToTurnOff,
+  powerDownComplete
+}: { 
+  isBootingOS: boolean; 
+  isAwaitingBoot: boolean; 
+  onCompleteBoot: () => void;
+  isShuttingDown?: boolean;
+  isSafeToTurnOff?: boolean;
+  powerDownComplete?: boolean;
+}) {
   const cameraControlsRef = useRef<CameraControlsImpl>(null);
   const [cameraTarget, setCameraTarget] = useState<[number, number, number] | null>(null);
-  
+  const { playMouseDown, playMouseUp } = useSound();
+
   // Camera State Machine
   const [cameraState, setCameraState] = useState<CameraState>(
     isAwaitingBoot ? 'ZOOMED_OUT' : (isBootingOS ? 'BOOTING' : 'ZOOMED_OUT')
@@ -85,14 +100,25 @@ export function CRTOsScene({ isBootingOS, isAwaitingBoot, onCompleteBoot }: { is
         <directionalLight position={[10, 10, 5]} intensity={2} />
         <pointLight position={[-10, -10, -10]} intensity={0.5} />
         
-        <Suspense fallback={<CanvasLoader />}>
+        <Suspense fallback={<Html center><div className="text-[#00ff00] font-mono whitespace-nowrap bg-black p-4 rounded-lg border border-[#00ff00]">Loading 3D Assets...</div></Html>}>
           <Commodore64 
-            isBootingOS={isBootingOS} 
+            position={[0, -1, 0]} 
+            isBootingOS={isBootingOS}
             isAwaitingBoot={isAwaitingBoot}
             onCompleteBoot={onCompleteBoot}
+            isShuttingDown={isShuttingDown}
+            isSafeToTurnOff={isSafeToTurnOff}
+            powerDownComplete={powerDownComplete}
             onAutoAlign={handleAutoAlign}
-            onMonitorEnter3D={() => setIsHovering3D(true)}
-            onMonitorLeave3D={() => setIsHovering3D(false)}
+            onMonitorDown3D={playMouseDown}
+            onMonitorUp3D={playMouseUp}
+            onMonitorEnter3D={() => {
+              if (cameraState === 'ZOOMED_OUT') setCameraState('AT_SCREEN');
+              setIsHovering3D(true);
+            }}
+            onMonitorLeave3D={() => {
+              setIsHovering3D(false);
+            }}
             onMonitorEnterHTML={() => setIsHoveringHTML(true)}
             onMonitorLeaveHTML={() => setIsHoveringHTML(false)}
           />

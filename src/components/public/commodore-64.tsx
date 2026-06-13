@@ -96,7 +96,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
             <Html 
               transform 
               position={[screenPos.x, screenPos.y, screenPos.z]}
-              scale={0.0035} // Physically perfectly matched to the 3.05 bounding box width
+              scale={0.024} // Visually calibrated to completely fill the grey monitor glass
               className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
               style={{ borderRadius: '64px', overflow: 'hidden' }}
             >

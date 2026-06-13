@@ -106,11 +106,12 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
 
   useEffect(() => {
     // Imperatively load audio objects so they can be unlocked securely
+    // Ensure these use absolute Next.js public paths
     if (typeof window !== "undefined") {
       if (!startupAudioRef.current) startupAudioRef.current = new Audio("/startup.mp3");
       if (!shutdownAudioRef.current) shutdownAudioRef.current = new Audio("/shutdown.mp3");
-      if (!clickDownAudioRef.current) clickDownAudioRef.current = new Audio("/mouse_down.mp3");
-      if (!clickUpAudioRef.current) clickUpAudioRef.current = new Audio("/mouse_up.mp3");
+      if (!clickDownAudioRef.current) clickDownAudioRef.current = new Audio("/audio/mouse/mouse_down.mp3");
+      if (!clickUpAudioRef.current) clickUpAudioRef.current = new Audio("/audio/mouse/mouse_up.mp3");
     }
   }, []);
 

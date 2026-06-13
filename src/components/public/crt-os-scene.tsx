@@ -1,6 +1,6 @@
 import React, { Suspense, useRef, useState, useCallback, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { CameraControls, PerspectiveCamera } from '@react-three/drei';
+import { CameraControls, PerspectiveCamera, Html, useProgress } from '@react-three/drei';
 import type CameraControlsImpl from 'camera-controls';
 import * as THREE from 'three';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -83,7 +83,7 @@ export function CRTOsScene({ isBootingOS, isAwaitingBoot, onCompleteBoot }: { is
         <directionalLight position={[10, 10, 5]} intensity={2} />
         <pointLight position={[-10, -10, -10]} intensity={0.5} />
         
-        <Suspense fallback={null}>
+        <Suspense fallback={<CanvasLoader />}>
           <Commodore64 
             isBootingOS={isBootingOS} 
             isAwaitingBoot={isAwaitingBoot}
@@ -134,5 +134,17 @@ function ZoomedOutOverlay({ isVisible }: { isVisible: boolean }) {
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+function CanvasLoader() {
+  const { progress } = useProgress();
+  return (
+    <Html center>
+      <div className="flex flex-col items-center justify-center p-8 bg-black/80 backdrop-blur-md rounded-xl border border-[#333]">
+        <div className="w-12 h-12 border-4 border-[#333] border-t-white rounded-full animate-spin mb-4" />
+        <p className="text-white font-mono text-sm tracking-widest uppercase text-nowrap">Loading 3D Assets {progress.toFixed(0)}%</p>
+      </div>
+    </Html>
   );
 }

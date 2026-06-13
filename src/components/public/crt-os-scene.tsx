@@ -143,7 +143,7 @@ function ZoomedOutOverlay({ isVisible }: { isVisible: boolean }) {
                 toggleMute();
               }
             }}
-            className="flex items-center gap-3 px-4 py-2 bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-sm font-mono tracking-widest transition-all duration-300"
+            className="flex items-center gap-3 px-4 py-2 bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-sm font-mono tracking-widest active:scale-95 transition-all duration-75"
           >
             {isMuted ? (
               <>

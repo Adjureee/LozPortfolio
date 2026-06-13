@@ -8,6 +8,7 @@ import { ArrowUpRight } from "lucide-react";
 export function CustomCursor() {
   const [isHovered, setIsHovered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isClicking, setIsClicking] = useState(false);
 
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
@@ -43,14 +44,21 @@ export function CustomCursor() {
     const handleMouseLeave = () => setIsVisible(false);
     const handleMouseEnter = () => setIsVisible(true);
 
+    const handleMouseDown = () => setIsClicking(true);
+    const handleMouseUp = () => setIsClicking(false);
+
     window.addEventListener("mousemove", moveCursor);
     window.addEventListener("mouseover", handleMouseOver);
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
     document.body.addEventListener("mouseleave", handleMouseLeave);
     document.body.addEventListener("mouseenter", handleMouseEnter);
 
     return () => {
       window.removeEventListener("mousemove", moveCursor);
       window.removeEventListener("mouseover", handleMouseOver);
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mouseup", handleMouseUp);
       document.body.removeEventListener("mouseleave", handleMouseLeave);
       document.body.removeEventListener("mouseenter", handleMouseEnter);
     };
@@ -68,10 +76,10 @@ export function CustomCursor() {
           opacity: isVisible ? 1 : 0,
         }}
         animate={{
-          width: isHovered ? 64 : 12,
-          height: isHovered ? 64 : 12,
+          width: isHovered ? 64 : (isClicking ? 8 : 12),
+          height: isHovered ? 64 : (isClicking ? 8 : 12),
           backgroundColor: isHovered ? "rgba(255,255,255,1)" : "rgba(255,255,255,1)",
-          scale: isHovered ? 1 : 1,
+          scale: isClicking ? 0.8 : 1,
         }}
         transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.5 }}
       >
@@ -85,9 +93,33 @@ export function CustomCursor() {
           transition={{ duration: 0.25, ease: "easeOut" }}
           className="text-black"
         >
-          <ArrowUpRight size={24} strokeWidth={2.5} />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 22V2h2v2h2v2h2v2h2v2h2v2h2v2h2v2h-2v2h-2v2h-2v-2h-2v-2h-2v2H8z" fill="white"/>
+            <path d="M9 3v18h2v-2h2v-2h2v-2h2v-2h2v-2h2V9h-2V7h-2V5h-2V3H9z" fill="black"/>
+          </svg>
         </motion.div>
       </motion.div>
+
+      {/* Click Ring Flash */}
+      <AnimatePresence>
+        {isClicking && (
+          <motion.div
+            initial={{ scale: 0.5, opacity: 1, borderWidth: "4px" }}
+            animate={{ scale: 2.5, opacity: 0, borderWidth: "0px" }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="pointer-events-none fixed top-0 left-0 z-[999998] rounded-full border-white mix-blend-difference"
+            style={{
+              x: outerX,
+              y: outerY,
+              width: 32,
+              height: 32,
+              translateX: "-50%",
+              translateY: "-50%",
+            }}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

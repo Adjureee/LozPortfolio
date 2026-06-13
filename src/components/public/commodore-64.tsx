@@ -8,7 +8,63 @@ import React, { useEffect, useRef, useState, useMemo } from 'react'
 import { useGLTF, Html } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import { motion, AnimatePresence } from 'framer-motion'
-import { OSBootSequence } from './hero-section'
+
+
+function PostSequence() {
+  const ramRef = useRef<HTMLSpanElement>(null);
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    let raf: number;
+    const startTime = Date.now() + 500;
+    const ramDuration = 1500;
+
+    const animateRam = () => {
+      const now = Date.now();
+      if (now < startTime) {
+        raf = requestAnimationFrame(animateRam);
+        return;
+      }
+      const progress = Math.min((now - startTime) / ramDuration, 1);
+      if (ramRef.current) {
+        ramRef.current.textContent = `${Math.floor(progress * 640)}K OK`;
+      }
+      if (progress < 1) {
+        raf = requestAnimationFrame(animateRam);
+      } else {
+        setStep(1); // RAM done, show drivers
+      }
+    };
+    raf = requestAnimationFrame(animateRam);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <div className="w-full h-full bg-black text-white font-mono text-sm p-4 text-left">
+      <div className="flex justify-between w-full max-w-sm">
+        <span>American Megatrends Inc.</span>
+        <span>640K RAM SYSTEM</span>
+      </div>
+      <p>System BIOS (C) 1995</p>
+      <p>HHBIOS (C) 2026 Lozada</p>
+      <br />
+      <div className="flex gap-4 text-green-400">
+        <span>Checking Memory...</span>
+        <span ref={ramRef}>0K OK</span>
+      </div>
+      {step >= 1 && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 space-y-1 text-gray-300">
+          <p>Loading Mouse Driver... OK</p>
+          <p>Loading SoundBlaster 16... OK</p>
+          <p>Loading Video Adapter... VESA BIOS Extension 3.0</p>
+          <p>Mounting Virtual File System (VFS)... OK</p>
+          <br />
+          <p className="animate-pulse">_</p>
+        </motion.div>
+      )}
+    </div>
+  );
+}
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -41,9 +97,8 @@ type GLTFResult = GLTF & {
 }
 
 export function Commodore64(props: React.JSX.IntrinsicElements['group'] & { 
-  isBootingOS?: boolean;
-  isAwaitingBoot?: boolean;
-  onCompleteBoot?: () => void;
+  bootPhase?: 'off' | 'post' | 'video' | 'os';
+  setBootPhase?: (phase: 'off' | 'post' | 'video' | 'os') => void;
   onAutoAlign?: (pos: [number, number, number]) => void;
   scaleFactor?: number;
   positionOffset?: [number, number, number];
@@ -61,6 +116,15 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   onCancelShutdown?: () => void;
 }) {
   const { nodes, materials } = useGLTF('/commodore_64__computer_full_pack.glb') as unknown as GLTFResult
+  
+  useEffect(() => {
+    if (props.bootPhase === 'post') {
+      const timer = setTimeout(() => {
+        props.setBootPhase?.('video');
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [props.bootPhase, props.setBootPhase]);
   
   const screenRef = useRef<THREE.Mesh>(null);
   const [targetReady, setTargetReady] = useState(false);
@@ -156,16 +220,26 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                   style={{ transformOrigin: 'center center' }}
                 >
                   <AnimatePresence>
-                    {!props.isShuttingDown && !props.isAwaitingBoot && (
+                    {!props.isShuttingDown && props.bootPhase !== 'off' && (
                       <motion.div
                         initial={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5 }}
                         className="w-full h-full absolute inset-0"
                       >
-                        {props.isBootingOS ? (
-                          <OSBootSequence onComplete={() => props.onCompleteBoot?.()} />
-                        ) : (
+                        {props.bootPhase === 'post' && <PostSequence />}
+                        {props.bootPhase === 'video' && (
+                          <video 
+                            ref={(el) => {
+                              if (el) el.play().catch(console.error);
+                            }}
+                            src="/video/startup.mp4" 
+                            className="w-full h-full object-cover absolute inset-0 z-50 pointer-events-none"
+                            playsInline 
+                            onEnded={() => props.setBootPhase?.('os')}
+                          />
+                        )}
+                        {props.bootPhase === 'os' && (
                           <iframe 
                             src="/monitor-os/index.html" 
                             className="w-full h-full border-0 pointer-events-auto"

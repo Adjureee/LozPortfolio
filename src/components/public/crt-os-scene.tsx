@@ -11,9 +11,8 @@ import { Volume2, VolumeX } from 'lucide-react';
 export type CameraState = 'BOOTING' | 'AT_SCREEN' | 'ZOOMED_OUT';
 
 export function CRTOsScene({ 
-  isBootingOS, 
-  isAwaitingBoot, 
-  onCompleteBoot,
+  bootPhase,
+  setBootPhase,
   isShuttingDown,
   isSafeToTurnOff,
   powerDownComplete,
@@ -21,9 +20,8 @@ export function CRTOsScene({
   showShutdownDialog,
   onCancelShutdown
 }: { 
-  isBootingOS: boolean; 
-  isAwaitingBoot: boolean; 
-  onCompleteBoot: () => void;
+  bootPhase: 'off' | 'post' | 'video' | 'os';
+  setBootPhase: (phase: 'off' | 'post' | 'video' | 'os') => void;
   isShuttingDown?: boolean;
   isSafeToTurnOff?: boolean;
   powerDownComplete?: boolean;
@@ -37,7 +35,7 @@ export function CRTOsScene({
 
   // Camera State Machine
   const [cameraState, setCameraState] = useState<CameraState>(
-    isAwaitingBoot ? 'ZOOMED_OUT' : (isBootingOS ? 'BOOTING' : 'ZOOMED_OUT')
+    bootPhase === 'off' ? 'ZOOMED_OUT' : (bootPhase !== 'os' ? 'BOOTING' : 'ZOOMED_OUT')
   );
   
   // Unified Hover Hit-Detection
@@ -47,24 +45,25 @@ export function CRTOsScene({
 
   // Handle Boot Sequence Completion
   useEffect(() => {
-    if (isBootingOS) {
+    if (bootPhase === 'off') {
+      setCameraState('ZOOMED_OUT');
+    } else if (bootPhase === 'post' || bootPhase === 'video') {
       setCameraState('BOOTING');
-    } else if (cameraState === 'BOOTING') {
-      // Boot finished, transition to AT_SCREEN or ZOOMED_OUT depending on mouse position
+    } else if (bootPhase === 'os') {
       setCameraState(isHoveringMonitor ? 'AT_SCREEN' : 'ZOOMED_OUT');
     }
-  }, [isBootingOS, cameraState, isHoveringMonitor]);
+  }, [bootPhase, isHoveringMonitor]);
 
   // Handle Hover-to-Zoom Transitions
   useEffect(() => {
-    if (cameraState === 'BOOTING' || isAwaitingBoot) return; // Lock camera while booting or awaiting
+    if (bootPhase !== 'os') return; // Lock camera while booting
     
     if (cameraState === 'ZOOMED_OUT' && isHoveringMonitor) {
       setCameraState('AT_SCREEN');
     } else if (cameraState === 'AT_SCREEN' && !isHoveringMonitor) {
       setCameraState('ZOOMED_OUT');
     }
-  }, [isHoveringMonitor, cameraState, isAwaitingBoot]);
+  }, [isHoveringMonitor, cameraState, bootPhase]);
 
   // Execute Camera Transition Animations
   useEffect(() => {
@@ -109,9 +108,8 @@ export function CRTOsScene({
         <Suspense fallback={<Html center><div className="text-[#00ff00] font-mono whitespace-nowrap bg-black p-4 rounded-lg border border-[#00ff00]">Loading 3D Assets...</div></Html>}>
           <Commodore64 
             position={[0, -1, 0]} 
-            isBootingOS={isBootingOS}
-            isAwaitingBoot={isAwaitingBoot}
-            onCompleteBoot={onCompleteBoot}
+            bootPhase={bootPhase}
+            setBootPhase={setBootPhase}
             isShuttingDown={isShuttingDown}
             isSafeToTurnOff={isSafeToTurnOff}
             powerDownComplete={powerDownComplete}

@@ -93,13 +93,14 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
         {/* The distinct, separate screen mesh! */}
         <mesh ref={screenRef} geometry={nodes.Object_19.geometry} material={materials.monitor_screen}>
           {screenPos && (
-            <group position={[screenPos.x, screenPos.y, screenPos.z]} scale={0.0038}>
-              <Html 
-                transform 
-                className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
-                style={{ borderRadius: '64px', overflow: 'hidden' }}
-              >
-                <div className="w-full h-full relative" style={{ borderRadius: '64px', overflow: 'hidden' }}>
+            <Html 
+              transform 
+              position={[screenPos.x, screenPos.y, screenPos.z]}
+              scale={0.025} // Visually calibrated scale to perfectly fit the screen dimensions
+              className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
+              style={{ borderRadius: '64px', overflow: 'hidden' }}
+            >
+              <div className="w-full h-full relative" style={{ borderRadius: '64px', overflow: 'hidden' }}>
                 {/* Scanline Overlay */}
                 <div className="absolute inset-0 pointer-events-none z-50 mix-blend-overlay opacity-30" 
                   style={{
@@ -120,7 +121,6 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                 )}
               </div>
             </Html>
-            </group>
           )}
         </mesh>
 

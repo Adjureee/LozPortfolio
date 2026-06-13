@@ -7,12 +7,14 @@ import { Commodore64 } from './commodore-64';
 
 export type CameraState = 'BOOTING' | 'AT_SCREEN' | 'ZOOMED_OUT';
 
-export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boolean, onCompleteBoot: () => void }) {
+export function CRTOsScene({ isBootingOS, isAwaitingBoot, onCompleteBoot }: { isBootingOS: boolean, isAwaitingBoot?: boolean, onCompleteBoot: () => void }) {
   const cameraControlsRef = useRef<CameraControlsImpl>(null);
   const [cameraTarget, setCameraTarget] = useState<[number, number, number]>([0, 0, 0]);
   
   // Camera State Machine
-  const [cameraState, setCameraState] = useState<CameraState>(isBootingOS ? 'BOOTING' : 'ZOOMED_OUT');
+  const [cameraState, setCameraState] = useState<CameraState>(
+    isAwaitingBoot ? 'ZOOMED_OUT' : (isBootingOS ? 'BOOTING' : 'ZOOMED_OUT')
+  );
   
   // Unified Hover Hit-Detection
   const [isHovering3D, setIsHovering3D] = useState(false);
@@ -31,14 +33,14 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
 
   // Handle Hover-to-Zoom Transitions
   useEffect(() => {
-    if (cameraState === 'BOOTING') return; // Lock camera while booting
+    if (cameraState === 'BOOTING' || isAwaitingBoot) return; // Lock camera while booting or awaiting
     
     if (cameraState === 'ZOOMED_OUT' && isHoveringMonitor) {
       setCameraState('AT_SCREEN');
     } else if (cameraState === 'AT_SCREEN' && !isHoveringMonitor) {
       setCameraState('ZOOMED_OUT');
     }
-  }, [isHoveringMonitor, cameraState]);
+  }, [isHoveringMonitor, cameraState, isAwaitingBoot]);
 
   // Execute Camera Transition Animations
   useEffect(() => {
@@ -83,6 +85,7 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
         <Suspense fallback={null}>
           <Commodore64 
             isBootingOS={isBootingOS} 
+            isAwaitingBoot={isAwaitingBoot}
             onCompleteBoot={onCompleteBoot}
             onAutoAlign={handleAutoAlign}
             onMonitorEnter3D={() => setIsHovering3D(true)}
@@ -95,7 +98,7 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
         <CameraControls 
           ref={cameraControlsRef} 
           makeDefault 
-          enabled={!isBootingOS} // Lock controls during boot sequence
+          enabled={!isBootingOS && !isAwaitingBoot} // Lock controls during boot sequence and awaiting
         />
       </Canvas>
     </div>

@@ -94,6 +94,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [showIso, setShowIso] = useState(false);
   const [showDesktopOS, setShowDesktopOS] = useState(false);
   const [isBootingOS, setIsBootingOS] = useState(false);
+  const [isAwaitingBoot, setIsAwaitingBoot] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
   const { playClick } = useSound();
@@ -102,13 +103,14 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const shutdownAudioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    if (showDesktopOS && !isBootingOS) {
+    // Only play audio when OS is revealed (after awaiting and after booting)
+    if (showDesktopOS && !isBootingOS && !isAwaitingBoot) {
       if (startupAudioRef.current) {
         startupAudioRef.current.currentTime = 0;
         startupAudioRef.current.play().catch(() => {});
       }
     }
-  }, [showDesktopOS, isBootingOS]);
+  }, [showDesktopOS, isBootingOS, isAwaitingBoot]);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -156,7 +158,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       const newCount = prev + 1;
       if (newCount >= 5) {
         setShowDesktopOS(true);
-        setIsBootingOS(true);
+        setIsAwaitingBoot(true); // Don't boot yet, wait for click
         return 0; // reset
       }
       return newCount;
@@ -323,7 +325,32 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       {/* Overlays */}
       {showDesktopOS && (
         <div className="fixed inset-0 z-[9999] bg-black" data-lenis-prevent="true">
-          <CRTOsScene isBootingOS={isBootingOS} onCompleteBoot={() => setIsBootingOS(false)} />
+          <CRTOsScene 
+            isBootingOS={isBootingOS} 
+            isAwaitingBoot={isAwaitingBoot}
+            onCompleteBoot={() => setIsBootingOS(false)} 
+          />
+          <AnimatePresence>
+            {isAwaitingBoot && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                className="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+              >
+                <MagneticButton 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsAwaitingBoot(false);
+                    setIsBootingOS(true);
+                  }}
+                >
+                  Click to Boot System
+                </MagneticButton>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}
@@ -472,19 +499,20 @@ export function OSBootSequence({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
+    // Total sequence compressed to exactly 3.5s
     const sequence = [
-      { delay: 800, step: 1 },
-      { delay: 1600, step: 2 },
-      { delay: 2400, step: 3 },
-      { delay: 3500, step: 4 },
-      { delay: 4500, step: 5 },
+      { delay: 500, step: 1 },
+      { delay: 1000, step: 2 },
+      { delay: 1800, step: 3 },
+      { delay: 2500, step: 4 },
+      { delay: 3000, step: 5 },
     ];
     
     const timeouts = sequence.map(({ delay, step: s }) => 
       setTimeout(() => setStep(s), delay)
     );
     
-    const finishTimer = setTimeout(() => onComplete(), 5500);
+    const finishTimer = setTimeout(() => onComplete(), 3500);
     return () => {
       timeouts.forEach((t) => clearTimeout(t));
       clearTimeout(finishTimer);

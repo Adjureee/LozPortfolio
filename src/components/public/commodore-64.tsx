@@ -41,6 +41,7 @@ type GLTFResult = GLTF & {
 
 export function Commodore64(props: React.JSX.IntrinsicElements['group'] & { 
   isBootingOS?: boolean;
+  isAwaitingBoot?: boolean;
   onCompleteBoot?: () => void;
   onAutoAlign?: (pos: [number, number, number]) => void;
   scaleFactor?: number;
@@ -130,7 +131,9 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                 />
                 <div className="absolute inset-0 pointer-events-none z-50 mix-blend-screen opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
                 
-                {props.isBootingOS ? (
+                {props.isAwaitingBoot ? (
+                  <div className="w-full h-full bg-black"></div>
+                ) : props.isBootingOS ? (
                   <OSBootSequence onComplete={() => props.onCompleteBoot?.()} />
                 ) : (
                   <iframe 

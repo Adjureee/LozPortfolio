@@ -45,6 +45,10 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   onAutoAlign?: (pos: [number, number, number]) => void;
   scaleFactor?: number;
   positionOffset?: [number, number, number];
+  onMonitorEnter3D?: () => void;
+  onMonitorLeave3D?: () => void;
+  onMonitorEnterHTML?: () => void;
+  onMonitorLeaveHTML?: () => void;
 }) {
   const { nodes, materials } = useGLTF('/commodore_64__computer_full_pack.glb') as unknown as GLTFResult
   
@@ -88,7 +92,11 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
         <mesh geometry={nodes.Object_15.geometry} material={materials.connector} />
       </group>
       
-      <group position={[0, 0.368, -2.43]}>
+      <group 
+        position={[0, 0.368, -2.43]}
+        onPointerEnter={props.onMonitorEnter3D}
+        onPointerOut={props.onMonitorLeave3D}
+      >
         <mesh geometry={nodes.Object_17.geometry} material={materials.monitor_black} />
         <mesh geometry={nodes.Object_18.geometry} material={materials.monitor_white} />
         
@@ -106,7 +114,12 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
               className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
               style={{ borderRadius: '64px', overflow: 'hidden' }}
             >
-              <div className="w-full h-full relative" style={{ borderRadius: '64px', overflow: 'hidden' }}>
+              <div 
+                className="w-full h-full relative" 
+                style={{ borderRadius: '64px', overflow: 'hidden' }}
+                onMouseEnter={props.onMonitorEnterHTML}
+                onMouseLeave={props.onMonitorLeaveHTML}
+              >
                 {/* Scanline Overlay */}
                 <div className="absolute inset-0 pointer-events-none z-50 mix-blend-overlay opacity-30" 
                   style={{

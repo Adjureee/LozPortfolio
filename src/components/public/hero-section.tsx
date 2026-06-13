@@ -97,7 +97,12 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [isAwaitingBoot, setIsAwaitingBoot] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
-  const { playHover, playClick } = useSound();
+  const { playHover, playClick, isMuted } = useSound();
+  const isMutedRef = useRef(isMuted);
+
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
   
   const startupAudioRef = useRef<HTMLAudioElement | null>(null);
   const shutdownAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -113,7 +118,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
 
   useEffect(() => {
     const handleStartup = () => {
-      if (startupAudioRef.current) {
+      if (!isMutedRef.current && startupAudioRef.current) {
         startupAudioRef.current.currentTime = 0;
         startupAudioRef.current.play().catch((error) => console.error("Startup boot audio blocked by browser:", error));
       }
@@ -128,7 +133,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       if (event.data.type === 'CLOSE_OS') {
         setShowDesktopOS(false);
       } else if (event.data.type === 'PLAY_SHUTDOWN') {
-        if (shutdownAudioRef.current) {
+        if (!isMutedRef.current && shutdownAudioRef.current) {
           shutdownAudioRef.current.currentTime = 0;
           shutdownAudioRef.current.play().catch((error) => console.error("Shutdown audio blocked by browser:", error));
         }

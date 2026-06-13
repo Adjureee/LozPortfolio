@@ -5,6 +5,7 @@ import React, { createContext, useContext, useEffect, useState, useRef, useCallb
 interface SoundContextType {
   isMuted: boolean;
   toggleMute: () => void;
+  unlockAndUnmute: () => Promise<void>;
   playHover: () => void;
   playClick: () => void;
   playMouseDown: () => void;
@@ -60,6 +61,21 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
   const toggleMute = () => {
     setIsMuted((prev) => !prev);
+  };
+
+  const unlockAndUnmute = async () => {
+    if (!audioContextRef.current) {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      audioContextRef.current = new AudioCtx();
+    }
+    if (audioContextRef.current.state === "suspended") {
+      try {
+        await audioContextRef.current.resume();
+      } catch (e) {
+        console.error("AudioContext resume failed", e);
+      }
+    }
+    setIsMuted(false);
   };
 
   // Synthesize a soft "tick" for hover
@@ -124,7 +140,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
   }, [isMuted]);
 
   return (
-    <SoundContext.Provider value={{ isMuted, toggleMute, playHover, playClick, playMouseDown, playMouseUp }}>
+    <SoundContext.Provider value={{ isMuted, toggleMute, unlockAndUnmute, playHover, playClick, playMouseDown, playMouseUp }}>
       {children}
     </SoundContext.Provider>
   );

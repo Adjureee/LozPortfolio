@@ -5,6 +5,8 @@ import type CameraControlsImpl from 'camera-controls';
 import * as THREE from 'three';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Commodore64 } from './commodore-64';
+import { useSound } from '@/components/providers/sound-provider';
+import { Volume2, VolumeX } from 'lucide-react';
 
 export type CameraState = 'BOOTING' | 'AT_SCREEN' | 'ZOOMED_OUT';
 
@@ -110,6 +112,7 @@ export function CRTOsScene({ isBootingOS, isAwaitingBoot, onCompleteBoot }: { is
 
 function ZoomedOutOverlay({ isVisible }: { isVisible: boolean }) {
   const [time, setTime] = useState(new Date());
+  const { isMuted, toggleMute, unlockAndUnmute } = useSound();
 
   useEffect(() => {
     if (!isVisible) return;
@@ -125,12 +128,35 @@ function ZoomedOutOverlay({ isVisible }: { isVisible: boolean }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="absolute top-12 left-12 md:top-16 md:left-16 z-50 pointer-events-none text-white font-display"
+          className="absolute top-12 left-12 md:top-16 md:left-16 z-50 pointer-events-auto text-white font-display"
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight mb-2 drop-shadow-lg">John Lyold Lozada</h2>
-          <div className="text-lg md:text-xl lg:text-2xl text-white/70 font-mono tracking-widest drop-shadow-md">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight mb-2 drop-shadow-lg pointer-events-none">John Lyold Lozada</h2>
+          <div className="text-lg md:text-xl lg:text-2xl text-white/70 font-mono tracking-widest drop-shadow-md mb-6 pointer-events-none">
             {time.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit', second: '2-digit' })}
           </div>
+
+          <button 
+            onClick={async () => {
+              if (isMuted) {
+                await unlockAndUnmute();
+              } else {
+                toggleMute();
+              }
+            }}
+            className="flex items-center gap-3 px-4 py-2 bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-sm font-mono tracking-widest transition-all duration-300"
+          >
+            {isMuted ? (
+              <>
+                <VolumeX className="w-4 h-4 text-white/50" />
+                <span className="text-white/50">SOUND OFF</span>
+              </>
+            ) : (
+              <>
+                <Volume2 className="w-4 h-4 text-[#3ECF8E]" />
+                <span className="text-white/90">SOUND ON</span>
+              </>
+            )}
+          </button>
         </motion.div>
       )}
     </AnimatePresence>

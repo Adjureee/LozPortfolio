@@ -335,9 +335,8 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
 
-                {/* Scanline Overlay (always on top) */}
+                  {/* Scanline Overlay (always on top) */}
                 <div className="absolute inset-0 pointer-events-none z-[200] mix-blend-overlay opacity-30" 
                   style={{
                     backgroundImage: "linear-gradient(transparent 50%, rgba(0, 0, 0, 0.5) 50%)",

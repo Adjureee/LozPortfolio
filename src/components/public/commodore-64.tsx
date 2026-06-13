@@ -4,7 +4,7 @@ Modified to implement dynamic world coordinate extraction for the monitor screen
 */
 
 import * as THREE from 'three'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import { useGLTF, Html } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import { OSBootSequence } from './hero-section'
@@ -47,47 +47,27 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   const { nodes, materials } = useGLTF('/commodore_64__computer_full_pack.glb') as unknown as GLTFResult
   
   const screenRef = useRef<THREE.Mesh>(null);
-  
-  const [screenCoords, setScreenCoords] = useState<{
-    pos: [number, number, number],
-    rot: [number, number, number],
-    ready: boolean
-  }>({
-    pos: [0, 0, 0],
-    rot: [0, 0, 0],
-    ready: false
-  });
+  const [targetReady, setTargetReady] = useState(false);
 
-  // Automated Initialization Script: Analyze the Scene Graph & Extract World Coordinates
-  useEffect(() => {
-    if (!screenRef.current) return;
-
-    // 1. Analyze the graph: We found 'Object_19' which uses 'monitor_screen' material!
-    // 2. Programmatically extract its exact world position and rotation
-    screenRef.current.updateMatrixWorld(true);
-    
-    const worldPos = new THREE.Vector3();
-    const worldQuat = new THREE.Quaternion();
-    
-    screenRef.current.getWorldPosition(worldPos);
-    screenRef.current.getWorldQuaternion(worldQuat);
-
-    // Convert quaternion to euler for the Html component
-    const euler = new THREE.Euler().setFromQuaternion(worldQuat);
-
-    // 3. Dynamic Snapping: Pass exact coordinates dynamically to the CSS3DObject (Html overlay)
-    setScreenCoords({
-      pos: [worldPos.x, worldPos.y, worldPos.z + 0.05], // Tiny offset to prevent Z-fighting with the glass
-      rot: [euler.x, euler.y, euler.z],
-      ready: true
-    });
-    
-    if (props.onAutoAlign) {
-      props.onAutoAlign([worldPos.x, worldPos.y, worldPos.z]);
+  // Compute the exact geometric center of the screen mesh
+  const screenCenter = useMemo(() => {
+    if (!nodes.Object_19.geometry.boundingBox) {
+      nodes.Object_19.geometry.computeBoundingBox();
     }
-    
-    console.log("Successfully extracted world coordinates for distinct screen mesh!", { pos: worldPos, euler });
-  }, []);
+    const center = new THREE.Vector3();
+    nodes.Object_19.geometry.boundingBox?.getCenter(center);
+    return center;
+  }, [nodes.Object_19.geometry]);
+
+  useEffect(() => {
+    if (screenRef.current && props.onAutoAlign) {
+      screenRef.current.updateMatrixWorld(true);
+      // Get the world position of the EXACT geometric center of the glass
+      const worldCenter = screenCenter.clone().applyMatrix4(screenRef.current.matrixWorld);
+      props.onAutoAlign([worldCenter.x, worldCenter.y, worldCenter.z]);
+      setTargetReady(true);
+    }
+  }, [screenCenter, props.onAutoAlign]);
 
   return (
     <group {...props} dispose={null}>
@@ -100,50 +80,55 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
         <mesh geometry={nodes.Object_14.geometry} material={materials.cable} />
         <mesh geometry={nodes.Object_15.geometry} material={materials.connector} />
       </group>
+      
       <group position={[0, 0.368, -2.43]}>
         <mesh geometry={nodes.Object_17.geometry} material={materials.monitor_black} />
         <mesh geometry={nodes.Object_18.geometry} material={materials.monitor_white} />
+        
         {/* The distinct, separate screen mesh! */}
-        <mesh ref={screenRef} geometry={nodes.Object_19.geometry} material={materials.monitor_screen} />
+        <mesh ref={screenRef} geometry={nodes.Object_19.geometry} material={materials.monitor_screen}>
+          {/* 
+            By placing Html as a child of the mesh, it automatically inherits 
+            all complex transforms (position, rotation, scale) of the monitor group!
+            We just need to offset it to the geometric center of the geometry.
+          */}
+          <Html 
+            transform 
+            position={[screenCenter.x, screenCenter.y, screenCenter.z + 0.05]} // 0.05 local offset to push slightly outward
+            scale={0.0003} // Scaled to roughly fit a C64 monitor
+            className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
+            style={{ borderRadius: '64px', overflow: 'hidden' }}
+          >
+            <div className="w-full h-full relative" style={{ borderRadius: '64px', overflow: 'hidden' }}>
+              {/* Scanline Overlay */}
+              <div className="absolute inset-0 pointer-events-none z-50 mix-blend-overlay opacity-30" 
+                style={{
+                  backgroundImage: "linear-gradient(transparent 50%, rgba(0, 0, 0, 0.5) 50%)",
+                  backgroundSize: "100% 4px"
+                }}
+              />
+              <div className="absolute inset-0 pointer-events-none z-50 mix-blend-screen opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
+              
+              {props.isBootingOS ? (
+                <OSBootSequence onComplete={() => props.onCompleteBoot?.()} />
+              ) : (
+                <iframe 
+                  src="/monitor-os/index.html" 
+                  className="w-full h-full border-0"
+                  title="Desktop OS"
+                ></iframe>
+              )}
+            </div>
+          </Html>
+        </mesh>
+
         <mesh geometry={nodes.Object_21.geometry} material={materials.monitor_white} position={[1.265, -0.148, 2.24]} rotation={[Math.PI / 2, 0, 0]} />
       </group>
+
       <mesh geometry={nodes.Object_8.geometry} material={materials.peripherals} position={[3.182, 0.071, -2.601]} />
       <mesh geometry={nodes.Object_10.geometry} material={materials.peripherals} position={[4.297, 0.478, 1.302]} rotation={[0, 0.602, 0]} />
       <mesh geometry={nodes.Object_12.geometry} material={materials.peripherals} position={[-4.423, 1.212, -1.111]} />
       <mesh geometry={nodes.Object_23.geometry} material={materials.monitor_plug} position={[0.003, 2.252, -2.083]} />
-
-      {/* Embedded OS Screen - dynamically snapped to the extracted world coordinates */}
-      {screenCoords.ready && (
-        <Html 
-          transform 
-          occlude="blending"
-          position={screenCoords.pos} 
-          rotation={screenCoords.rot}
-          scale={0.0016} // Adjusted scale for this specific Commodore 64 model screen size
-          className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
-          style={{ borderRadius: '64px', overflow: 'hidden' }}
-        >
-          <div className="w-full h-full relative" style={{ borderRadius: '64px', overflow: 'hidden' }}>
-            <div className="absolute inset-0 pointer-events-none z-50 mix-blend-overlay opacity-30" 
-              style={{
-                backgroundImage: "linear-gradient(transparent 50%, rgba(0, 0, 0, 0.5) 50%)",
-                backgroundSize: "100% 4px"
-              }}
-            />
-            <div className="absolute inset-0 pointer-events-none z-50 mix-blend-screen opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
-            
-            {props.isBootingOS ? (
-              <OSBootSequence onComplete={() => props.onCompleteBoot?.()} />
-            ) : (
-              <iframe 
-                src="/monitor-os/index.html" 
-                className="w-full h-full border-0"
-                title="Desktop OS"
-              ></iframe>
-            )}
-          </div>
-        </Html>
-      )}
     </group>
   )
 }

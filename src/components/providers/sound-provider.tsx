@@ -18,8 +18,6 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
   const [isMuted, setIsMuted] = useState(true);
   const audioContextRef = useRef<AudioContext | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
-  const clickDownRef = useRef<HTMLAudioElement | null>(null);
-  const clickUpRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     // Initialize Web Audio API on first user interaction to comply with Autoplay policies
@@ -40,13 +38,6 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     bgmRef.current = new Audio("/audio/bgm.mp3");
     bgmRef.current.loop = true;
     bgmRef.current.volume = 0.15;
-
-    // Authentic Mechanical Clicks
-    clickDownRef.current = new Audio('/audio/real_click_down.mp3');
-    clickDownRef.current.volume = 0.5;
-
-    clickUpRef.current = new Audio('/audio/real_click_up.mp3');
-    clickUpRef.current.volume = 0.5;
 
     return () => {
       window.removeEventListener("click", initAudio);
@@ -109,25 +100,25 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
   // Use authentic mechanical click for all UI buttons
   const playClick = useCallback(() => {
-    if (isMuted || !clickDownRef.current) return;
-    
-    // Create a clone to allow rapid overlapping clicks
-    const clickClone = clickDownRef.current.cloneNode() as HTMLAudioElement;
-    clickClone.volume = clickDownRef.current.volume;
-    clickClone.play().catch(() => {});
+    if (isMuted) return;
+    const audio = new Audio('/audio/real_click_down.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("Click audio error:", e));
   }, [isMuted]);
 
   // Authentic Monitor Click Sounds
   const playMouseDown = useCallback(() => {
-    if (isMuted || !clickDownRef.current) return;
-    clickDownRef.current.currentTime = 0;
-    clickDownRef.current.play().catch(() => {});
+    if (isMuted) return;
+    const audio = new Audio('/audio/real_click_down.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("MouseDown audio error:", e));
   }, [isMuted]);
 
   const playMouseUp = useCallback(() => {
-    if (isMuted || !clickUpRef.current) return;
-    clickUpRef.current.currentTime = 0;
-    clickUpRef.current.play().catch(() => {});
+    if (isMuted) return;
+    const audio = new Audio('/audio/real_click_up.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("MouseUp audio error:", e));
   }, [isMuted]);
 
   return (

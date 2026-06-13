@@ -318,7 +318,33 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
           )}
         </mesh>
 
-        <mesh geometry={nodes.Object_21.geometry} material={materials.monitor_white} position={[1.265, -0.148, 2.24]} rotation={[Math.PI / 2, 0, 0]} />
+        <mesh 
+          geometry={nodes.Object_21.geometry} 
+          material={materials.monitor_white} 
+          position={[1.265, -0.148, 2.24]} 
+          rotation={[Math.PI / 2, 0, 0]} 
+          onPointerOver={(e) => {
+            if (props.bootPhase === 'off') {
+              e.stopPropagation();
+              document.body.style.cursor = 'pointer';
+            }
+          }}
+          onPointerOut={(e) => {
+            document.body.style.cursor = 'auto';
+          }}
+          onPointerDown={(e) => {
+            if (props.bootPhase === 'off') {
+              e.stopPropagation();
+              props.onMonitorDown3D?.();
+              props.setBootPhase?.('post');
+            }
+          }}
+          onPointerUp={(e) => {
+            if (props.bootPhase === 'off') {
+              props.onMonitorUp3D?.();
+            }
+          }}
+        />
       </group>
 
       <mesh geometry={nodes.Object_8.geometry} material={materials.peripherals} position={[3.182, 0.071, -2.601]} />

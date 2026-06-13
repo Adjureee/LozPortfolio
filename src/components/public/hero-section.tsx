@@ -367,48 +367,15 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
             isShuttingDown={isShuttingDown}
             onShutdown={confirmShutdown}
             onShutdownComplete={() => {
-              setShowDesktopOS(false);
               setIsShuttingDown(false);
               setBootPhase('off');
             }}
+            onExitDesktop={() => setShowDesktopOS(false)}
             showShutdownDialog={showShutdownDialog}
             onCancelShutdown={() => setShowShutdownDialog(false)}
           />
 
-          <AnimatePresence>
-            {bootPhase === 'off' && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.5 } }}
-                className="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-              >
-                <MagneticButton 
-                  href="#" 
-                  onClick={(e) => {
-                    e.preventDefault();
 
-                    // Audio Unlocker: Explicitly load and silent-play to bypass browser autoplay policies
-                    const unlockAudio = (audio: HTMLAudioElement) => {
-                      audio.volume = 0;
-                      audio.play().then(() => {
-                        audio.pause();
-                        audio.currentTime = 0;
-                        audio.volume = 1;
-                      }).catch((err) => console.log("Audio unlock failed/muted:", err));
-                    };
-
-                    if (startupAudioRef.current) unlockAudio(startupAudioRef.current);
-                    if (shutdownAudioRef.current) unlockAudio(shutdownAudioRef.current);
-
-                    setBootPhase('post');
-                  }}
-                >
-                  Click to Boot System
-                </MagneticButton>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       )}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}

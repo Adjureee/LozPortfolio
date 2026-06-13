@@ -18,6 +18,7 @@ export function CRTOsScene({
   powerDownComplete,
   onShutdown,
   onShutdownComplete,
+  onExitDesktop,
   showShutdownDialog,
   onCancelShutdown
 }: { 
@@ -28,6 +29,7 @@ export function CRTOsScene({
   powerDownComplete?: boolean;
   onShutdown?: () => void;
   onShutdownComplete?: () => void;
+  onExitDesktop?: () => void;
   showShutdownDialog?: boolean;
   onCancelShutdown?: () => void;
 }) {
@@ -141,7 +143,7 @@ export function CRTOsScene({
         />
       </Canvas>
 
-      <ZoomedOutOverlay isVisible={cameraState === 'ZOOMED_OUT'} onExit={onShutdownComplete} />
+      <ZoomedOutOverlay isVisible={cameraState === 'ZOOMED_OUT'} onExit={onExitDesktop} />
     </div>
   );
 }

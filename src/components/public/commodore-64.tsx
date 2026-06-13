@@ -117,7 +117,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
               style={{ borderRadius: '64px', overflow: 'hidden' }}
             >
               <div 
-                className="w-full h-full relative" 
+                className="w-full h-full relative p-5 bg-black" 
                 style={{ borderRadius: '64px', overflow: 'hidden' }}
                 onMouseEnter={props.onMonitorEnterHTML}
                 onMouseLeave={props.onMonitorLeaveHTML}

@@ -22,33 +22,13 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Initialize Web Audio API on first user interaction to comply with Autoplay policies
-    const initAudio = async () => {
+    const initAudio = () => {
       if (!audioContextRef.current) {
         const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
         audioContextRef.current = new AudioCtx();
       }
       if (audioContextRef.current.state === "suspended") {
-        await audioContextRef.current.resume();
-      }
-
-      // Pre-load retro monitor click audio
-      if (!mouseDownBufferRef.current && audioContextRef.current) {
-        try {
-          const [downRes, upRes] = await Promise.all([
-            fetch('/static/audio/mouse/mouse_down.mp3'),
-            fetch('/static/audio/mouse/mouse_up.mp3')
-          ]);
-          if (downRes.ok && upRes.ok) {
-            const [downData, upData] = await Promise.all([
-              downRes.arrayBuffer(),
-              upRes.arrayBuffer()
-            ]);
-            mouseDownBufferRef.current = await audioContextRef.current.decodeAudioData(downData);
-            mouseUpBufferRef.current = await audioContextRef.current.decodeAudioData(upData);
-          }
-        } catch (e) {
-          console.error("Failed to load mouse audio", e);
-        }
+        audioContextRef.current.resume();
       }
     };
 
@@ -56,10 +36,9 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener("keydown", initAudio, { once: true });
 
     // Set up placeholder background music
-    // Note: You need to add a file named 'bgm.mp3' to your 'public/audio' folder
     bgmRef.current = new Audio("/audio/bgm.mp3");
     bgmRef.current.loop = true;
-    bgmRef.current.volume = 0.15; // Soft background volume
+    bgmRef.current.volume = 0.15;
 
     return () => {
       window.removeEventListener("click", initAudio);

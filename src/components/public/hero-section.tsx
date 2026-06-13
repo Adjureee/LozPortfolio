@@ -97,16 +97,28 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [isAwaitingBoot, setIsAwaitingBoot] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
-  const { playHover, playClick, playMouseDown, playMouseUp } = useSound();
+  const { playHover, playClick } = useSound();
   
-  const startupAudioRef = useRef<HTMLAudioElement>(null);
-  const shutdownAudioRef = useRef<HTMLAudioElement>(null);
+  const startupAudioRef = useRef<HTMLAudioElement | null>(null);
+  const shutdownAudioRef = useRef<HTMLAudioElement | null>(null);
+  const clickDownAudioRef = useRef<HTMLAudioElement | null>(null);
+  const clickUpAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Imperatively load audio objects so they can be unlocked securely
+    if (typeof window !== "undefined") {
+      if (!startupAudioRef.current) startupAudioRef.current = new Audio("/startup.mp3");
+      if (!shutdownAudioRef.current) shutdownAudioRef.current = new Audio("/shutdown.mp3");
+      if (!clickDownAudioRef.current) clickDownAudioRef.current = new Audio("/mouse_down.mp3");
+      if (!clickUpAudioRef.current) clickUpAudioRef.current = new Audio("/mouse_up.mp3");
+    }
+  }, []);
 
   useEffect(() => {
     const handleStartup = () => {
       if (startupAudioRef.current) {
         startupAudioRef.current.currentTime = 0;
-        startupAudioRef.current.play().catch(() => {});
+        startupAudioRef.current.play().catch((error) => console.error("Startup boot audio blocked by browser:", error));
       }
     };
     window.addEventListener('play-startup-audio', handleStartup);
@@ -121,18 +133,27 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       } else if (event.data.type === 'PLAY_SHUTDOWN') {
         if (shutdownAudioRef.current) {
           shutdownAudioRef.current.currentTime = 0;
-          shutdownAudioRef.current.play().catch(() => {});
+          shutdownAudioRef.current.play().catch((error) => console.error("Shutdown audio blocked by browser:", error));
         }
       } else if (event.data.type === 'mousedown') {
-        playMouseDown();
+        if (clickDownAudioRef.current) {
+          clickDownAudioRef.current.currentTime = 0;
+          clickDownAudioRef.current.play().catch((error) => console.error("Mousedown audio blocked by browser:", error));
+        }
       } else if (event.data.type === 'mouseup') {
-        playMouseUp();
+        if (clickUpAudioRef.current) {
+          clickUpAudioRef.current.currentTime = 0;
+          clickUpAudioRef.current.play().catch((error) => console.error("Mouseup audio blocked by browser:", error));
+        }
       }
     };
 
     const handleGlobalMouseUp = () => {
       if (showDesktopOS && !isBootingOS && !isAwaitingBoot) {
-        playMouseUp();
+        if (clickUpAudioRef.current) {
+          clickUpAudioRef.current.currentTime = 0;
+          clickUpAudioRef.current.play().catch((error) => console.error("Global mouseup audio blocked by browser:", error));
+        }
       }
     };
 
@@ -142,7 +163,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       window.removeEventListener('message', handleMessage);
       window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [playMouseDown, playMouseUp, showDesktopOS, isBootingOS, isAwaitingBoot]);
+  }, [showDesktopOS, isBootingOS, isAwaitingBoot]);
 
   useEffect(() => {
     if (lenis) {
@@ -356,6 +377,22 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
                   href="#" 
                   onClick={(e) => {
                     e.preventDefault();
+
+                    // Audio Unlocker: Explicitly load and silent-play to bypass browser autoplay policies
+                    const unlockAudio = (audio: HTMLAudioElement) => {
+                      audio.volume = 0;
+                      audio.play().then(() => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        audio.volume = 1;
+                      }).catch((err) => console.log("Audio unlock failed/muted:", err));
+                    };
+
+                    if (startupAudioRef.current) unlockAudio(startupAudioRef.current);
+                    if (shutdownAudioRef.current) unlockAudio(shutdownAudioRef.current);
+                    if (clickDownAudioRef.current) unlockAudio(clickDownAudioRef.current);
+                    if (clickUpAudioRef.current) unlockAudio(clickUpAudioRef.current);
+
                     setIsAwaitingBoot(false);
                     setIsBootingOS(true);
                   }}
@@ -369,10 +406,6 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       )}
       {showZork && <ZorkEngine onClose={() => setShowZork(false)} />}
       {showIso && <IsoGame onClose={() => setShowIso(false)} />}
-
-      {/* Hidden Audio Elements */}
-      <audio ref={startupAudioRef} src="/startup.mp3" preload="auto" />
-      <audio ref={shutdownAudioRef} src="/shutdown.wav" preload="auto" />
     </section>
   );
 }

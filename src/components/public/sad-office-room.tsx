@@ -133,15 +133,11 @@ export function SadOfficeRoom(props: React.JSX.IntrinsicElements['group'] & {
             />
             <div className="absolute inset-0 pointer-events-none z-50 mix-blend-screen opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
             
-            {props.isBootingOS ? (
-              <OSBootSequence onComplete={() => props.onCompleteBoot?.()} />
-            ) : (
               <iframe 
                 src="/monitor-os/index.html" 
                 className="w-full h-full border-0"
                 title="Desktop OS"
               ></iframe>
-            )}
           </div>
         </Html>
       )}

@@ -1,40 +1,14 @@
 import React, { Suspense, useRef, useState, useCallback, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { CameraControls, PerspectiveCamera } from '@react-three/drei';
+import type CameraControlsImpl from 'camera-controls';
 import * as THREE from 'three';
 import { Commodore64 } from './commodore-64';
 
-import { useFrame, useThree } from '@react-three/fiber';
-
 export type CameraState = 'BOOTING' | 'AT_SCREEN' | 'ZOOMED_OUT';
 
-function CameraAnimator({ target, cameraState }: { target: [number, number, number], cameraState: CameraState }) {
-  const { camera } = useThree();
-  const targetPos = useRef(new THREE.Vector3());
-
-  useFrame((state, delta) => {
-    // Only animate if we have a valid target
-    if (target[0] !== 0) {
-      if (cameraState === 'BOOTING' || cameraState === 'AT_SCREEN') {
-        // Frame the monitor perfectly
-        targetPos.current.set(target[0], target[1] + 0.2, target[2] + 4.5);
-      } else if (cameraState === 'ZOOMED_OUT') {
-        // Overarching view of the desk
-        targetPos.current.set(0, 4, 12); // Slightly closer than 15 for better desk view
-      }
-      
-      // Smoothly fly towards the target position
-      camera.position.lerp(targetPos.current, 2.5 * delta);
-      // Ensure the camera always looks at the center of the monitor
-      camera.lookAt(target[0], target[1], target[2]);
-    }
-  });
-
-  return null;
-}
-
 export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boolean, onCompleteBoot: () => void }) {
+  const cameraControlsRef = useRef<CameraControlsImpl>(null);
   const [cameraTarget, setCameraTarget] = useState<[number, number, number]>([0, 0, 0]);
   
   // Camera State Machine
@@ -66,6 +40,27 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
     }
   }, [isHoveringMonitor, cameraState]);
 
+  // Execute Camera Transition Animations
+  useEffect(() => {
+    if (!cameraControlsRef.current || cameraTarget[0] === 0) return;
+
+    if (cameraState === 'BOOTING' || cameraState === 'AT_SCREEN') {
+      // Smoothly fly towards the monitor
+      cameraControlsRef.current.setLookAt(
+        cameraTarget[0], cameraTarget[1] + 0.2, cameraTarget[2] + 4.5, // Camera position
+        cameraTarget[0], cameraTarget[1], cameraTarget[2],             // Target position
+        true // Enable smooth transition!
+      );
+    } else if (cameraState === 'ZOOMED_OUT') {
+      // Pull back to wider desk view
+      cameraControlsRef.current.setLookAt(
+        0, 4, 12,                                                      // Camera position
+        cameraTarget[0], cameraTarget[1], cameraTarget[2],             // Target position
+        true // Enable smooth transition!
+      );
+    }
+  }, [cameraState, cameraTarget]);
+
   const handleAutoAlign = useCallback((pos: [number, number, number]) => {
     setCameraTarget(pos);
   }, []);
@@ -85,8 +80,6 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
         <directionalLight position={[10, 10, 5]} intensity={2} />
         <pointLight position={[-10, -10, -10]} intensity={0.5} />
         
-        <CameraAnimator target={cameraTarget} cameraState={cameraState} />
-        
         <Suspense fallback={null}>
           <Commodore64 
             isBootingOS={isBootingOS} 
@@ -99,7 +92,11 @@ export function CRTOsScene({ isBootingOS, onCompleteBoot }: { isBootingOS: boole
           />
         </Suspense>
         
-        {/* OrbitControls has been removed to allow cinematic CameraAnimator to fully control the camera */}
+        <CameraControls 
+          ref={cameraControlsRef} 
+          makeDefault 
+          enabled={!isBootingOS} // Lock controls during boot sequence
+        />
       </Canvas>
     </div>
   );

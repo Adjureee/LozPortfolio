@@ -250,11 +250,10 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                             onEnded={() => props.setBootPhase?.('os')}
                           />
                         )}
-                        {(props.bootPhase === 'post' || props.bootPhase === 'video' || props.bootPhase === 'os') && (
+                        {props.bootPhase === 'os' && (
                           <iframe 
                             src="/monitor-os/index.html" 
-                            className={`w-full h-full border-0 absolute inset-0 ${props.bootPhase === 'os' ? 'pointer-events-auto' : 'pointer-events-none'}`}
-                            style={{ opacity: props.bootPhase === 'os' ? 1 : 0 }}
+                            className="w-full h-full border-0 pointer-events-auto"
                             title="Desktop OS"
                           />
                         )}
@@ -272,18 +271,57 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                         className="absolute inset-0 z-[50] flex items-center justify-center pointer-events-auto bg-black/20 backdrop-blur-[1px]"
                       >
                         {/* Windows 95 Dialog Box */}
-                        <div className="bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black p-[2px] w-80 shadow-md font-sans text-black">
+                        <div className="bg-[#c0c0c0] p-[2px] border-t-2 border-l-2 border-t-[#dfdfdf] border-l-[#dfdfdf] border-b-2 border-r-2 border-b-black border-r-black shadow-md font-sans text-black antialiased w-[400px]">
                           {/* Title Bar */}
-                          <div className="bg-[#000080] text-white font-bold px-1 py-0.5 flex justify-between items-center text-sm">
+                          <div className="bg-[#000080] text-white font-bold px-1 py-0.5 flex justify-between items-center text-sm" style={{ WebkitFontSmoothing: 'none' }}>
                             <span>Shut Down Windows</span>
                             <button onClick={props.onCancelShutdown} className="bg-[#c0c0c0] text-black font-bold px-1.5 border-t border-l border-t-white border-l-white border-b border-r border-b-black border-r-black text-xs leading-none pb-0.5 active:border-t-black active:border-l-black active:border-b-white active:border-r-white">X</button>
                           </div>
                           {/* Content */}
-                          <div className="p-4 text-sm flex flex-col items-center">
-                            <p className="mb-4 text-center">Are you sure you want to shut down the computer?</p>
-                            <div className="flex gap-4">
-                              <button onClick={props.onConfirmShutdown} className="px-6 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">Yes</button>
-                              <button onClick={props.onCancelShutdown} className="px-6 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">No</button>
+                          <div className="p-4 text-[13px] flex" style={{ WebkitFontSmoothing: 'none', fontFamily: "'Pixelated MS Sans Serif', 'MS Sans Serif', Tahoma, sans-serif" }}>
+                            <div className="mr-4 mt-2">
+                              {/* Classic computer icon placeholder */}
+                              <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png" alt="Computer" className="w-8 h-8 pixelated" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="mb-4">Are you sure you want to:</p>
+                              
+                              <div className="flex flex-col gap-2 mb-6">
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                  <div className="w-3 h-3 rounded-full border border-black bg-white flex items-center justify-center group-has-[:checked]:ring-2 group-has-[:checked]:ring-[#c0c0c0] group-has-[:checked]:ring-inset">
+                                    <div className="w-1.5 h-1.5 bg-black rounded-full hidden group-has-[:checked]:block" />
+                                  </div>
+                                  <input type="radio" name="shutdown" defaultChecked className="sr-only" />
+                                  <span>Shut down the computer?</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                  <div className="w-3 h-3 rounded-full border border-black bg-white flex items-center justify-center group-has-[:checked]:ring-2 group-has-[:checked]:ring-[#c0c0c0] group-has-[:checked]:ring-inset">
+                                    <div className="w-1.5 h-1.5 bg-black rounded-full hidden group-has-[:checked]:block" />
+                                  </div>
+                                  <input type="radio" name="shutdown" className="sr-only" />
+                                  <span>Restart the computer?</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                  <div className="w-3 h-3 rounded-full border border-black bg-white flex items-center justify-center group-has-[:checked]:ring-2 group-has-[:checked]:ring-[#c0c0c0] group-has-[:checked]:ring-inset">
+                                    <div className="w-1.5 h-1.5 bg-black rounded-full hidden group-has-[:checked]:block" />
+                                  </div>
+                                  <input type="radio" name="shutdown" className="sr-only" />
+                                  <span>Restart the computer in MS-DOS mode?</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                  <div className="w-3 h-3 rounded-full border border-black bg-white flex items-center justify-center group-has-[:checked]:ring-2 group-has-[:checked]:ring-[#c0c0c0] group-has-[:checked]:ring-inset">
+                                    <div className="w-1.5 h-1.5 bg-black rounded-full hidden group-has-[:checked]:block" />
+                                  </div>
+                                  <input type="radio" name="shutdown" className="sr-only" />
+                                  <span>Close all programs and log on as a different user?</span>
+                                </label>
+                              </div>
+
+                              <div className="flex gap-2 justify-end mt-4">
+                                <button onClick={props.onConfirmShutdown} className="px-5 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">Yes</button>
+                                <button onClick={props.onCancelShutdown} className="px-5 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">No</button>
+                                <button className="px-5 py-1 bg-[#c0c0c0] border-t-2 border-l-2 border-t-white border-l-white border-b-2 border-r-2 border-b-black border-r-black active:border-t-black active:border-l-black active:border-b-white active:border-r-white focus:outline-dotted focus:outline-1 focus:outline-offset-[-4px]">Help</button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -291,19 +329,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                     )}
                   </AnimatePresence>
 
-                  <AnimatePresence>
-                    {props.isSafeToTurnOff && (
-                      <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="absolute inset-0 z-[100] flex items-center justify-center bg-black"
-                      >
-                        <p className="text-[#FF8C00] font-sans text-2xl max-w-md text-center leading-relaxed" style={{ textShadow: "1px 1px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000" }}>
-                          It is now safe to turn off your computer.
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+
                 </div>
 
                 {/* Scanline Overlay (always on top) */}
@@ -319,33 +345,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
           )}
         </mesh>
 
-        <mesh 
-          geometry={nodes.Object_21.geometry} 
-          material={materials.monitor_white} 
-          position={[1.265, -0.148, 2.24]} 
-          rotation={[Math.PI / 2, 0, 0]} 
-          onPointerOver={(e) => {
-            if (props.bootPhase === 'off') {
-              e.stopPropagation();
-              document.body.style.cursor = 'pointer';
-            }
-          }}
-          onPointerOut={(e) => {
-            document.body.style.cursor = 'auto';
-          }}
-          onPointerDown={(e) => {
-            if (props.bootPhase === 'off') {
-              e.stopPropagation();
-              props.onMonitorDown3D?.();
-              props.setBootPhase?.('post');
-            }
-          }}
-          onPointerUp={(e) => {
-            if (props.bootPhase === 'off') {
-              props.onMonitorUp3D?.();
-            }
-          }}
-        />
+        <mesh geometry={nodes.Object_21.geometry} material={materials.monitor_white} position={[1.265, -0.148, 2.24]} rotation={[Math.PI / 2, 0, 0]} />
       </group>
 
       <mesh geometry={nodes.Object_8.geometry} material={materials.peripherals} position={[3.182, 0.071, -2.601]} />

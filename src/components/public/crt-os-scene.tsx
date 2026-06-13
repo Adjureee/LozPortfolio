@@ -49,7 +49,9 @@ export function CRTOsScene({
 
   // Handle Boot Sequence Completion
   useEffect(() => {
-    if (bootPhase === 'post' || bootPhase === 'video') {
+    if (bootPhase === 'off') {
+      setCameraState('ZOOMED_OUT');
+    } else if (bootPhase === 'post' || bootPhase === 'video') {
       setCameraState('BOOTING');
     } else if (bootPhase === 'os') {
       setCameraState(isHoveringMonitor ? 'AT_SCREEN' : 'ZOOMED_OUT');
@@ -58,7 +60,7 @@ export function CRTOsScene({
 
   // Handle Hover-to-Zoom Transitions
   useEffect(() => {
-    if (bootPhase === 'post' || bootPhase === 'video') return; // Lock camera while booting
+    if (bootPhase !== 'os') return; // Lock camera while booting
     
     if (cameraState === 'ZOOMED_OUT' && isHoveringMonitor) {
       setCameraState('AT_SCREEN');

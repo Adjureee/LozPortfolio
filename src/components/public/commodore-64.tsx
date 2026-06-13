@@ -114,6 +114,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   showShutdownDialog?: boolean;
   onConfirmShutdown?: () => void;
   onCancelShutdown?: () => void;
+  onShutdownComplete?: () => void;
 }) {
   const { nodes, materials } = useGLTF('/commodore_64__computer_full_pack.glb') as unknown as GLTFResult
   
@@ -203,25 +204,31 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                 onPointerDown={props.onMonitorDown3D}
                 onPointerUp={props.onMonitorUp3D}
               >
-                {/* CRT Power Down Animation Wrapper with CSS Safe Zone (inset-6) */}
-                <motion.div 
-                  className="absolute inset-[24px] bg-black z-0 flex items-center justify-center overflow-hidden rounded-lg"
-                  animate={props.powerDownComplete ? {
-                    scaleY: [1, 0.01, 0.01, 0],
-                    scaleX: [1, 1, 0.01, 0],
-                    opacity: [1, 1, 0.8, 0],
-                    backgroundColor: ["#000", "#fff", "#fff", "#000"]
-                  } : {}}
-                  transition={{ 
-                    duration: 0.8, 
-                    times: [0, 0.3, 0.6, 1],
-                    ease: "easeIn" 
-                  }}
-                  style={{ transformOrigin: 'center center' }}
-                >
+                {/* Screen Content Wrapper with CSS Safe Zone (inset-[24px]) */}
+                <div className="absolute inset-[24px] bg-black z-0 flex items-center justify-center overflow-hidden rounded-lg">
                   <AnimatePresence>
-                    {!props.isShuttingDown && props.bootPhase !== 'off' && (
+                    {props.isShuttingDown ? (
                       <motion.div
+                        key="shutdown"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.1 }}
+                        className="w-full h-full absolute inset-0 z-50 bg-black"
+                      >
+                        <video 
+                          ref={(el) => {
+                            if (el) el.play().catch(console.error);
+                          }}
+                          src="/video/shutdown.mp4" 
+                          className="w-full h-full object-cover absolute inset-0 pointer-events-none"
+                          playsInline 
+                          onEnded={() => props.onShutdownComplete?.()}
+                        />
+                      </motion.div>
+                    ) : props.bootPhase !== 'off' ? (
+                      <motion.div
+                        key="boot"
                         initial={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5 }}
@@ -290,9 +297,9 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                           It is now safe to turn off your computer.
                         </p>
                       </motion.div>
-                    )}
+                    ) : null}
                   </AnimatePresence>
-                </motion.div>
+                </div>
 
                 {/* Scanline Overlay (always on top) */}
                 <div className="absolute inset-0 pointer-events-none z-[200] mix-blend-overlay opacity-30" 

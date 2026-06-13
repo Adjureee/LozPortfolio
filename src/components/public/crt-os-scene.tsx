@@ -17,6 +17,7 @@ export function CRTOsScene({
   isSafeToTurnOff,
   powerDownComplete,
   onShutdown,
+  onShutdownComplete,
   showShutdownDialog,
   onCancelShutdown
 }: { 
@@ -26,6 +27,7 @@ export function CRTOsScene({
   isSafeToTurnOff?: boolean;
   powerDownComplete?: boolean;
   onShutdown?: () => void;
+  onShutdownComplete?: () => void;
   showShutdownDialog?: boolean;
   onCancelShutdown?: () => void;
 }) {
@@ -116,6 +118,7 @@ export function CRTOsScene({
             showShutdownDialog={showShutdownDialog}
             onConfirmShutdown={onShutdown}
             onCancelShutdown={onCancelShutdown}
+            onShutdownComplete={onShutdownComplete}
             onAutoAlign={handleAutoAlign}
             onMonitorDown3D={playMouseDown}
             onMonitorUp3D={playMouseUp}

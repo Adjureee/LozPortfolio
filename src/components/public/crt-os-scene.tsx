@@ -17,7 +17,9 @@ export function CRTOsScene({
   isShuttingDown,
   isSafeToTurnOff,
   powerDownComplete,
-  onShutdown
+  onShutdown,
+  showShutdownDialog,
+  onCancelShutdown
 }: { 
   isBootingOS: boolean; 
   isAwaitingBoot: boolean; 

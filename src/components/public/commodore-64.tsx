@@ -103,14 +103,18 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
         position={[0, 0.368, -2.43]}
         onPointerEnter={props.onMonitorEnter3D}
         onPointerOut={props.onMonitorLeave3D}
-        onPointerDown={props.onMonitorDown3D}
-        onPointerUp={props.onMonitorUp3D}
       >
         <mesh geometry={nodes.Object_17.geometry} material={materials.monitor_black} />
         <mesh geometry={nodes.Object_18.geometry} material={materials.monitor_white} />
         
         {/* The distinct, separate screen mesh! */}
-        <mesh ref={screenRef} geometry={nodes.Object_19.geometry} material={materials.monitor_screen}>
+        <mesh 
+          ref={screenRef} 
+          geometry={nodes.Object_19.geometry} 
+          material={materials.monitor_screen}
+          onPointerDown={props.onMonitorDown3D}
+          onPointerUp={props.onMonitorUp3D}
+        >
           {screenPos && (
             <Html 
               transform 

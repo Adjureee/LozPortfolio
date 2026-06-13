@@ -496,26 +496,27 @@ function MagneticAvatar({ children, name, course, onYank, isTwinkling }: { child
 }
 
 export function OSBootSequence({ onComplete }: { onComplete: () => void }) {
-  const [step, setStep] = useState(0);
-  const [ramCount, setRamCount] = useState(0);
+  const [step, setStep] = useState(-1); // -1 = Awaiting camera zoom
+  const ramRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // Total sequence compressed to exactly 4.0s
+    // Total sequence starts after 1000ms camera zoom delay
     const sequence = [
-      { delay: 100, step: 1 }, // Flash ends quickly
-      { delay: 800, step: 2 }, // RAM finishes
-      { delay: 1500, step: 3 }, // Drivers list
-      { delay: 3500, step: 4 }, // Starting Windows
+      { delay: 1000, step: 0 }, // Trigger white flash after camera arrives
+      { delay: 1150, step: 1 }, // Flash ends quickly
+      { delay: 1800, step: 2 }, // RAM finishes
+      { delay: 2500, step: 3 }, // Drivers list
+      { delay: 4500, step: 4 }, // Starting Windows
     ];
     
     const timeouts = sequence.map(({ delay, step: s }) => 
       setTimeout(() => setStep(s), delay)
     );
     
-    // Animate RAM counter during step 1
+    // Animate RAM counter bypassing React state to fix lag!
     let raf: number;
-    const startTime = Date.now() + 100; // start counting at step 1
-    const ramDuration = 700; // finishes exactly at step 2 (800ms)
+    const startTime = Date.now() + 1150; // start counting at step 1
+    const ramDuration = 650; // finishes at step 2 (1800ms)
     
     const animateRam = () => {
       const now = Date.now();
@@ -525,7 +526,9 @@ export function OSBootSequence({ onComplete }: { onComplete: () => void }) {
       }
       
       const progress = Math.min((now - startTime) / ramDuration, 1);
-      setRamCount(Math.floor(progress * 640)); // 640K OK
+      if (ramRef.current) {
+        ramRef.current.textContent = `${Math.floor(progress * 640)}K OK`;
+      }
       
       if (progress < 1) {
         raf = requestAnimationFrame(animateRam);
@@ -533,7 +536,7 @@ export function OSBootSequence({ onComplete }: { onComplete: () => void }) {
     };
     raf = requestAnimationFrame(animateRam);
 
-    const finishTimer = setTimeout(() => onComplete(), 4000); // Exactly 4 seconds
+    const finishTimer = setTimeout(() => onComplete(), 5000); // 1s wait + 4s boot
     return () => {
       timeouts.forEach((t) => clearTimeout(t));
       clearTimeout(finishTimer);
@@ -582,7 +585,7 @@ export function OSBootSequence({ onComplete }: { onComplete: () => void }) {
           </div>
 
           <p className="mb-2">Processor : Intel(R) Pentium(R) CPU at 133 MHz</p>
-          <p className="mb-4">Memory Test : <span className="font-bold">{ramCount}K OK</span></p>
+          <p className="mb-4">Memory Test : <span className="font-bold" ref={ramRef}>0K OK</span></p>
 
           {step >= 2 && (
             <>

@@ -207,58 +207,54 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                 {/* Screen Content Wrapper with CSS Safe Zone (inset-[24px]) */}
                 <div className="absolute inset-[24px] bg-black z-0 flex items-center justify-center overflow-hidden rounded-lg">
                   <AnimatePresence>
-                    {props.isShuttingDown ? (
-                      <motion.div
-                        key="shutdown"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.1 }}
-                        className="w-full h-full absolute inset-0 z-50 bg-black"
-                      >
-                        <video 
-                          ref={(el) => {
-                            if (el) el.play().catch(console.error);
-                          }}
-                          src="/video/shutdown.mp4" 
-                          className="w-full h-full object-cover absolute inset-0 pointer-events-none"
-                          playsInline 
-                          onEnded={() => props.onShutdownComplete?.()}
-                        />
-                      </motion.div>
-                    ) : props.bootPhase !== 'off' ? (
+                    {props.bootPhase !== 'off' && (
                       <motion.div
                         key="boot"
                         initial={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="w-full h-full absolute inset-0"
+                        className="w-full h-full absolute inset-0 bg-black"
                       >
-                        {props.bootPhase === 'post' && <PostSequence onComplete={() => props.setBootPhase?.('video')} />}
-                        {(props.bootPhase === 'post' || props.bootPhase === 'video') && (
+                        {props.bootPhase === 'post' && !props.isShuttingDown && <PostSequence onComplete={() => props.setBootPhase?.('video')} />}
+                        {(props.bootPhase === 'post' || props.bootPhase === 'video') && !props.isShuttingDown && (
                           <video 
                             ref={(el) => {
                               if (el && props.bootPhase === 'video') {
                                 el.play().catch(console.error);
                               }
                             }}
-                            src="/video/startup.mp4" 
-                            className="w-full h-full object-cover absolute inset-0 z-50 pointer-events-none"
+                            src="/video/startup.mp4?v=2" 
+                            className="w-full h-full object-cover absolute inset-0 z-40 pointer-events-none"
                             style={{ opacity: props.bootPhase === 'video' ? 1 : 0 }}
                             playsInline 
                             preload="auto"
                             onEnded={() => props.setBootPhase?.('os')}
                           />
                         )}
-                        {props.bootPhase === 'os' && (
+                        {props.bootPhase === 'os' && !props.isShuttingDown && (
                           <iframe 
                             src="/monitor-os/index.html" 
                             className="w-full h-full border-0 pointer-events-auto"
                             title="Desktop OS"
                           />
                         )}
+
+                        {/* Always mount shutdown video so it preloads fully and plays instantly */}
+                        <video 
+                          ref={(el) => {
+                            if (el && props.isShuttingDown) {
+                              el.play().catch(console.error);
+                            }
+                          }}
+                          src="/video/shutdown.mp4?v=2" 
+                          className="w-full h-full object-cover absolute inset-0 z-50 pointer-events-none"
+                          style={{ opacity: props.isShuttingDown ? 1 : 0 }}
+                          playsInline 
+                          preload="auto"
+                          onEnded={() => props.onShutdownComplete?.()}
+                        />
                       </motion.div>
-                    ) : null}
+                    )}
                   </AnimatePresence>
                 </div>    {/* Render the Windows 95 Dialog INSIDE the 3D Monitor! */}
                   <AnimatePresence>

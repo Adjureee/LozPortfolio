@@ -101,17 +101,13 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   
   const startupAudioRef = useRef<HTMLAudioElement | null>(null);
   const shutdownAudioRef = useRef<HTMLAudioElement | null>(null);
-  const clickDownAudioRef = useRef<HTMLAudioElement | null>(null);
-  const clickUpAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     // Imperatively load audio objects so they can be unlocked securely
-    // Ensure these use absolute Next.js public paths
+    // Using .wav since the .mp3s are empty stubs that throw NotSupportedError
     if (typeof window !== "undefined") {
-      if (!startupAudioRef.current) startupAudioRef.current = new Audio("/startup.mp3");
-      if (!shutdownAudioRef.current) shutdownAudioRef.current = new Audio("/shutdown.mp3");
-      if (!clickDownAudioRef.current) clickDownAudioRef.current = new Audio("/audio/mouse/mouse_down.mp3");
-      if (!clickUpAudioRef.current) clickUpAudioRef.current = new Audio("/audio/mouse/mouse_up.mp3");
+      if (!startupAudioRef.current) startupAudioRef.current = new Audio("/startup.wav");
+      if (!shutdownAudioRef.current) shutdownAudioRef.current = new Audio("/shutdown.wav");
     }
   }, []);
 
@@ -137,25 +133,14 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
           shutdownAudioRef.current.play().catch((error) => console.error("Shutdown audio blocked by browser:", error));
         }
       } else if (event.data.type === 'mousedown') {
-        if (clickDownAudioRef.current) {
-          clickDownAudioRef.current.currentTime = 0;
-          clickDownAudioRef.current.play().catch((error) => console.error("Mousedown audio blocked by browser:", error));
-        }
+        playClick(); // Fallback to synthesized click
       } else if (event.data.type === 'mouseup') {
-        if (clickUpAudioRef.current) {
-          clickUpAudioRef.current.currentTime = 0;
-          clickUpAudioRef.current.play().catch((error) => console.error("Mouseup audio blocked by browser:", error));
-        }
+        // synthesize up click if needed, or leave blank
       }
     };
 
     const handleGlobalMouseUp = () => {
-      if (showDesktopOS && !isBootingOS && !isAwaitingBoot) {
-        if (clickUpAudioRef.current) {
-          clickUpAudioRef.current.currentTime = 0;
-          clickUpAudioRef.current.play().catch((error) => console.error("Global mouseup audio blocked by browser:", error));
-        }
-      }
+      // blank
     };
 
     window.addEventListener('message', handleMessage);
@@ -391,8 +376,6 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
 
                     if (startupAudioRef.current) unlockAudio(startupAudioRef.current);
                     if (shutdownAudioRef.current) unlockAudio(shutdownAudioRef.current);
-                    if (clickDownAudioRef.current) unlockAudio(clickDownAudioRef.current);
-                    if (clickUpAudioRef.current) unlockAudio(clickUpAudioRef.current);
 
                     setIsAwaitingBoot(false);
                     setIsBootingOS(true);

@@ -102,7 +102,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                 screenPos.y + (props.positionOffset?.[1] || 0), 
                 screenPos.z + (props.positionOffset?.[2] || 0)
               ]}
-              scale={props.scaleFactor || 0.025}
+              scale={props.scaleFactor || 0.146} // Hardcoded exact calibrated scale!
               className="w-[800px] h-[600px] bg-black flex items-center justify-center border-[8px] border-[#0a0a0a]"
               style={{ borderRadius: '64px', overflow: 'hidden' }}
             >

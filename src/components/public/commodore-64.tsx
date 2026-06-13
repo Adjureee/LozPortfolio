@@ -250,10 +250,11 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                             onEnded={() => props.setBootPhase?.('os')}
                           />
                         )}
-                        {props.bootPhase === 'os' && (
+                        {(props.bootPhase === 'post' || props.bootPhase === 'video' || props.bootPhase === 'os') && (
                           <iframe 
                             src="/monitor-os/index.html" 
-                            className="w-full h-full border-0 pointer-events-auto"
+                            className={`w-full h-full border-0 absolute inset-0 ${props.bootPhase === 'os' ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                            style={{ opacity: props.bootPhase === 'os' ? 1 : 0 }}
                             title="Desktop OS"
                           />
                         )}

@@ -7,7 +7,6 @@ import * as THREE from 'three'
 import React, { useEffect, useRef, useState } from 'react'
 import { useGLTF, Html } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
-import { OSBootSequence } from './hero-section'
 
 type GLTFResult = GLTF & {
   nodes: {

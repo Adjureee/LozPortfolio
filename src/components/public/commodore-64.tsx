@@ -126,9 +126,9 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                 onMouseEnter={props.onMonitorEnterHTML}
                 onMouseLeave={props.onMonitorLeaveHTML}
               >
-                {/* CRT Power Down Animation Wrapper */}
+                {/* CRT Power Down Animation Wrapper with CSS Safe Zone (inset-6) */}
                 <motion.div 
-                  className="absolute inset-0 w-full h-full bg-black z-0 flex items-center justify-center overflow-hidden"
+                  className="absolute inset-[24px] bg-black z-0 flex items-center justify-center overflow-hidden rounded-lg"
                   animate={props.powerDownComplete ? {
                     scaleY: [1, 0.01, 0.01, 0],
                     scaleX: [1, 1, 0.01, 0],

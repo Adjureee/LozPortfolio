@@ -10,7 +10,18 @@ import { GLTF } from 'three-stdlib'
 import { motion, AnimatePresence } from 'framer-motion'
 import { NotepadApp } from './notepad-app'
 import { IeApp } from './ie-app'
-import { FileText, Globe } from 'lucide-react'
+import { DraggableIcon } from './draggable-icon'
+
+const DESKTOP_ICONS = [
+  { id: 'showcase', label: 'My Showcase', iconSrc: '/icons/retro_computer.png', initialX: 20, initialY: 20 },
+  { id: 'oregon_trail', label: 'The Oregon Trail', iconSrc: '/icons/retro_dos.png', initialX: 20, initialY: 100 },
+  { id: 'doom', label: 'Doom', iconSrc: '/icons/retro_dos.png', initialX: 20, initialY: 180 },
+  { id: 'scrabble', label: 'Scrabble', iconSrc: '/icons/retro_cards.png', initialX: 20, initialY: 260 },
+  { id: 'henordle', label: 'Henordle', iconSrc: '/icons/retro_joystick.png', initialX: 20, initialY: 340 },
+  { id: 'credits', label: 'Credits', iconSrc: '/icons/retro_document.png', initialX: 20, initialY: 420 },
+  { id: 'resume', label: 'Resume.txt', iconSrc: '/icons/retro_notepad.png', initialX: 110, initialY: 20, isOverlay: true, overlayWindow: 'notepad' },
+  { id: 'ie', label: 'Internet', iconSrc: '/icons/retro_ie.png', initialX: 110, initialY: 100, isOverlay: true, overlayWindow: 'ie' }
+];
 
 
 function PostSequence({ onComplete }: { onComplete: () => void }) {
@@ -141,9 +152,27 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   const shutdownVideoRef = useRef<HTMLVideoElement>(null);
   
   const desktopRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isNotepadOpen, setIsNotepadOpen] = useState(false);
   const [isIeOpen, setIsIeOpen] = useState(false);
   const [activeWindow, setActiveWindow] = useState<'notepad' | 'ie' | null>(null);
+
+  const handleIconDoubleClick = (icon: typeof DESKTOP_ICONS[0]) => {
+    if (icon.isOverlay) {
+      if (icon.overlayWindow === 'notepad') {
+        setIsNotepadOpen(true);
+        setActiveWindow('notepad');
+      } else if (icon.overlayWindow === 'ie') {
+        setIsIeOpen(true);
+        setActiveWindow('ie');
+      }
+    } else {
+      // Proxy launch to iframe
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        iframeRef.current.contentWindow.postMessage({ type: 'LAUNCH_APP', appName: icon.label }, '*');
+      }
+    }
+  };
 
   useEffect(() => {
     if (props.bootPhase === 'video' && !props.isShuttingDown && startupVideoRef.current) {
@@ -276,6 +305,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                         {props.bootPhase === 'os' && !props.isShuttingDown && (
                           <>
                             <iframe 
+                              ref={iframeRef}
                               src="/monitor-os/index.html" 
                               className="w-full h-full border-0 pointer-events-auto relative z-0"
                               title="Desktop OS"
@@ -288,48 +318,18 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                             >
                               {/* Desktop Icons */}
                               <div className="absolute inset-0 pointer-events-none">
-                                <motion.div 
-                                  drag
-                                  dragConstraints={desktopRef}
-                                  dragMomentum={false}
-                                  style={{ position: 'absolute', top: 20, right: 20 }}
-                                  className="flex flex-col items-center justify-center w-[70px] cursor-pointer group active:opacity-70 pointer-events-auto"
-                                  onDoubleClick={() => {
-                                    setIsNotepadOpen(true);
-                                    setActiveWindow('notepad');
-                                  }}
-                                >
-                                  <img 
-                                    src="/icons/retro_notepad.png" 
-                                    alt="Resume.txt" 
-                                    className="w-8 h-8 mb-1 group-hover:scale-105 transition-transform pointer-events-none drop-shadow-md" 
-                                    style={{ imageRendering: 'pixelated' }} 
+                                {DESKTOP_ICONS.map((icon) => (
+                                  <DraggableIcon
+                                    key={icon.id}
+                                    id={icon.id}
+                                    label={icon.label}
+                                    iconSrc={icon.iconSrc}
+                                    initialX={icon.initialX}
+                                    initialY={icon.initialY}
+                                    onDoubleClick={() => handleIconDoubleClick(icon)}
+                                    constraintsRef={desktopRef}
                                   />
-                                  <span className="text-white text-xs font-sans text-center bg-transparent group-hover:bg-[#000080] group-hover:px-1 truncate w-full shadow-[0_1px_1px_rgba(0,0,0,0.8)] pointer-events-none">
-                                    Resume.txt
-                                  </span>
-                                </motion.div>
-                                <motion.div 
-                                  drag
-                                  dragConstraints={desktopRef}
-                                  dragMomentum={false}
-                                  style={{ position: 'absolute', top: 100, right: 20 }}
-                                  className="flex flex-col items-center justify-center w-[70px] cursor-pointer group active:opacity-70 pointer-events-auto"
-                                  onDoubleClick={() => {
-                                    setIsIeOpen(true);
-                                    setActiveWindow('ie');
-                                  }}
-                                >
-                                  <img 
-                                    src="/icons/retro_ie.png" 
-                                    alt="Internet Explorer" 
-                                    className="w-8 h-8 mb-1 group-hover:scale-105 transition-transform pointer-events-none drop-shadow-md" 
-                                    style={{ imageRendering: 'pixelated' }} 
-                                  />
-                                  <span className="text-white text-xs font-sans text-center bg-transparent group-hover:bg-[#000080] group-hover:px-1 truncate w-full shadow-[0_1px_1px_rgba(0,0,0,0.8)] pointer-events-none">
-                                    Internet
-                                  </span>
-                                </motion.div>
+                                ))}
                               </div>
 
                               {/* Applications */}

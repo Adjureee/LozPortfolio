@@ -79,40 +79,8 @@
                     } else if (e.data && e.data.type === 'SET_MUTE_ICON') {
                         const xSpan = document.getElementById('os-mute-x');
                         if (xSpan) xSpan.style.display = e.data.muted ? 'block' : 'none';
-                    } else if (e.data && e.data.type === 'LAUNCH_APP') {
-                        const appName = e.data.appName;
-                        const elements = Array.from(document.querySelectorAll('*'));
-                        const textNode = elements.find(el => el.textContent && el.textContent.trim() === appName && el.children.length === 0);
-                        if (textNode) {
-                            let parent = textNode.parentElement;
-                            while (parent && parent !== document.body && parent.tagName !== 'BUTTON') {
-                                parent = parent.parentElement;
-                            }
-                            if (parent && parent !== document.body) {
-                                parent.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true, view: window }));
-                            }
-                        }
                     }
                 });
-
-                // Hide native icons periodically so they don't visually clash with the overlay
-                setInterval(() => {
-                    const iconLabels = ['My Showcase', 'The Oregon Trail', 'Doom', 'Scrabble', 'Henordle', 'Credits'];
-                    const elements = Array.from(document.querySelectorAll('*'));
-                    iconLabels.forEach(label => {
-                        const el = elements.find(e => e.textContent && e.textContent.trim() === label && e.children.length === 0);
-                        if (el) {
-                            let parent = el.parentElement;
-                            while (parent && parent !== document.body && parent.tagName !== 'BUTTON') {
-                                parent = parent.parentElement;
-                            }
-                            if (parent && parent !== document.body) {
-                                parent.style.opacity = '0';
-                                parent.style.pointerEvents = 'none';
-                            }
-                        }
-                    });
-                }, 1000);
 
                 // Inject speaker icon hijack overlay
                 const overlay = document.createElement('div');

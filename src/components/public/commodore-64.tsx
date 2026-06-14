@@ -10,18 +10,6 @@ import { GLTF } from 'three-stdlib'
 import { motion, AnimatePresence } from 'framer-motion'
 import { NotepadApp } from './notepad-app'
 import { IeApp } from './ie-app'
-import { DraggableIcon } from './draggable-icon'
-
-const DESKTOP_ICONS = [
-  { id: 'showcase', label: 'My Showcase', iconSrc: '/icons/retro_computer.png', initialX: 20, initialY: 20 },
-  { id: 'oregon_trail', label: 'The Oregon Trail', iconSrc: '/icons/retro_dos.png', initialX: 20, initialY: 100 },
-  { id: 'doom', label: 'Doom', iconSrc: '/icons/retro_dos.png', initialX: 20, initialY: 180 },
-  { id: 'scrabble', label: 'Scrabble', iconSrc: '/icons/retro_cards.png', initialX: 20, initialY: 260 },
-  { id: 'henordle', label: 'Henordle', iconSrc: '/icons/retro_joystick.png', initialX: 20, initialY: 340 },
-  { id: 'credits', label: 'Credits', iconSrc: '/icons/retro_document.png', initialX: 20, initialY: 420 },
-  { id: 'resume', label: 'Resume.txt', iconSrc: '/icons/retro_notepad.png', initialX: 110, initialY: 20, isOverlay: true, overlayWindow: 'notepad' },
-  { id: 'ie', label: 'Internet', iconSrc: '/icons/retro_ie.png', initialX: 110, initialY: 100, isOverlay: true, overlayWindow: 'ie' }
-];
 
 
 function PostSequence({ onComplete }: { onComplete: () => void }) {
@@ -157,21 +145,160 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   const [isIeOpen, setIsIeOpen] = useState(false);
   const [activeWindow, setActiveWindow] = useState<'notepad' | 'ie' | null>(null);
 
-  const handleIconDoubleClick = (icon: typeof DESKTOP_ICONS[0]) => {
-    if (icon.isOverlay) {
-      if (icon.overlayWindow === 'notepad') {
-        setIsNotepadOpen(true);
-        setActiveWindow('notepad');
-      } else if (icon.overlayWindow === 'ie') {
-        setIsIeOpen(true);
-        setActiveWindow('ie');
+  // Listen for postMessage from iframe when custom icons are double-clicked
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === 'OPEN_CUSTOM_APP') {
+        if (e.data.app === 'resume') {
+          setIsNotepadOpen(true);
+          setActiveWindow('notepad');
+        } else if (e.data.app === 'ie') {
+          setIsIeOpen(true);
+          setActiveWindow('ie');
+        }
       }
-    } else {
-      // Proxy launch to iframe
-      if (iframeRef.current && iframeRef.current.contentWindow) {
-        iframeRef.current.contentWindow.postMessage({ type: 'LAUNCH_APP', appName: icon.label }, '*');
-      }
-    }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  // Same-origin DOM injection: runs when iframe loads
+  const injectIntoIframe = () => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const doc = iframe.contentDocument;
+    if (!doc || !doc.body) return;
+
+    // ── 1. MAKE ALL EXISTING NATIVE ICONS DRAGGABLE ──
+    const makeDraggable = (el: HTMLElement) => {
+      // Determine the positioned ancestor (shortcutContainer div)
+      const container = el.closest('[style*="position: absolute"]') as HTMLElement | null;
+      if (!container) return;
+      if ((container as HTMLElement & { __drag?: boolean }).__drag) return;
+      (container as HTMLElement & { __drag?: boolean }).__drag = true;
+
+      let startX = 0, startY = 0, origLeft = 0, origTop = 0, moved = false;
+
+      container.style.cursor = 'default';
+
+      container.addEventListener('mousedown', (e: MouseEvent) => {
+        e.preventDefault();
+        startX = e.clientX;
+        startY = e.clientY;
+        origLeft = parseInt(container.style.left || '0', 10);
+        origTop = parseInt(container.style.top || '0', 10);
+        moved = false;
+
+        const onMove = (mv: MouseEvent) => {
+          const dx = mv.clientX - startX;
+          const dy = mv.clientY - startY;
+          if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+          container.style.left = (origLeft + dx) + 'px';
+          container.style.top = (origTop + dy) + 'px';
+        };
+
+        const onUp = () => {
+          doc.removeEventListener('mousemove', onMove);
+          doc.removeEventListener('mouseup', onUp);
+        };
+
+        doc.addEventListener('mousemove', onMove);
+        doc.addEventListener('mouseup', onUp);
+      });
+
+      // Swallow dblclick if it was actually a drag (moved)
+      container.addEventListener('dblclick', (e: MouseEvent) => {
+        if (moved) { e.stopImmediatePropagation(); moved = false; }
+      }, true);
+    };
+
+    // Apply draggability to all current shortcut containers
+    const applyToAll = () => {
+      const shortcutWrappers = doc.querySelectorAll<HTMLElement>('[style*="position: absolute"][style*="top"]');
+      shortcutWrappers.forEach(el => {
+        // Only target icon containers inside the shortcuts column
+        if (el.querySelector('p') && el.style.position === 'absolute') {
+          makeDraggable(el);
+        }
+      });
+    };
+
+    // Run once immediately then observe for new nodes
+    applyToAll();
+    const observer = new MutationObserver(applyToAll);
+    observer.observe(doc.body, { childList: true, subtree: true });
+
+    // ── 2. INJECT CUSTOM ICONS (Resume.txt + Internet Explorer) ──
+    const injectCustomIcon = (label: string, appKey: string, iconUrl: string) => {
+      // Don't double-inject
+      if (doc.getElementById('custom-icon-' + appKey)) return;
+
+      // Find the shortcuts column (the parent div that contains all icon containers)
+      const shortcutsCol = doc.querySelector<HTMLElement>('[style*="position: absolute"][style*="top: 16px"], [style*="position: absolute"][style*="top:16px"]');
+      if (!shortcutsCol) return;
+
+      // Count existing icons to place below them
+      const existingIcons = shortcutsCol.querySelectorAll<HTMLElement>('[style*="position: absolute"]');
+      const yOffset = 104 * existingIcons.length;
+
+      // Build a DOM structure matching Henry's shortcut structure exactly
+      const wrapper = doc.createElement('div');
+      wrapper.id = 'custom-icon-' + appKey;
+      wrapper.style.cssText = `position: absolute; top: ${yOffset}px; cursor: default;`;
+
+      const inner = doc.createElement('div');
+      inner.style.cssText = 'display: flex; flex-direction: column; align-items: center; width: 64px; padding: 4px; user-select: none;';
+
+      const img = doc.createElement('img');
+      img.src = iconUrl;
+      img.style.cssText = 'width: 32px; height: 32px; image-rendering: pixelated; margin-bottom: 4px; pointer-events: none;';
+
+      const labelDiv = doc.createElement('div');
+      labelDiv.className = 'shortcut-border';
+      labelDiv.style.cssText = 'text-align: center;';
+
+      const p = doc.createElement('p');
+      p.textContent = label;
+      p.style.cssText = 'color: white; font-size: 11px; text-align: center; margin: 0; text-shadow: 1px 1px 1px black; pointer-events: none;';
+
+      labelDiv.appendChild(p);
+      inner.appendChild(img);
+      inner.appendChild(labelDiv);
+      wrapper.appendChild(inner);
+      shortcutsCol.appendChild(wrapper);
+
+      // dblclick => postMessage to parent to open React window
+      let dragMoved = false;
+      wrapper.addEventListener('mousedown', (e: MouseEvent) => {
+        e.preventDefault();
+        const sx = e.clientX, sy = e.clientY;
+        const ol = parseInt(wrapper.style.left || '0', 10);
+        const ot = parseInt(wrapper.style.top  || String(yOffset), 10);
+        dragMoved = false;
+
+        const onMove = (mv: MouseEvent) => {
+          const dx = mv.clientX - sx, dy = mv.clientY - sy;
+          if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
+          wrapper.style.left = (ol + dx) + 'px';
+          wrapper.style.top  = (ot + dy) + 'px';
+        };
+        const onUp = () => { doc.removeEventListener('mousemove', onMove); doc.removeEventListener('mouseup', onUp); };
+        doc.addEventListener('mousemove', onMove);
+        doc.addEventListener('mouseup', onUp);
+      });
+      wrapper.addEventListener('dblclick', (e: MouseEvent) => {
+        if (dragMoved) { dragMoved = false; return; }
+        e.stopPropagation();
+        window.parent.postMessage({ type: 'OPEN_CUSTOM_APP', app: appKey }, '*');
+      });
+    };
+
+    // Wait for the OS to finish rendering its icons (~2s) then inject
+    setTimeout(() => {
+      injectCustomIcon('Resume.txt', 'resume', '/icons/retro_notepad.png');
+      injectCustomIcon('Internet', 'ie', '/icons/retro_ie.png');
+      applyToAll();
+    }, 2500);
   };
 
   useEffect(() => {
@@ -309,30 +436,14 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                               src="/monitor-os/index.html" 
                               className="w-full h-full border-0 pointer-events-auto relative z-0"
                               title="Desktop OS"
+                              onLoad={injectIntoIframe}
                             />
                             
-                            {/* Desktop Overlay Container */}
+                            {/* Desktop Overlay: ONLY for React app windows, NOT icons */}
                             <div 
                               ref={desktopRef}
                               className="absolute inset-0 z-40 pointer-events-none"
                             >
-                              {/* Desktop Icons */}
-                              <div className="absolute inset-0 pointer-events-none">
-                                {DESKTOP_ICONS.map((icon) => (
-                                  <DraggableIcon
-                                    key={icon.id}
-                                    id={icon.id}
-                                    label={icon.label}
-                                    iconSrc={icon.iconSrc}
-                                    initialX={icon.initialX}
-                                    initialY={icon.initialY}
-                                    onDoubleClick={() => handleIconDoubleClick(icon)}
-                                    constraintsRef={desktopRef}
-                                  />
-                                ))}
-                              </div>
-
-                              {/* Applications */}
                               <AnimatePresence>
                                 {isNotepadOpen && (
                                   <NotepadApp 

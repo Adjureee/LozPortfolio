@@ -5,6 +5,8 @@ import React, { createContext, useContext, useEffect, useState, useRef, useCallb
 interface SoundContextType {
   isMuted: boolean;
   toggleMute: () => void;
+  isOsMuted: boolean;
+  toggleOsMute: () => void;
   unlockAndUnmute: () => Promise<void>;
   playHover: () => void;
   playClick: () => void;
@@ -16,6 +18,7 @@ const SoundContext = createContext<SoundContextType | undefined>(undefined);
 
 export function SoundProvider({ children }: { children: React.ReactNode }) {
   const [isMuted, setIsMuted] = useState(true);
+  const [isOsMuted, setIsOsMuted] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
 
@@ -61,6 +64,10 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     setIsMuted((prev) => !prev);
   };
 
+  const toggleOsMute = () => {
+    setIsOsMuted((prev) => !prev);
+  };
+
   const unlockAndUnmute = async () => {
     if (!audioContextRef.current) {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -78,7 +85,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
   // Synthesize a soft "tick" for hover
   const playHover = useCallback(() => {
-    if (isMuted || !audioContextRef.current) return;
+    if (!audioContextRef.current) return;
     
     const ctx = audioContextRef.current;
     const osc = ctx.createOscillator();
@@ -96,7 +103,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     
     osc.start();
     osc.stop(ctx.currentTime + 0.05);
-  }, [isMuted]);
+  }, []);
 
   // Use authentic mechanical click for all UI buttons
   const playClick = useCallback(() => {
@@ -119,7 +126,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <SoundContext.Provider value={{ isMuted, toggleMute, unlockAndUnmute, playHover, playClick, playMouseDown, playMouseUp }}>
+    <SoundContext.Provider value={{ isMuted, isOsMuted, toggleMute, toggleOsMute, unlockAndUnmute, playHover, playClick, playMouseDown, playMouseUp }}>
       {children}
     </SoundContext.Provider>
   );

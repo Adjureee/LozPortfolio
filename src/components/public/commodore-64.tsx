@@ -109,6 +109,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
   bootPhase?: 'off' | 'post' | 'video' | 'os';
   setBootPhase?: (phase: 'off' | 'post' | 'video' | 'os') => void;
   isMuted?: boolean;
+  isOsMuted?: boolean;
   onAutoAlign?: (pos: [number, number, number]) => void;
   scaleFactor?: number;
   positionOffset?: [number, number, number];
@@ -138,13 +139,29 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
 
   useEffect(() => {
     if (props.bootPhase === 'video' && !props.isShuttingDown && startupVideoRef.current) {
-      if (startupVideoRef.current.paused) startupVideoRef.current.play().catch(console.error);
+      if (startupVideoRef.current.paused) {
+        startupVideoRef.current.play().catch(e => {
+          console.warn("Startup video autoplay blocked. Falling back to muted playback.");
+          if (startupVideoRef.current) {
+            startupVideoRef.current.muted = true;
+            startupVideoRef.current.play().catch(console.error);
+          }
+        });
+      }
     }
   }, [props.bootPhase, props.isShuttingDown]);
 
   useEffect(() => {
     if (props.isShuttingDown && shutdownVideoRef.current) {
-      if (shutdownVideoRef.current.paused) shutdownVideoRef.current.play().catch(console.error);
+      if (shutdownVideoRef.current.paused) {
+        shutdownVideoRef.current.play().catch(e => {
+          console.warn("Shutdown video autoplay blocked. Falling back to muted playback.");
+          if (shutdownVideoRef.current) {
+            shutdownVideoRef.current.muted = true;
+            shutdownVideoRef.current.play().catch(console.error);
+          }
+        });
+      }
     }
   }, [props.isShuttingDown]);
 
@@ -242,7 +259,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                           style={{ opacity: props.bootPhase === 'video' && !props.isShuttingDown ? 1 : 0 }}
                           playsInline 
                           preload="auto"
-                          muted={props.isMuted}
+                          muted={props.isOsMuted}
                           onEnded={() => {
                             if (props.bootPhase === 'video') props.setBootPhase?.('os');
                           }}
@@ -265,7 +282,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                           style={{ opacity: props.isShuttingDown ? 1 : 0 }}
                           playsInline 
                           preload="auto"
-                          muted={props.isMuted}
+                          muted={props.isOsMuted}
                           onEnded={() => props.onShutdownComplete?.()}
                         />
                       </motion.div>

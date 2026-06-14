@@ -98,12 +98,20 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
   const [isShuttingDown, setIsShuttingDown] = useState(false);
   const [yankCount, setYankCount] = useState(0);
   const lenis = useLenis();
-  const { playHover, playClick, playMouseDown, playMouseUp, isMuted } = useSound();
+  const { playHover, playClick, playMouseDown, playMouseUp, isMuted, isOsMuted, toggleOsMute } = useSound();
   const isMutedRef = useRef(isMuted);
 
   useEffect(() => {
     isMutedRef.current = isMuted;
   }, [isMuted]);
+
+  useEffect(() => {
+    // Notify the iframe when the OS mute state changes so it can update its speaker icon visual
+    const iframe = document.querySelector('iframe[title="Desktop OS"]') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({ type: 'SET_MUTE_ICON', muted: isOsMuted }, '*');
+    }
+  }, [isOsMuted]);
   
   const startupAudioRef = useRef<HTMLAudioElement | null>(null);
   const shutdownAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -157,6 +165,8 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
         }
       } else if (event.data.type === 'TRIGGER_SHUTDOWN_DIALOG') {
         setShowShutdownDialog(true);
+      } else if (event.data.type === 'TOGGLE_OS_MUTE') {
+        toggleOsMute();
       } else if (event.data.type === 'mousedown') {
         playMouseDown();
       } else if (event.data.type === 'mouseup') {
@@ -174,7 +184,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       window.removeEventListener('message', handleMessage);
       window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [showDesktopOS, bootPhase, playMouseDown, playMouseUp]);
+  }, [showDesktopOS, bootPhase, playMouseDown, playMouseUp, toggleOsMute]);
 
   useEffect(() => {
     if (lenis) {
@@ -376,6 +386,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
             setBootPhase={setBootPhase}
             isShuttingDown={isShuttingDown}
             isMuted={isMuted}
+            isOsMuted={isOsMuted}
             onShutdown={confirmShutdown}
             onShutdownComplete={() => {
               setIsShuttingDown(false);

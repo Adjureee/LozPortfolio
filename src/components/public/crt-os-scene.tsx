@@ -15,6 +15,7 @@ export function CRTOsScene({
   setBootPhase,
   isShuttingDown,
   isMuted,
+  isOsMuted,
   onShutdown,
   onShutdownComplete,
   onExitDesktop,
@@ -25,6 +26,7 @@ export function CRTOsScene({
   setBootPhase: (phase: 'off' | 'post' | 'video' | 'os') => void;
   isShuttingDown?: boolean;
   isMuted?: boolean;
+  isOsMuted?: boolean;
   onShutdown?: () => void;
   onShutdownComplete?: () => void;
   onExitDesktop?: () => void;
@@ -114,6 +116,7 @@ export function CRTOsScene({
             setBootPhase={setBootPhase}
             isShuttingDown={isShuttingDown}
             isMuted={isMuted}
+            isOsMuted={isOsMuted}
             showShutdownDialog={showShutdownDialog}
             onConfirmShutdown={onShutdown}
             onCancelShutdown={onCancelShutdown}

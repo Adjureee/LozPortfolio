@@ -76,7 +76,29 @@
                             const shutdownBtn = items.find(el => el.textContent && el.textContent.toLowerCase().includes('shut down') && el.clientHeight < 50 && el.tagName !== 'BODY');
                             if (shutdownBtn) shutdownBtn.click();
                         }, 50);
+                    } else if (e.data && e.data.type === 'SET_MUTE_ICON') {
+                        const xSpan = document.getElementById('os-mute-x');
+                        if (xSpan) xSpan.style.display = e.data.muted ? 'block' : 'none';
                     }
+                });
+
+                // Inject speaker icon hijack overlay
+                const overlay = document.createElement('div');
+                overlay.id = 'os-mute-overlay';
+                overlay.style.cssText = 'position: fixed; bottom: 0; right: 55px; width: 24px; height: 28px; z-index: 999999; cursor: pointer; display: flex; align-items: center; justify-content: center;';
+                
+                const xSpan = document.createElement('span');
+                xSpan.id = 'os-mute-x';
+                xSpan.textContent = 'X';
+                xSpan.style.cssText = 'color: red; font-family: sans-serif; font-weight: 900; font-size: 16px; display: none; pointer-events: none; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;';
+                
+                overlay.appendChild(xSpan);
+                document.body.appendChild(overlay);
+
+                overlay.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.parent.postMessage({ type: 'TOGGLE_OS_MUTE' }, '*');
                 });
             };
         </script>

@@ -42,6 +42,8 @@
 
                 // Hijack the original Shut down button in the OS
                 window.addEventListener('mousedown', (e) => {
+                    if (window.__allowNativeShutdown) return;
+                    
                     const path = e.composedPath();
                     for (let i = 0; i < path.length; i++) {
                         const el = path[i];
@@ -57,6 +59,24 @@
                         }
                     }
                 }, true); // Use capture phase to intercept before React
+
+                window.addEventListener('message', (e) => {
+                    if (e.data && e.data.type === 'EXECUTE_NATIVE_SHUTDOWN') {
+                        window.__allowNativeShutdown = true;
+                        
+                        // 1. Click Start button to open menu
+                        const elements = Array.from(document.querySelectorAll('*'));
+                        const startBtn = elements.find(el => el.textContent && el.textContent.trim().toLowerCase() === 'start' && el.tagName === 'DIV');
+                        if (startBtn) startBtn.click();
+                        
+                        // 2. Wait a tick for menu to render, then click Shut down
+                        setTimeout(() => {
+                            const items = Array.from(document.querySelectorAll('*'));
+                            const shutdownBtn = items.find(el => el.textContent && el.textContent.toLowerCase().includes('shut down') && el.clientHeight < 50 && el.tagName !== 'BODY');
+                            if (shutdownBtn) shutdownBtn.click();
+                        }, 50);
+                    }
+                });
             };
         </script>
     <script src="/monitor-os/js-dos/js-dos.js"></script>

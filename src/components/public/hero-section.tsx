@@ -110,11 +110,11 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
 
   const confirmShutdown = useCallback(() => {
     setShowShutdownDialog(false);
-    setIsShuttingDown(true);
-
-    if (!isMutedRef.current && shutdownAudioRef.current) {
-      shutdownAudioRef.current.currentTime = 0;
-      shutdownAudioRef.current.play().catch((e) => console.error(e));
+    
+    // Instead of shutting down immediately, trigger the native OS sequence inside the iframe!
+    const iframe = document.querySelector('iframe[title="Desktop OS"]') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({ type: 'EXECUTE_NATIVE_SHUTDOWN' }, '*');
     }
   }, []);
 
@@ -142,7 +142,9 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
       if (event.data.type === 'CLOSE_OS') {
-        setShowDesktopOS(false);
+        // Native OS green text sequence is done!
+        // NOW play the shutdown.mp4 video!
+        setIsShuttingDown(true);
       } else if (event.data.type === 'PLAY_SHUTDOWN') {
         if (!isMutedRef.current && shutdownAudioRef.current) {
           shutdownAudioRef.current.currentTime = 0;
@@ -156,8 +158,6 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
         playMouseUp();
       }
     };
-
-    // removed confirmShutdown from here
 
     const handleGlobalMouseUp = () => {
       // blank

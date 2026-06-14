@@ -8,6 +8,9 @@ import React, { useEffect, useRef, useState, useMemo } from 'react'
 import { useGLTF, Html } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import { motion, AnimatePresence } from 'framer-motion'
+import { NotepadApp } from './notepad-app'
+import { IeApp } from './ie-app'
+import { FileText, Globe } from 'lucide-react'
 
 
 function PostSequence({ onComplete }: { onComplete: () => void }) {
@@ -136,6 +139,11 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
 
   const startupVideoRef = useRef<HTMLVideoElement>(null);
   const shutdownVideoRef = useRef<HTMLVideoElement>(null);
+  
+  const desktopRef = useRef<HTMLDivElement>(null);
+  const [isNotepadOpen, setIsNotepadOpen] = useState(false);
+  const [isIeOpen, setIsIeOpen] = useState(false);
+  const [activeWindow, setActiveWindow] = useState<'notepad' | 'ie' | null>(null);
 
   useEffect(() => {
     if (props.bootPhase === 'video' && !props.isShuttingDown && startupVideoRef.current) {
@@ -266,11 +274,67 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                         />
 
                         {props.bootPhase === 'os' && !props.isShuttingDown && (
-                          <iframe 
-                            src="/monitor-os/index.html" 
-                            className="w-full h-full border-0 pointer-events-auto"
-                            title="Desktop OS"
-                          />
+                          <>
+                            <iframe 
+                              src="/monitor-os/index.html" 
+                              className="w-full h-full border-0 pointer-events-auto relative z-0"
+                              title="Desktop OS"
+                            />
+                            
+                            {/* Desktop Overlay Container */}
+                            <div 
+                              ref={desktopRef}
+                              className="absolute inset-0 z-40 pointer-events-none"
+                            >
+                              {/* Desktop Icons */}
+                              <div className="absolute left-2 top-2 flex flex-col gap-4 pointer-events-auto">
+                                <div 
+                                  className="flex flex-col items-center justify-center w-[70px] cursor-pointer group active:opacity-70"
+                                  onDoubleClick={() => {
+                                    setIsNotepadOpen(true);
+                                    setActiveWindow('notepad');
+                                  }}
+                                >
+                                  <FileText size={32} className="text-white drop-shadow-md mb-1 group-hover:scale-105 transition-transform" />
+                                  <span className="text-white text-xs font-sans text-center bg-transparent group-hover:bg-[#000080] group-hover:px-1 truncate w-full shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                    Resume.txt
+                                  </span>
+                                </div>
+                                <div 
+                                  className="flex flex-col items-center justify-center w-[70px] cursor-pointer group active:opacity-70"
+                                  onDoubleClick={() => {
+                                    setIsIeOpen(true);
+                                    setActiveWindow('ie');
+                                  }}
+                                >
+                                  <Globe size={32} className="text-white drop-shadow-md mb-1 group-hover:scale-105 transition-transform" />
+                                  <span className="text-white text-xs font-sans text-center bg-transparent group-hover:bg-[#000080] group-hover:px-1 truncate w-full shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                    Internet
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Applications */}
+                              <AnimatePresence>
+                                {isNotepadOpen && (
+                                  <NotepadApp 
+                                    onClose={() => setIsNotepadOpen(false)} 
+                                    constraintsRef={desktopRef}
+                                    zIndex={activeWindow === 'notepad' ? 51 : 50}
+                                    onFocus={() => setActiveWindow('notepad')}
+                                  />
+                                )}
+                                {isIeOpen && (
+                                  <IeApp 
+                                    onClose={() => setIsIeOpen(false)} 
+                                    constraintsRef={desktopRef}
+                                    zIndex={activeWindow === 'ie' ? 51 : 50}
+                                    onFocus={() => setActiveWindow('ie')}
+                                  />
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </>
                         )}
 
                         {/* Always mount shutdown video so it preloads fully and plays instantly */}

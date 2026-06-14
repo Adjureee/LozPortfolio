@@ -171,53 +171,72 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
 
     // ── 1. MAKE ALL EXISTING NATIVE ICONS DRAGGABLE ──
     const makeDraggable = (el: HTMLElement) => {
-      // Determine the positioned ancestor (shortcutContainer div)
-      const container = el.closest('[style*="position: absolute"]') as HTMLElement | null;
-      if (!container) return;
-      if ((container as HTMLElement & { __drag?: boolean }).__drag) return;
-      (container as HTMLElement & { __drag?: boolean }).__drag = true;
+      // The el IS the positioned shortcutContainer — do not walk up further
+      // Guard: skip if already wired up
+      if ((el as HTMLElement & { __drag?: boolean }).__drag) return;
+      (el as HTMLElement & { __drag?: boolean }).__drag = true;
 
-      let startX = 0, startY = 0, origLeft = 0, origTop = 0, moved = false;
+      el.style.cursor = 'default';
 
-      container.style.cursor = 'default';
-
-      container.addEventListener('mousedown', (e: MouseEvent) => {
+      el.addEventListener('mousedown', (e: MouseEvent) => {
+        // Isolation: declare ALL drag state inside this handler so each icon
+        // has its own closure — never shared with sibling icons
         e.preventDefault();
-        startX = e.clientX;
-        startY = e.clientY;
-        origLeft = parseInt(container.style.left || '0', 10);
-        origTop = parseInt(container.style.top || '0', 10);
-        moved = false;
+        e.stopPropagation(); // prevent bubbling to parent columns/containers
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const origLeft = parseInt(el.style.left || '0', 10);
+        const origTop  = parseInt(el.style.top  || '0', 10);
+        let moved = false;
 
         const onMove = (mv: MouseEvent) => {
           const dx = mv.clientX - startX;
           const dy = mv.clientY - startY;
           if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-          container.style.left = (origLeft + dx) + 'px';
-          container.style.top = (origTop + dy) + 'px';
+          el.style.left = (origLeft + dx) + 'px';
+          el.style.top  = (origTop  + dy) + 'px';
         };
 
         const onUp = () => {
           doc.removeEventListener('mousemove', onMove);
           doc.removeEventListener('mouseup', onUp);
+          // If it was a stationary press, mark moved=false so dblclick still fires
+          if (!moved) moved = false;
         };
 
         doc.addEventListener('mousemove', onMove);
         doc.addEventListener('mouseup', onUp);
+
+        // Expose moved flag to the dblclick guard via a property on el
+        (el as HTMLElement & { __moved?: boolean }).__moved = false;
+        const trackMove = () => { (el as HTMLElement & { __moved?: boolean }).__moved = moved; };
+        doc.addEventListener('mouseup', trackMove, { once: true });
       });
 
-      // Swallow dblclick if it was actually a drag (moved)
-      container.addEventListener('dblclick', (e: MouseEvent) => {
-        if (moved) { e.stopImmediatePropagation(); moved = false; }
+      // Swallow dblclick if the mouse actually moved during the click sequence
+      el.addEventListener('dblclick', (e: MouseEvent) => {
+        if ((el as HTMLElement & { __moved?: boolean }).__moved) {
+          e.stopImmediatePropagation();
+          (el as HTMLElement & { __moved?: boolean }).__moved = false;
+        }
       }, true);
     };
 
     // Apply draggability to all current shortcut containers
     const applyToAll = () => {
-      const shortcutWrappers = doc.querySelectorAll<HTMLElement>('[style*="position: absolute"][style*="top"]');
+      // Target the immediate positioned children of the shortcuts column only.
+      // Henry's structure: .shortcuts > [shortcutContainer per icon]
+      // Each shortcutContainer has style="position: absolute; top: Xpx"
+      const shortcutWrappers = doc.querySelectorAll<HTMLElement>('[style*="position: absolute"][style*="top:"]');
       shortcutWrappers.forEach(el => {
-        // Only target icon containers inside the shortcuts column
-        if (el.querySelector('p') && el.style.position === 'absolute') {
+        // Only attach if this element is a direct icon slot:
+        // - it is position:absolute
+        // - it has a <p> child somewhere (the label)
+        // - it has NO position:absolute children (to avoid wiring the parent column)
+        const hasLabel = !!el.querySelector('p');
+        const hasAbsoluteChild = !!el.querySelector('[style*="position: absolute"]');
+        if (hasLabel && !hasAbsoluteChild && el.style.position === 'absolute') {
           makeDraggable(el);
         }
       });
@@ -268,29 +287,18 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
       shortcutsCol.appendChild(wrapper);
 
       // dblclick => postMessage to parent to open React window
-      let dragMoved = false;
-      wrapper.addEventListener('mousedown', (e: MouseEvent) => {
-        e.preventDefault();
-        const sx = e.clientX, sy = e.clientY;
-        const ol = parseInt(wrapper.style.left || '0', 10);
-        const ot = parseInt(wrapper.style.top  || String(yOffset), 10);
-        dragMoved = false;
-
-        const onMove = (mv: MouseEvent) => {
-          const dx = mv.clientX - sx, dy = mv.clientY - sy;
-          if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
-          wrapper.style.left = (ol + dx) + 'px';
-          wrapper.style.top  = (ot + dy) + 'px';
-        };
-        const onUp = () => { doc.removeEventListener('mousemove', onMove); doc.removeEventListener('mouseup', onUp); };
-        doc.addEventListener('mousemove', onMove);
-        doc.addEventListener('mouseup', onUp);
-      });
       wrapper.addEventListener('dblclick', (e: MouseEvent) => {
-        if (dragMoved) { dragMoved = false; return; }
+        const wasDrag = (wrapper as HTMLElement & { __moved?: boolean }).__moved;
+        if (wasDrag) {
+          (wrapper as HTMLElement & { __moved?: boolean }).__moved = false;
+          return;
+        }
         e.stopPropagation();
         window.parent.postMessage({ type: 'OPEN_CUSTOM_APP', app: appKey }, '*');
       });
+
+      // Reuse makeDraggable for custom icons too (closure-isolated)
+      makeDraggable(wrapper);
     };
 
     // Wait for the OS to finish rendering its icons (~2s) then inject

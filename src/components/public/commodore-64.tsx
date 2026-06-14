@@ -336,6 +336,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                               <AnimatePresence>
                                 {isNotepadOpen && (
                                   <NotepadApp 
+                                    key="notepad"
                                     onClose={() => setIsNotepadOpen(false)} 
                                     constraintsRef={desktopRef}
                                     zIndex={activeWindow === 'notepad' ? 51 : 50}
@@ -344,6 +345,7 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                                 )}
                                 {isIeOpen && (
                                   <IeApp 
+                                    key="ie"
                                     onClose={() => setIsIeOpen(false)} 
                                     constraintsRef={desktopRef}
                                     zIndex={activeWindow === 'ie' ? 51 : 50}

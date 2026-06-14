@@ -113,8 +113,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
     }
   }, [isOsMuted]);
   
-  const startupAudioRef = useRef<HTMLAudioElement | null>(null);
-  const shutdownAudioRef = useRef<HTMLAudioElement | null>(null);
+
 
   const confirmShutdown = useCallback(() => {
     setShowShutdownDialog(false);
@@ -124,34 +123,9 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
     if (shutdownVideo && shutdownVideo.paused) {
       shutdownVideo.play().catch(e => console.log("Sync video play blocked:", e));
     }
-
-    if (!isMutedRef.current) {
-      if (shutdownAudioRef.current) {
-        shutdownAudioRef.current.currentTime = 0;
-        shutdownAudioRef.current.play().catch((e) => console.error(e));
-      }
-    }
   }, []);
 
-  useEffect(() => {
-    // Imperatively load audio objects so they can be unlocked securely
-    // Using .wav since the .mp3s are empty stubs that throw NotSupportedError
-    if (typeof window !== "undefined") {
-      if (!startupAudioRef.current) startupAudioRef.current = new Audio("/startup.wav");
-      if (!shutdownAudioRef.current) shutdownAudioRef.current = new Audio("/shutdown.wav");
-    }
-  }, []);
 
-  useEffect(() => {
-    const handleStartup = () => {
-      if (!isMutedRef.current && startupAudioRef.current) {
-        startupAudioRef.current.currentTime = 0;
-        startupAudioRef.current.play().catch((error) => console.error("Startup boot audio blocked by browser:", error));
-      }
-    };
-    window.addEventListener('play-startup-audio', handleStartup);
-    return () => window.removeEventListener('play-startup-audio', handleStartup);
-  }, []);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -159,10 +133,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
       if (event.data.type === 'CLOSE_OS') {
         setShowDesktopOS(false);
       } else if (event.data.type === 'PLAY_SHUTDOWN') {
-        if (!isMutedRef.current && shutdownAudioRef.current) {
-          shutdownAudioRef.current.currentTime = 0;
-          shutdownAudioRef.current.play().catch((error) => console.error("Shutdown audio blocked by browser:", error));
-        }
+        // Obsolete; handled directly by confirmShutdown now
       } else if (event.data.type === 'TRIGGER_SHUTDOWN_DIALOG') {
         setShowShutdownDialog(true);
       } else if (event.data.type === 'TOGGLE_OS_MUTE') {
@@ -422,9 +393,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
                       }).catch((err) => console.log("Media unlock failed/muted:", err));
                     };
 
-                    if (startupAudioRef.current) unlockMedia(startupAudioRef.current);
-                    if (shutdownAudioRef.current) unlockMedia(shutdownAudioRef.current);
-                    
+
                     const startupVideo = document.getElementById('startup-video') as HTMLVideoElement;
                     const shutdownVideo = document.getElementById('shutdown-video') as HTMLVideoElement;
                     if (startupVideo) unlockMedia(startupVideo);

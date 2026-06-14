@@ -112,7 +112,7 @@ export function CRTOsScene({
             bootPhase={bootPhase}
             setBootPhase={setBootPhase}
             isShuttingDown={isShuttingDown}
-            isMuted={isMuted}
+            isMuted={props.isMuted}
             showShutdownDialog={showShutdownDialog}
             onConfirmShutdown={onShutdown}
             onCancelShutdown={onCancelShutdown}

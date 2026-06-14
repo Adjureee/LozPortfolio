@@ -48,8 +48,9 @@
                     for (let i = 0; i < path.length; i++) {
                         const el = path[i];
                         if (el && el.textContent && el.textContent.toLowerCase().includes('shut down')) {
-                            // Ensure it's a small menu item, not a large container
-                            if (el.tagName !== 'BODY' && el.tagName !== 'HTML' && el.tagName !== 'NAV' && el.clientHeight < 50) {
+                            // Instead of clientHeight (which breaks if fonts make it taller), check string length
+                            // The entire start menu will have a huge textContent length. The button itself is short.
+                            if (el.textContent.length < 30) {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 window.parent.postMessage({ type: 'TRIGGER_SHUTDOWN_DIALOG' }, '*');

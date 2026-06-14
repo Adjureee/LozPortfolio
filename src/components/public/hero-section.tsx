@@ -112,11 +112,12 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
     setShowShutdownDialog(false);
     setIsShuttingDown(true);
 
+    const shutdownVideo = document.getElementById('shutdown-video') as HTMLVideoElement;
+    if (shutdownVideo && shutdownVideo.paused) {
+      shutdownVideo.play().catch(e => console.log("Sync video play blocked:", e));
+    }
+
     if (!isMutedRef.current) {
-      const shutdownVideo = document.getElementById('shutdown-video') as HTMLVideoElement;
-      if (shutdownVideo && shutdownVideo.paused) {
-        shutdownVideo.play().catch(e => console.log("Sync video play blocked:", e));
-      }
       if (shutdownAudioRef.current) {
         shutdownAudioRef.current.currentTime = 0;
         shutdownAudioRef.current.play().catch((e) => console.error(e));
@@ -374,7 +375,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
             bootPhase={bootPhase}
             setBootPhase={setBootPhase}
             isShuttingDown={isShuttingDown}
-            isMuted={isMutedRef.current}
+            isMuted={isMuted}
             onShutdown={confirmShutdown}
             onShutdownComplete={() => {
               setIsShuttingDown(false);

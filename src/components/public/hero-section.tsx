@@ -368,6 +368,7 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
             bootPhase={bootPhase}
             setBootPhase={setBootPhase}
             isShuttingDown={isShuttingDown}
+            isMuted={isMutedRef.current}
             onShutdown={confirmShutdown}
             onShutdownComplete={() => {
               setIsShuttingDown(false);
@@ -392,17 +393,24 @@ export function HeroSection({ config, isReady = true }: { config: SiteConfig | n
                     e.preventDefault();
 
                     // Audio Unlocker: Explicitly load and silent-play to bypass browser autoplay policies
-                    const unlockAudio = (audio: HTMLAudioElement) => {
-                      audio.volume = 0;
-                      audio.play().then(() => {
-                        audio.pause();
-                        audio.currentTime = 0;
-                        audio.volume = 1;
-                      }).catch((err) => console.log("Audio unlock failed/muted:", err));
+                    const unlockMedia = (media: HTMLMediaElement) => {
+                      if (!media) return;
+                      const originalVolume = media.volume;
+                      media.volume = 0;
+                      media.play().then(() => {
+                        media.pause();
+                        media.currentTime = 0;
+                        media.volume = originalVolume;
+                      }).catch((err) => console.log("Media unlock failed/muted:", err));
                     };
 
-                    if (startupAudioRef.current) unlockAudio(startupAudioRef.current);
-                    if (shutdownAudioRef.current) unlockAudio(shutdownAudioRef.current);
+                    if (startupAudioRef.current) unlockMedia(startupAudioRef.current);
+                    if (shutdownAudioRef.current) unlockMedia(shutdownAudioRef.current);
+                    
+                    const startupVideo = document.getElementById('startup-video') as HTMLVideoElement;
+                    const shutdownVideo = document.getElementById('shutdown-video') as HTMLVideoElement;
+                    if (startupVideo) unlockMedia(startupVideo);
+                    if (shutdownVideo) unlockMedia(shutdownVideo);
 
                     setBootPhase('post');
                   }}

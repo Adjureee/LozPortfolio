@@ -108,6 +108,7 @@ type GLTFResult = GLTF & {
 export function Commodore64(props: React.JSX.IntrinsicElements['group'] & { 
   bootPhase?: 'off' | 'post' | 'video' | 'os';
   setBootPhase?: (phase: 'off' | 'post' | 'video' | 'os') => void;
+  isMuted?: boolean;
   onAutoAlign?: (pos: [number, number, number]) => void;
   scaleFactor?: number;
   positionOffset?: [number, number, number];
@@ -216,21 +217,21 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                         className="w-full h-full absolute inset-0 bg-black"
                       >
                         {props.bootPhase === 'post' && !props.isShuttingDown && <PostSequence onComplete={() => props.setBootPhase?.('video')} />}
-                        {(props.bootPhase === 'post' || props.bootPhase === 'video') && !props.isShuttingDown && (
-                          <video 
-                            ref={(el) => {
-                              if (el && props.bootPhase === 'video') {
-                                el.play().catch(console.error);
-                              }
-                            }}
-                            src="/video/startup.mp4?v=2" 
-                            className="w-full h-full object-cover absolute inset-0 z-40 pointer-events-none"
-                            style={{ opacity: props.bootPhase === 'video' ? 1 : 0 }}
-                            playsInline 
-                            preload="auto"
-                            onEnded={() => props.setBootPhase?.('os')}
-                          />
-                        )}
+                        
+                        {/* Always mount startup video to allow synchronous playback bypassing browser autoplay blocks */}
+                        <video 
+                          id="startup-video"
+                          src="/video/startup.mp4?v=2" 
+                          className="w-full h-full object-cover absolute inset-0 z-40 pointer-events-none"
+                          style={{ opacity: props.bootPhase === 'video' && !props.isShuttingDown ? 1 : 0 }}
+                          playsInline 
+                          preload="auto"
+                          muted={props.isMuted}
+                          onEnded={() => {
+                            if (props.bootPhase === 'video') props.setBootPhase?.('os');
+                          }}
+                        />
+
                         {props.bootPhase === 'os' && !props.isShuttingDown && (
                           <iframe 
                             src="/monitor-os/index.html" 
@@ -241,16 +242,13 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
 
                         {/* Always mount shutdown video so it preloads fully and plays instantly */}
                         <video 
-                          ref={(el) => {
-                            if (el && props.isShuttingDown) {
-                              el.play().catch(console.error);
-                            }
-                          }}
+                          id="shutdown-video"
                           src="/video/shutdown.mp4?v=2" 
                           className="w-full h-full object-cover absolute inset-0 z-50 pointer-events-none"
                           style={{ opacity: props.isShuttingDown ? 1 : 0 }}
                           playsInline 
                           preload="auto"
+                          muted={props.isMuted}
                           onEnded={() => props.onShutdownComplete?.()}
                         />
                       </motion.div>

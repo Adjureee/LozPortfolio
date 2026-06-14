@@ -266,14 +266,17 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                         className="absolute inset-0 z-[50] flex items-center justify-center pointer-events-auto bg-black/20 backdrop-blur-[1px]"
                       >
                         {/* Windows 95 Dialog Box */}
-                        <div className="bg-[#c0c0c0] p-[2px] border-t-2 border-l-2 border-t-[#dfdfdf] border-l-[#dfdfdf] border-b-2 border-r-2 border-b-black border-r-black shadow-md font-sans text-black antialiased w-[400px]">
+                        <div className="bg-[#c0c0c0] p-[2px] border-t-2 border-l-2 border-t-[#dfdfdf] border-l-[#dfdfdf] border-b-2 border-r-2 border-b-black border-r-black shadow-md text-black antialiased w-[400px]" style={{ fontFamily: "'Millennium', 'Times New Roman', Times, serif" }}>
+                          {/* Load Typekit for Millennium Font */}
+                          <link rel="stylesheet" href="https://use.typekit.net/llo2eru.css" />
+                          
                           {/* Title Bar */}
                           <div className="bg-[#000080] text-white font-bold px-1 py-0.5 flex justify-between items-center text-sm" style={{ WebkitFontSmoothing: 'none' }}>
                             <span>Shut Down Windows</span>
                             <button onClick={props.onCancelShutdown} className="bg-[#c0c0c0] text-black font-bold px-1.5 border-t border-l border-t-white border-l-white border-b border-r border-b-black border-r-black text-xs leading-none pb-0.5 active:border-t-black active:border-l-black active:border-b-white active:border-r-white">X</button>
                           </div>
                           {/* Content */}
-                          <div className="p-4 text-[13px] flex" style={{ WebkitFontSmoothing: 'none', fontFamily: "'Pixelated MS Sans Serif', 'MS Sans Serif', Tahoma, sans-serif" }}>
+                          <div className="p-4 text-[13px] flex" style={{ WebkitFontSmoothing: 'none', fontFamily: "'Millennium', 'Times New Roman', Times, serif" }}>
                             <div className="mr-4 mt-2">
                               {/* Classic computer icon placeholder */}
                               <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png" alt="Computer" className="w-8 h-8 pixelated" />

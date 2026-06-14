@@ -221,6 +221,11 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                         {/* Always mount startup video to allow synchronous playback bypassing browser autoplay blocks */}
                         <video 
                           id="startup-video"
+                          ref={(el) => {
+                            if (el && props.bootPhase === 'video' && !props.isShuttingDown) {
+                              if (el.paused) el.play().catch(console.error);
+                            }
+                          }}
                           src="/video/startup.mp4?v=2" 
                           className="w-full h-full object-cover absolute inset-0 z-40 pointer-events-none"
                           style={{ opacity: props.bootPhase === 'video' && !props.isShuttingDown ? 1 : 0 }}
@@ -243,6 +248,11 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                         {/* Always mount shutdown video so it preloads fully and plays instantly */}
                         <video 
                           id="shutdown-video"
+                          ref={(el) => {
+                            if (el && props.isShuttingDown) {
+                              if (el.paused) el.play().catch(console.error);
+                            }
+                          }}
                           src="/video/shutdown.mp4?v=2" 
                           className="w-full h-full object-cover absolute inset-0 z-50 pointer-events-none"
                           style={{ opacity: props.isShuttingDown ? 1 : 0 }}

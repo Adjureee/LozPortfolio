@@ -287,31 +287,49 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                               className="absolute inset-0 z-40 pointer-events-none"
                             >
                               {/* Desktop Icons */}
-                              <div className="absolute left-2 top-2 flex flex-col gap-4 pointer-events-auto">
-                                <div 
-                                  className="flex flex-col items-center justify-center w-[70px] cursor-pointer group active:opacity-70"
+                              <div className="absolute inset-0 pointer-events-none">
+                                <motion.div 
+                                  drag
+                                  dragConstraints={desktopRef}
+                                  dragMomentum={false}
+                                  style={{ position: 'absolute', top: 20, right: 20 }}
+                                  className="flex flex-col items-center justify-center w-[70px] cursor-pointer group active:opacity-70 pointer-events-auto"
                                   onDoubleClick={() => {
                                     setIsNotepadOpen(true);
                                     setActiveWindow('notepad');
                                   }}
                                 >
-                                  <FileText size={32} className="text-white drop-shadow-md mb-1 group-hover:scale-105 transition-transform" />
-                                  <span className="text-white text-xs font-sans text-center bg-transparent group-hover:bg-[#000080] group-hover:px-1 truncate w-full shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                  <img 
+                                    src="/icons/retro_notepad.png" 
+                                    alt="Resume.txt" 
+                                    className="w-8 h-8 mb-1 group-hover:scale-105 transition-transform pointer-events-none drop-shadow-md" 
+                                    style={{ imageRendering: 'pixelated' }} 
+                                  />
+                                  <span className="text-white text-xs font-sans text-center bg-transparent group-hover:bg-[#000080] group-hover:px-1 truncate w-full shadow-[0_1px_1px_rgba(0,0,0,0.8)] pointer-events-none">
                                     Resume.txt
                                   </span>
-                                </div>
-                                <div 
-                                  className="flex flex-col items-center justify-center w-[70px] cursor-pointer group active:opacity-70"
+                                </motion.div>
+                                <motion.div 
+                                  drag
+                                  dragConstraints={desktopRef}
+                                  dragMomentum={false}
+                                  style={{ position: 'absolute', top: 100, right: 20 }}
+                                  className="flex flex-col items-center justify-center w-[70px] cursor-pointer group active:opacity-70 pointer-events-auto"
                                   onDoubleClick={() => {
                                     setIsIeOpen(true);
                                     setActiveWindow('ie');
                                   }}
                                 >
-                                  <Globe size={32} className="text-white drop-shadow-md mb-1 group-hover:scale-105 transition-transform" />
-                                  <span className="text-white text-xs font-sans text-center bg-transparent group-hover:bg-[#000080] group-hover:px-1 truncate w-full shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+                                  <img 
+                                    src="/icons/retro_ie.png" 
+                                    alt="Internet Explorer" 
+                                    className="w-8 h-8 mb-1 group-hover:scale-105 transition-transform pointer-events-none drop-shadow-md" 
+                                    style={{ imageRendering: 'pixelated' }} 
+                                  />
+                                  <span className="text-white text-xs font-sans text-center bg-transparent group-hover:bg-[#000080] group-hover:px-1 truncate w-full shadow-[0_1px_1px_rgba(0,0,0,0.8)] pointer-events-none">
                                     Internet
                                   </span>
-                                </div>
+                                </motion.div>
                               </div>
 
                               {/* Applications */}

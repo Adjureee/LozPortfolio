@@ -8,8 +8,6 @@ import React, { useEffect, useRef, useState, useMemo } from 'react'
 import { useGLTF, Html } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import { motion, AnimatePresence } from 'framer-motion'
-import { NotepadApp } from './notepad-app'
-import { IeApp } from './ie-app'
 
 
 function PostSequence({ onComplete }: { onComplete: () => void }) {
@@ -138,176 +136,6 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
 
   const startupVideoRef = useRef<HTMLVideoElement>(null);
   const shutdownVideoRef = useRef<HTMLVideoElement>(null);
-  
-  const desktopRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [isNotepadOpen, setIsNotepadOpen] = useState(false);
-  const [isIeOpen, setIsIeOpen] = useState(false);
-  const [activeWindow, setActiveWindow] = useState<'notepad' | 'ie' | null>(null);
-
-  // Listen for postMessage from iframe when custom icons are double-clicked
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data && e.data.type === 'OPEN_CUSTOM_APP') {
-        if (e.data.app === 'resume') {
-          setIsNotepadOpen(true);
-          setActiveWindow('notepad');
-        } else if (e.data.app === 'ie') {
-          setIsIeOpen(true);
-          setActiveWindow('ie');
-        }
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-  // Same-origin DOM injection: runs when iframe loads
-  const injectIntoIframe = () => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-    const doc = iframe.contentDocument;
-    if (!doc || !doc.body) return;
-
-    // ── 1. MAKE ALL EXISTING NATIVE ICONS DRAGGABLE ──
-    const makeDraggable = (el: HTMLElement) => {
-      // The el IS the positioned shortcutContainer — do not walk up further
-      // Guard: skip if already wired up
-      if ((el as HTMLElement & { __drag?: boolean }).__drag) return;
-      (el as HTMLElement & { __drag?: boolean }).__drag = true;
-
-      el.style.cursor = 'default';
-
-      el.addEventListener('mousedown', (e: MouseEvent) => {
-        // Isolation: declare ALL drag state inside this handler so each icon
-        // has its own closure — never shared with sibling icons
-        e.preventDefault();
-        e.stopPropagation(); // prevent bubbling to parent columns/containers
-
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const origLeft = parseInt(el.style.left || '0', 10);
-        const origTop  = parseInt(el.style.top  || '0', 10);
-        let moved = false;
-
-        const onMove = (mv: MouseEvent) => {
-          const dx = mv.clientX - startX;
-          const dy = mv.clientY - startY;
-          if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-          el.style.left = (origLeft + dx) + 'px';
-          el.style.top  = (origTop  + dy) + 'px';
-        };
-
-        const onUp = () => {
-          doc.removeEventListener('mousemove', onMove);
-          doc.removeEventListener('mouseup', onUp);
-          // If it was a stationary press, mark moved=false so dblclick still fires
-          if (!moved) moved = false;
-        };
-
-        doc.addEventListener('mousemove', onMove);
-        doc.addEventListener('mouseup', onUp);
-
-        // Expose moved flag to the dblclick guard via a property on el
-        (el as HTMLElement & { __moved?: boolean }).__moved = false;
-        const trackMove = () => { (el as HTMLElement & { __moved?: boolean }).__moved = moved; };
-        doc.addEventListener('mouseup', trackMove, { once: true });
-      });
-
-      // Swallow dblclick if the mouse actually moved during the click sequence
-      el.addEventListener('dblclick', (e: MouseEvent) => {
-        if ((el as HTMLElement & { __moved?: boolean }).__moved) {
-          e.stopImmediatePropagation();
-          (el as HTMLElement & { __moved?: boolean }).__moved = false;
-        }
-      }, true);
-    };
-
-    // Apply draggability to all current shortcut containers
-    const applyToAll = () => {
-      // Target the immediate positioned children of the shortcuts column only.
-      // Henry's structure: .shortcuts > [shortcutContainer per icon]
-      // Each shortcutContainer has style="position: absolute; top: Xpx"
-      const shortcutWrappers = doc.querySelectorAll<HTMLElement>('[style*="position: absolute"][style*="top:"]');
-      shortcutWrappers.forEach(el => {
-        // Only attach if this element is a direct icon slot:
-        // - it is position:absolute
-        // - it has a <p> child somewhere (the label)
-        // - it has NO position:absolute children (to avoid wiring the parent column)
-        const hasLabel = !!el.querySelector('p');
-        const hasAbsoluteChild = !!el.querySelector('[style*="position: absolute"]');
-        if (hasLabel && !hasAbsoluteChild && el.style.position === 'absolute') {
-          makeDraggable(el);
-        }
-      });
-    };
-
-    // Run once immediately then observe for new nodes
-    applyToAll();
-    const observer = new MutationObserver(applyToAll);
-    observer.observe(doc.body, { childList: true, subtree: true });
-
-    // ── 2. INJECT CUSTOM ICONS (Resume.txt + Internet Explorer) ──
-    const injectCustomIcon = (label: string, appKey: string, iconUrl: string) => {
-      // Don't double-inject
-      if (doc.getElementById('custom-icon-' + appKey)) return;
-
-      // Find the shortcuts column (the parent div that contains all icon containers)
-      const shortcutsCol = doc.querySelector<HTMLElement>('[style*="position: absolute"][style*="top: 16px"], [style*="position: absolute"][style*="top:16px"]');
-      if (!shortcutsCol) return;
-
-      // Count existing icons to place below them
-      const existingIcons = shortcutsCol.querySelectorAll<HTMLElement>('[style*="position: absolute"]');
-      const yOffset = 104 * existingIcons.length;
-
-      // Build a DOM structure matching Henry's shortcut structure exactly
-      const wrapper = doc.createElement('div');
-      wrapper.id = 'custom-icon-' + appKey;
-      wrapper.style.cssText = `position: absolute; top: ${yOffset}px; cursor: default;`;
-
-      const inner = doc.createElement('div');
-      inner.style.cssText = 'display: flex; flex-direction: column; align-items: center; width: 64px; padding: 4px; user-select: none;';
-
-      const img = doc.createElement('img');
-      img.src = iconUrl;
-      img.style.cssText = 'width: 32px; height: 32px; image-rendering: pixelated; margin-bottom: 4px; pointer-events: none;';
-
-      const labelDiv = doc.createElement('div');
-      labelDiv.className = 'shortcut-border';
-      labelDiv.style.cssText = 'text-align: center;';
-
-      const p = doc.createElement('p');
-      p.textContent = label;
-      p.style.cssText = 'color: white; font-size: 11px; text-align: center; margin: 0; text-shadow: 1px 1px 1px black; pointer-events: none;';
-
-      labelDiv.appendChild(p);
-      inner.appendChild(img);
-      inner.appendChild(labelDiv);
-      wrapper.appendChild(inner);
-      shortcutsCol.appendChild(wrapper);
-
-      // dblclick => postMessage to parent to open React window
-      wrapper.addEventListener('dblclick', (e: MouseEvent) => {
-        const wasDrag = (wrapper as HTMLElement & { __moved?: boolean }).__moved;
-        if (wasDrag) {
-          (wrapper as HTMLElement & { __moved?: boolean }).__moved = false;
-          return;
-        }
-        e.stopPropagation();
-        window.parent.postMessage({ type: 'OPEN_CUSTOM_APP', app: appKey }, '*');
-      });
-
-      // Reuse makeDraggable for custom icons too (closure-isolated)
-      makeDraggable(wrapper);
-    };
-
-    // Wait for the OS to finish rendering its icons (~2s) then inject
-    setTimeout(() => {
-      injectCustomIcon('Resume.txt', 'resume', '/icons/retro_notepad.png');
-      injectCustomIcon('Internet', 'ie', '/icons/retro_ie.png');
-      applyToAll();
-    }, 2500);
-  };
 
   useEffect(() => {
     if (props.bootPhase === 'video' && !props.isShuttingDown && startupVideoRef.current) {
@@ -438,42 +266,11 @@ export function Commodore64(props: React.JSX.IntrinsicElements['group'] & {
                         />
 
                         {props.bootPhase === 'os' && !props.isShuttingDown && (
-                          <>
-                            <iframe 
-                              ref={iframeRef}
-                              src="/monitor-os/index.html" 
-                              className="w-full h-full border-0 pointer-events-auto relative z-0"
-                              title="Desktop OS"
-                              onLoad={injectIntoIframe}
-                            />
-                            
-                            {/* Desktop Overlay: ONLY for React app windows, NOT icons */}
-                            <div 
-                              ref={desktopRef}
-                              className="absolute inset-0 z-40 pointer-events-none"
-                            >
-                              <AnimatePresence>
-                                {isNotepadOpen && (
-                                  <NotepadApp 
-                                    key="notepad"
-                                    onClose={() => setIsNotepadOpen(false)} 
-                                    constraintsRef={desktopRef}
-                                    zIndex={activeWindow === 'notepad' ? 51 : 50}
-                                    onFocus={() => setActiveWindow('notepad')}
-                                  />
-                                )}
-                                {isIeOpen && (
-                                  <IeApp 
-                                    key="ie"
-                                    onClose={() => setIsIeOpen(false)} 
-                                    constraintsRef={desktopRef}
-                                    zIndex={activeWindow === 'ie' ? 51 : 50}
-                                    onFocus={() => setActiveWindow('ie')}
-                                  />
-                                )}
-                              </AnimatePresence>
-                            </div>
-                          </>
+                          <iframe 
+                            src="/monitor-os/index.html" 
+                            className="w-full h-full border-0 pointer-events-auto"
+                            title="Desktop OS"
+                          />
                         )}
 
                         {/* Always mount shutdown video so it preloads fully and plays instantly */}

@@ -1,209 +1,88 @@
-<div align="center">
+# LozPortfolio
 
-# 🖥️ John Lyold Lozada — Interactive Portfolio OS
+An interactive developer portfolio built on Next.js 15, featuring a navigable Windows 95 environment rendered inside a Three.js 3D scene. The desktop OS runs as a pre-compiled React application served via an iframe, overlaid onto a WebGL canvas using `@react-three/drei`'s `<Html>` portal.
 
-### *A premium developer portfolio disguised as a Windows 95 computer*
-
-[![Next.js](https://img.shields.io/badge/Next.js_15-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org/)
-[![Three.js](https://img.shields.io/badge/Three.js-black?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
-
-<br/>
-
-> **Boot a real Windows 95 OS. Browse a portfolio inside it. Play Lozordle. Open Internet Explorer.**  
-> *All inside a 3D Commodore 64 CRT monitor rendered in WebGL.*
-
-<br/>
+**Live:** [adjureee.github.io/LozPortfolio](https://adjureee.github.io/LozPortfolio)
 
 ---
 
-</div>
+## Interactions
 
-## ✨ What Makes This Different
+> Replace these placeholders with your recorded GIFs.
 
-This isn't a portfolio with a Windows 95 *theme* — it's a fully operational Win95 environment embedded inside an interactive 3D scene. Visitors literally power on the computer, watch a boot sequence video, and then use a mouse to interact with a real desktop OS — complete with a Start menu, taskbar, working apps, and a system clock.
+**Matter.js Physics — Draggable ID Badge**
+![Physics Badge Interaction](/public/demos/badge-physics.gif)
+
+**Three.js — Camera Fly-to on Hover**
+![Camera Hover Zoom](/public/demos/camera-hover.gif)
+
+**Boot & Shutdown Sequences**
+![OS Boot and Shutdown](/public/demos/boot-shutdown.gif)
+
+---
+
+## System Architecture
+
+The application is structured as three distinct rendering layers operating in parallel. The base layer is a `@react-three/fiber` canvas that renders the 3D Commodore 64 scene and drives a camera state machine (`ZOOMED_OUT → AT_SCREEN → BOOTING`) via `camera-controls`. Mounted inside that canvas via a Drei `<Html>` portal is an `<iframe>` that serves the Windows 95 OS — a separately compiled Create React App bundle located at `public/monitor-os/`. Cross-boundary communication between the iframe and the Next.js parent is handled entirely through `window.postMessage`, which triggers events such as shutdown dialogs, OS mute toggles, and tactile SFX. On top of both sits the standard Next.js React tree, which handles scroll-driven animations (GSAP + Lenis), the physics badge (Matter.js), and the Supabase-backed CMS dashboard.
 
 ```
-🖥️  3D Commodore 64 scene (WebGL / Three.js)
- └── 📺  CRT monitor (real startup & shutdown .mp4 sequences)
-      └── 🪟  Windows 95 OS (fully interactive iframe)
-           ├── 📁  My Showcase  — live project gallery
-           ├── 🎮  Lozordle     — custom Wordle clone ("LYOLD" twist)
-           ├── 🌐  Internet Explorer — iframe browsing
-           ├── 🕹️  DOOM / Scrabble / Oregon Trail (DOS emulated)
-           └── 🔊  Three-tier audio architecture
+Next.js App (React tree)
+├── Lenis smooth scroll
+├── GSAP ScrollTrigger animations
+├── Matter.js physics canvas (ID badge)
+├── SoundProvider context (3-tier audio)
+│   ├── Tier 1 — Tactile SFX (mechanical clicks, always on)
+│   ├── Tier 2 — OS Media (boot/shutdown video audio)
+│   └── Tier 3 — Global BGM (background music)
+└── Three.js Canvas (@react-three/fiber)
+    ├── CameraControls — state machine (ZOOMED_OUT / AT_SCREEN / BOOTING)
+    ├── Commodore64 — GLTF model + HTML video overlays (startup.mp4 / shutdown.mp4)
+    └── <Html> portal — iframe → public/monitor-os/
+        ├── My Showcase
+        ├── Lozordle (custom Wordle clone)
+        ├── Internet Explorer (iframe browser)
+        └── DOS emulation — DOOM, Scrabble, Oregon Trail (js-dos)
 ```
 
 ---
 
-## 🎬 Experience Layers
+## Stack
 
-| Layer | What Happens |
-|-------|-------------|
-| **Landing** | Physics-driven ID badge you can drag & yank |
-| **Boot** | Click to power on → real startup video plays |
-| **OS Mode** | Hover monitor to zoom in → full Win95 desktop loads |
-| **Shutdown** | Click Start → Shut Down → shutdown video sequence |
-| **Portfolio** | Scroll past the OS for projects, skills, experience |
+**Core**
+- Next.js 15 (App Router)
+- React 19
+- TypeScript
 
----
+**3D / Animation**
+- Three.js, React Three Fiber, React Three Drei
+- camera-controls
+- Framer Motion
+- GSAP + ScrollTrigger
+- Lenis
+- Matter.js
 
-## 🛠️ Tech Stack
+**Backend / CMS**
+- Supabase (Postgres, Auth, Row Level Security)
+- Cloudinary (media uploads)
 
-<table>
-<tr>
-<td valign="top" width="50%">
-
-**Frontend**
-- ⚡ Next.js 15 (App Router)
-- ⚛️ React 19
-- 🎨 Framer Motion — page & component animations
-- 🖱️ Lenis — buttery smooth scrolling
-- 💥 GSAP + ScrollTrigger — scroll-driven animations
-- 📦 Embla Carousel — glide-scroll project cards
-
-</td>
-<td valign="top" width="50%">
-
-**3D & Physics**
-- 🌐 Three.js + React Three Fiber
-- 📷 Camera Controls (Drei) — smooth camera fly-to
-- ⚙️ Matter.js — physics-based ID badge interaction
-- 🎭 React Three Drei — HTML overlays in 3D space
-
-</td>
-</tr>
-<tr>
-<td valign="top">
-
-**Backend & CMS**
-- 🗄️ Supabase — projects, experiences, achievements
-- ☁️ Cloudinary — media uploads
-- 🔐 Hidden admin dashboard (`/dashboard`)
-- 🔒 Supabase Auth — server-side session management
-
-</td>
-<td valign="top">
-
-**Audio Architecture (3 Tiers)**
-- 🖱️ **Tier 1 – Tactile SFX**: mechanical click sounds, always on
-- 🖥️ **Tier 2 – OS Media**: boot/shutdown video audio, toggleable
-- 🎵 **Tier 3 – Global BGM**: background music, user-controlled
-
-</td>
-</tr>
-</table>
+**UI**
+- Tailwind CSS
+- Embla Carousel
+- Lucide React
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+
-- A [Supabase](https://supabase.com) project
-- A [Cloudinary](https://cloudinary.com) account
-
-### Installation
+## Local Development
 
 ```bash
-# Clone the repository
 git clone https://github.com/Adjureee/LozPortfolio.git
 cd LozPortfolio
-
-# Install dependencies
 npm install
-
-# Set up environment variables
-cp .env.example .env.local
-# → Fill in your Supabase and Cloudinary credentials
-
-# Run locally
+cp .env.example .env.local   # fill in credentials
 npm run dev
 ```
 
-### Database Setup
-
-Run the SQL schema in your Supabase SQL editor:
-
-```bash
-# Tables needed:
-# - projects
-# - experiences
-# - achievements
-# - admin_profiles
-# - messages
-# - visitors
-```
-
-Add one row to `admin_profiles` for the Supabase Auth user that should access `/dashboard`.
-
----
-
-## 🔐 Secret Admin Access
-
-The admin panel is completely hidden from the UI. Two ways to access it:
-
-| Method | Action |
-|--------|--------|
-| **Keyboard** | Press `L` → `O` → `Z` quickly on the homepage |
-| **Click** | Click the invisible 44×44px hotspot in the **bottom-right corner** 5 times |
-
-Both routes open `/admin-login` → Supabase Auth → `/dashboard`
-
----
-
-## 🎮 Windows 95 Apps
-
-The OS desktop contains working applications:
-
-| App | Description |
-|-----|-------------|
-| **My Showcase** | Auto-opens on boot. Live portfolio with projects & info |
-| **Lozordle** | Custom Wordle with a "LYOLD" twist. Find the daily word! |
-| **Internet Explorer** | Iframe browser — loads the live portfolio site |
-| **DOOM** | Fully playable classic DOOM via js-dos emulation |
-| **Scrabble** | Classic board game, DOS emulated |
-| **Oregon Trail** | The iconic educational game, DOS emulated |
-
----
-
-## 🏗️ Project Structure
-
-```
-LozPortfolio/
-├── src/
-│   ├── app/                    # Next.js App Router pages
-│   │   ├── page.tsx            # Homepage
-│   │   ├── dashboard/          # Hidden admin CMS
-│   │   └── api/                # API routes (upload, etc.)
-│   ├── components/
-│   │   ├── public/
-│   │   │   ├── crt-os-scene.tsx    # Camera state machine + hover-zoom toggle
-│   │   │   ├── commodore-64.tsx    # 3D model + video boot sequences
-│   │   │   ├── hero-section.tsx    # Main orchestrator (boot/shutdown logic)
-│   │   │   └── ...
-│   │   └── providers/
-│   │       └── sound-provider.tsx  # 3-tier audio context
-│   └── lib/                    # Supabase client, utilities
-├── public/
-│   ├── monitor-os/             # Compiled Windows 95 React app (iframe)
-│   │   └── static/js/          # Patched webpack bundle (custom apps/icons)
-│   └── video/                  # startup.mp4 & shutdown.mp4
-└── supabase/                   # SQL schema files
-```
-
----
-
-## 🌍 Deployment
-
-The project is Vercel-ready out of the box.
-
-1. Push to GitHub
-2. Import to [Vercel](https://vercel.com)
-3. Add environment variables in **Project Settings → Environment Variables**:
+### Environment Variables
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
@@ -214,29 +93,44 @@ CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 ```
 
----
+### Database
 
-## 🧩 Features Checklist
-
-- [x] Interactive 3D scene with WebGL CRT monitor
-- [x] Real startup & shutdown video sequences with audio
-- [x] Full Windows 95 OS experience inside an iframe
-- [x] Hover-to-zoom camera with toggle button
-- [x] Three-tier audio architecture (Tactile / OS / Global)
-- [x] Custom Lozordle game with personalized word bank
-- [x] Internet Explorer app with portfolio iframe
-- [x] Supabase-backed CMS with hidden admin dashboard
-- [x] Physics-driven draggable ID badge
-- [x] Smooth scroll (Lenis) + scroll animations (GSAP)
-- [x] Cloudinary media upload pipeline
-- [x] Responsive design
+Execute the SQL files in `supabase/` against your Supabase project. Then insert one row into `admin_profiles` for the Auth user that should have dashboard access.
 
 ---
 
-<div align="center">
+## Deployment
 
-**Built with ❤️ by [John Lyold Lozada](https://github.com/Adjureee)**
+The project targets Vercel. Set the same environment variables under **Project Settings → Environment Variables** before deploying.
 
-*"Every interaction should feel like it has weight."*
+---
 
-</div>
+## Windows 95 OS — Modification Notes
+
+The OS bundle at `public/monitor-os/static/js/main.fe030160.js` is a minified webpack build that has been patched directly (no source available). All custom apps (Lozordle, Internet Explorer) and their icons are injected by:
+
+1. Adding a new module entry to the webpack module map with a base64-encoded PNG.
+2. Registering the module ID in the webpack require context path map (`"./appIcon.png": MODULE_ID`).
+3. Adding the icon key to the `Ge` icon registry object.
+4. Appending an app entry to the `gu` application registry, which the desktop renderer iterates to build shortcuts.
+
+Cross-window communication from the OS to the parent Next.js app uses `window.parent.postMessage(...)`. The parent listens for `TOGGLE_OS_MUTE`, `TRIGGER_SHUTDOWN_DIALOG`, `CLOSE_OS`, `mousedown`, and `mouseup` events.
+
+---
+
+<details>
+<summary>Admin Access</summary>
+
+The admin dashboard at `/dashboard` is not linked anywhere in the UI.
+
+**Option A — Keyboard:** Press `L`, `O`, `Z` in sequence on the homepage.
+
+**Option B — Click:** Click the invisible 44×44px element anchored to the bottom-right corner of the page exactly 5 times.
+
+Both routes redirect to `/admin-login`, which uses Supabase Auth. The session is validated server-side via the `@supabase/ssr` cookie adapter.
+
+</details>
+
+---
+
+**John Lyold Lozada** — [github.com/Adjureee](https://github.com/Adjureee)

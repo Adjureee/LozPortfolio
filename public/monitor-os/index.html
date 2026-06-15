@@ -196,6 +196,19 @@
             border: none !important;
         }
 
+        /* FIX: Make white backgrounds in icon PNGs disappear on the teal desktop.
+           mix-blend-mode:multiply treats white as transparent. */
+        .desktop-shortcut-icon + img[style*="image-rendering"],
+        .desktop-shortcut-icon ~ img[style*="image-rendering"],
+        [style*="cursor: pointer"][style*="padding-bottom"] {
+            mix-blend-mode: multiply !important;
+        }
+        /* Also target the icon container div that wraps the img */
+        [style*="cursor: pointer"][style*="padding-bottom"] img {
+            mix-blend-mode: multiply !important;
+            background: transparent !important;
+        }
+
         /* FIX: Ensure shortcut label wrappers don't add a background */
         [style*="position: absolute"][style*="top: 16px"],
         [style*="position: absolute"][style*="top: 16"] {

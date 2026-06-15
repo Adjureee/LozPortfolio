@@ -57,9 +57,10 @@ export function CRTOsScene({
     } else if (bootPhase === 'post' || bootPhase === 'video') {
       setCameraState('BOOTING');
     } else if (bootPhase === 'os') {
-      setCameraState(isHoveringMonitor ? 'AT_SCREEN' : 'ZOOMED_OUT');
+      // Only auto-zoom if hover-zoom is enabled
+      setCameraState((isHoverZoomEnabled && isHoveringMonitor) ? 'AT_SCREEN' : 'ZOOMED_OUT');
     }
-  }, [bootPhase, isHoveringMonitor]);
+  }, [bootPhase, isHoveringMonitor, isHoverZoomEnabled]);
 
   // Handle Hover-to-Zoom Transitions
   useEffect(() => {

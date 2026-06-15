@@ -119,15 +119,35 @@
                     }
                 };
 
+                // FIX: Remove white border on IE icon (and any other icon with baked-in white bg)
+                const fixIconTransparency = () => {
+                    // Find all desktop shortcut icon images (they have image-rendering: pixelated)
+                    const imgs = document.querySelectorAll('img[style*="image-rendering"]');
+                    imgs.forEach(img => {
+                        // Only target desktop shortcut icons (32x32ish), not taskbar icons
+                        if (img.naturalWidth <= 48 && img.naturalHeight <= 48) {
+                            img.style.mixBlendMode = 'multiply';
+                        }
+                        // Also fix the parent container
+                        const parent = img.parentElement;
+                        if (parent && parent.style.cursor === 'pointer') {
+                            parent.style.background = 'transparent';
+                            parent.style.backgroundColor = 'transparent';
+                            parent.style.mixBlendMode = 'multiply';
+                        }
+                    });
+                };
+
                 // Use MutationObserver so we catch the moment React mounts the desktop
                 const iconObserver = new MutationObserver(() => {
                     fixIconLayout();
+                    fixIconTransparency();
                 });
                 iconObserver.observe(document.body, { childList: true, subtree: true });
                 // Also try immediately and after short delays for safety
-                setTimeout(fixIconLayout, 500);
-                setTimeout(fixIconLayout, 1500);
-                setTimeout(fixIconLayout, 3000);
+                setTimeout(() => { fixIconLayout(); fixIconTransparency(); }, 500);
+                setTimeout(() => { fixIconLayout(); fixIconTransparency(); }, 1500);
+                setTimeout(() => { fixIconLayout(); fixIconTransparency(); }, 3000);
             };
         </script>
     <script src="/monitor-os/js-dos/js-dos.js"></script>

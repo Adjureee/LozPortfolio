@@ -100,6 +100,34 @@
                     e.stopPropagation();
                     window.parent.postMessage({ type: 'TOGGLE_OS_MUTE' }, '*');
                 });
+
+                // FIX: Icon grid column-wrap — runs once after React renders the desktop shortcuts
+                const fixIconLayout = () => {
+                    // The shortcuts container sits at position absolute top:16px left:6px
+                    const all = document.querySelectorAll('[style]');
+                    for (const el of all) {
+                        const s = el.style;
+                        if (s.position === 'absolute' && s.top === '16px' && s.left === '6px') {
+                            s.display = 'flex';
+                            s.flexDirection = 'column';
+                            s.flexWrap = 'wrap';
+                            s.maxHeight = 'calc(100vh - 56px)';
+                            s.alignContent = 'flex-start';
+                            s.gap = '4px';
+                            break;
+                        }
+                    }
+                };
+
+                // Use MutationObserver so we catch the moment React mounts the desktop
+                const iconObserver = new MutationObserver(() => {
+                    fixIconLayout();
+                });
+                iconObserver.observe(document.body, { childList: true, subtree: true });
+                // Also try immediately and after short delays for safety
+                setTimeout(fixIconLayout, 500);
+                setTimeout(fixIconLayout, 1500);
+                setTimeout(fixIconLayout, 3000);
             };
         </script>
     <script src="/monitor-os/js-dos/js-dos.js"></script>
@@ -158,6 +186,21 @@
         /* If surface is used for windows, force them to be gray */
         .window, .window-container, [style*="background-color: silver"] {
             background-color: #c0c0c0 !important;
+        }
+
+        /* FIX: Remove white/gray box behind desktop shortcut icons */
+        img[style*="image-rendering"] {
+            background: transparent !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        /* FIX: Ensure shortcut label wrappers don't add a background */
+        [style*="position: absolute"][style*="top: 16px"],
+        [style*="position: absolute"][style*="top: 16"] {
+            flex-wrap: wrap !important;
+            align-content: flex-start !important;
         }
     </style>
 </head>

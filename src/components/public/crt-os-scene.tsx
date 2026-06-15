@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Commodore64 } from './commodore-64';
 import { useSound } from '@/components/providers/sound-provider';
-import { Volume2, VolumeX, ArrowLeft } from 'lucide-react';
+import { Volume2, VolumeX, ArrowLeft, ZoomIn, ZoomOut } from 'lucide-react';
 
 export type CameraState = 'BOOTING' | 'AT_SCREEN' | 'ZOOMED_OUT';
 
@@ -47,6 +47,9 @@ export function CRTOsScene({
   const [isHoveringHTML, setIsHoveringHTML] = useState(false);
   const isHoveringMonitor = isHovering3D || isHoveringHTML;
 
+  // Hover-Zoom Toggle
+  const [isHoverZoomEnabled, setIsHoverZoomEnabled] = useState(true);
+
   // Handle Boot Sequence Completion
   useEffect(() => {
     if (bootPhase === 'off') {
@@ -61,13 +64,14 @@ export function CRTOsScene({
   // Handle Hover-to-Zoom Transitions
   useEffect(() => {
     if (bootPhase !== 'os') return; // Lock camera while booting
+    if (!isHoverZoomEnabled) return; // Zoom is disabled by user
     
     if (cameraState === 'ZOOMED_OUT' && isHoveringMonitor) {
       setCameraState('AT_SCREEN');
     } else if (cameraState === 'AT_SCREEN' && !isHoveringMonitor) {
       setCameraState('ZOOMED_OUT');
     }
-  }, [isHoveringMonitor, cameraState, bootPhase]);
+  }, [isHoveringMonitor, cameraState, bootPhase, isHoverZoomEnabled]);
 
   // Execute Camera Transition Animations
   useEffect(() => {
@@ -125,7 +129,7 @@ export function CRTOsScene({
             onMonitorDown3D={playMouseDown}
             onMonitorUp3D={playMouseUp}
             onMonitorEnter3D={() => {
-              if (cameraState === 'ZOOMED_OUT') setCameraState('AT_SCREEN');
+              if (isHoverZoomEnabled && cameraState === 'ZOOMED_OUT') setCameraState('AT_SCREEN');
               setIsHovering3D(true);
             }}
             onMonitorLeave3D={() => {
@@ -143,12 +147,27 @@ export function CRTOsScene({
         />
       </Canvas>
 
-      <ZoomedOutOverlay isVisible={cameraState === 'ZOOMED_OUT'} onExit={onExitDesktop} />
+      <ZoomedOutOverlay 
+        isVisible={cameraState === 'ZOOMED_OUT'} 
+        onExit={onExitDesktop}
+        isHoverZoomEnabled={isHoverZoomEnabled}
+        onToggleHoverZoom={() => setIsHoverZoomEnabled(prev => !prev)}
+      />
     </div>
   );
 }
 
-function ZoomedOutOverlay({ isVisible, onExit }: { isVisible: boolean; onExit?: () => void }) {
+function ZoomedOutOverlay({ 
+  isVisible, 
+  onExit,
+  isHoverZoomEnabled,
+  onToggleHoverZoom
+}: { 
+  isVisible: boolean; 
+  onExit?: () => void;
+  isHoverZoomEnabled: boolean;
+  onToggleHoverZoom: () => void;
+}) {
   const [time, setTime] = useState(new Date());
   const { isMuted, toggleMute, unlockAndUnmute } = useSound();
 
@@ -203,6 +222,28 @@ function ZoomedOutOverlay({ isVisible, onExit }: { isVisible: boolean; onExit?: 
             >
               <ArrowLeft className="w-4 h-4" />
               BACK TO PORTFOLIO
+            </button>
+
+            <button 
+              onClick={onToggleHoverZoom}
+              title={isHoverZoomEnabled ? 'Disable Zoom on Hover' : 'Enable Zoom on Hover'}
+              className={`flex items-center gap-3 px-4 py-2 backdrop-blur-md border rounded-full text-sm font-mono tracking-widest active:scale-95 transition-all duration-75 ${
+                isHoverZoomEnabled 
+                  ? 'bg-white/10 hover:bg-white/20 border-white/20 text-white' 
+                  : 'bg-black/40 hover:bg-black/60 border-white/10 text-white/50'
+              }`}
+            >
+              {isHoverZoomEnabled ? (
+                <>
+                  <ZoomIn className="w-4 h-4" />
+                  <span>ZOOM ON</span>
+                </>
+              ) : (
+                <>
+                  <ZoomOut className="w-4 h-4" />
+                  <span>ZOOM OFF</span>
+                </>
+              )}
             </button>
           </div>
         </motion.div>
